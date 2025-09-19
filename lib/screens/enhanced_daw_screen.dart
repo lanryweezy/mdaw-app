@@ -5,11 +5,12 @@ import 'package:studio_wiz/widgets/timeline_editor.dart';
 import 'package:studio_wiz/widgets/advanced_controls_panel.dart';
 import 'package:studio_wiz/services/audio_processing_service.dart';
 import 'package:studio_wiz/widgets/processing_indicator.dart';
-import 'package:studio_wiz/widgets/enhanced_daw_ui.dart';
 import 'package:studio_wiz/widgets/collapsible_track_widget.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:provider/provider.dart';
 import 'dart:math' as math;
+import 'package:studio_wiz/widgets/tempo_controls.dart';
+import 'package:studio_wiz/widgets/ai_tool_button.dart';
 
 class EnhancedDawScreen extends StatefulWidget {
   const EnhancedDawScreen({super.key});
@@ -31,15 +32,32 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _timelineViewModel = TimelineViewModel(Provider.of<DawViewModel>(context, listen: false));
+    final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
+    _timelineViewModel = TimelineViewModel(dawViewModel);
+    dawViewModel.addListener(_handleDawViewModelChanges);
   }
 
   @override
   void dispose() {
+    Provider.of<DawViewModel>(context, listen: false).removeListener(_handleDawViewModelChanges);
     _tabController.dispose();
     _timelineViewModel.dispose();
     super.dispose();
   }
+
+  void _handleDawViewModelChanges() {
+    final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
+    if (dawViewModel.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(dawViewModel.errorMessage!),
+          backgroundColor: Colors.red,
+        ),
+      );
+      dawViewModel.clearErrorMessage();
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -240,230 +258,16 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   
 
   Widget _buildTimelineTab() {
-    return Column(
+    return const Column(
       children: [
         // Tempo and time signature controls
-        _buildTempoControls(),
-        const Divider(height: 1),
+        TempoControls(),
+        Divider(height: 1),
         // Timeline editor
-        const Expanded(child: TimelineEditor()),
+        Expanded(child: TimelineEditor()),
       ],
     );
   }
-
-  Widget _buildTempoControls() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min, // Added to shrink-wrap vertically
-        children: [
-          // Main tempo and time signature row - Fixed layout
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisSize: MainAxisSize.min, // Added to shrink-wrap horizontally
-              children: [
-              // BPM control
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('BPM', style: TextStyle(fontWeight: FontWeight.bold)),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove, size: 18),
-                        onPressed: () {
-                          final currentBpm = _timelineViewModel.bpm;
-                          _timelineViewModel.setBpm(currentBpm - 1);
-                        },
-                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                        padding: EdgeInsets.zero,
-                      ),
-                      Consumer<TimelineViewModel>(
-                        builder: (context, timelineVM, child) {
-                          return Container(
-                            width: 50,
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: Colors.grey[600]!),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              '${timelineVM.bpm}',
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
-                            ),
-                          );
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.add, size: 18),
-                        onPressed: () {
-                          final currentBpm = _timelineViewModel.bpm;
-                          _timelineViewModel.setBpm(currentBpm + 1);
-                        },
-                        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                        padding: EdgeInsets.zero,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-              // Time signature control
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Time Signature', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-                  Consumer<TimelineViewModel>(
-                    builder: (context, timelineVM, child) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DropdownButton<int>(
-                            value: timelineVM.timeSignatureNumerator,
-                            items: [4, 3, 2].map((num) {
-                              return DropdownMenuItem(
-                                value: num,
-                                child: Text('$num', style: const TextStyle(fontSize: 12)),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                timelineVM.setTimeSignature(value, timelineVM.timeSignatureDenominator);
-                              }
-                            },
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                          const Text('/', style: TextStyle(fontSize: 12)),
-                          DropdownButton<int>(
-                            value: timelineVM.timeSignatureDenominator,
-                            items: [4, 8].map((den) {
-                              return DropdownMenuItem(
-                                value: den,
-                                child: Text('$den', style: const TextStyle(fontSize: 12)),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                timelineVM.setTimeSignature(timelineVM.timeSignatureNumerator, value);
-                              }
-                            },
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-              const SizedBox(width: 16),
-              // Snap to grid toggle
-              Consumer<TimelineViewModel>(
-                builder: (context, timelineVM, child) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text('Snap', style: TextStyle(fontSize: 12)),
-                      Switch(
-                        value: timelineVM.snapToGrid,
-                        onChanged: (value) => timelineVM.toggleSnapToGrid(),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-          ),
-      // Professional editing controls - Icon only for better UI
-      Spacer(), // Replaced SizedBox with Spacer
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildIconButton(
-            icon: Icons.zoom_in,
-            tooltip: 'Zoom In',
-            onPressed: () {
-              // Zoom in timeline
-              final timelineVM = Provider.of<TimelineViewModel>(context, listen: false);
-              timelineVM.zoomIn();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Zoomed in')),
-              );
-            },
-          ),
-          _buildIconButton(
-            icon: Icons.zoom_out,
-            tooltip: 'Zoom Out',
-            onPressed: () {
-              // Zoom out timeline
-              final timelineVM = Provider.of<TimelineViewModel>(context, listen: false);
-              timelineVM.zoomOut();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Zoomed out')),
-              );
-            },
-          ),
-          _buildIconButton(
-            icon: Icons.center_focus_strong,
-            tooltip: 'Fit to Screen',
-            onPressed: () {
-              // Fit timeline to screen
-              final timelineVM = Provider.of<TimelineViewModel>(context, listen: false);
-              timelineVM.fitToScreen();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Fit to screen')),
-              );
-            },
-          ),
-          _buildIconButton(
-            icon: Icons.content_copy,
-            tooltip: 'Duplicate',
-            onPressed: () {
-              // Duplicate selected clip
-              final timelineVM = Provider.of<TimelineViewModel>(context, listen: false);
-              timelineVM.duplicateSelectedClip();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Duplicated selected clip')),
-              );
-            },
-          ),
-        ],
-      ),
-    ],
-  ),
-);
-}
-
-Widget _buildIconButton({
-  required IconData icon,
-  required String tooltip,
-  required VoidCallback onPressed,
-}) {
-  return Tooltip(
-    message: tooltip,
-    child: IconButton(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 20),
-      style: IconButton.styleFrom(
-        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
-        foregroundColor: Theme.of(context).colorScheme.primary,
-        padding: const EdgeInsets.all(8),
-        minimumSize: const Size(40, 40),
-        maximumSize: const Size(40, 40),
-      ),
-    ),
-  );
-}
 
   Widget _buildMixTab() {
     return const AdvancedControlsPanel();
@@ -641,54 +445,53 @@ Widget _buildIconButton({
               ),
             ),
             const SizedBox(height: 16),
-            _buildAdvancedAITool(
-              'Vocal Doubling',
-              'Create artificial vocal doubles for a thicker sound',
-              Icons.people,
-              () => _applyVocalDoubling(),
+            AIToolButton(
+              title: 'Vocal Doubling',
+              description: 'Create artificial vocal doubles for a thicker sound',
+              icon: Icons.people,
+              onPressed: () => _applyVocalDoubling(),
             ),
             const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'Harmonizer',
-              'Generate vocal harmonies automatically',
-              Icons.music_note,
-              () => _applyHarmonizer(),
+            AIToolButton(
+              title: 'Harmonizer',
+              description: 'Generate vocal harmonies automatically',
+              icon: Icons.music_note,
+              onPressed: () => _applyHarmonizer(),
             ),
             const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'De-Reverb',
-              'Remove unwanted room reverb from vocals',
-              Icons.cleaning_services,
-              () => _applyDeReverb(),
-            ),
-
-            const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'Rap Processing',
-              'Specialized processing for rap vocals',
-              Icons.mic,
-              () => _applyRapProcessing(),
+            AIToolButton(
+              title: 'De-Reverb',
+              description: 'Remove unwanted room reverb from vocals',
+              icon: Icons.cleaning_services,
+              onPressed: () => _applyDeReverb(),
             ),
             const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'Trap Processing',
-              'Aggressive processing for trap vocals',
-              Icons.volume_up,
-              () => _applyTrapProcessing(),
+            AIToolButton(
+              title: 'Rap Processing',
+              description: 'Specialized processing for rap vocals',
+              icon: Icons.mic,
+              onPressed: () => _applyRapProcessing(),
             ),
             const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'Afrobeat Processing',
-              'Warm processing for afrobeat vocals',
-              Icons.music_note,
-              () => _applyAfrobeatProcessing(),
+            AIToolButton(
+              title: 'Trap Processing',
+              description: 'Aggressive processing for trap vocals',
+              icon: Icons.volume_up,
+              onPressed: () => _applyTrapProcessing(),
             ),
             const SizedBox(height: 12),
-            _buildAdvancedAITool(
-              'Drill Processing',
-              'Extreme processing for drill vocals',
-              Icons.flash_on,
-              () => _applyDrillProcessing(),
+            AIToolButton(
+              title: 'Afrobeat Processing',
+              description: 'Warm processing for afrobeat vocals',
+              icon: Icons.music_note,
+              onPressed: () => _applyAfrobeatProcessing(),
+            ),
+            const SizedBox(height: 12),
+            AIToolButton(
+              title: 'Drill Processing',
+              description: 'Extreme processing for drill vocals',
+              icon: Icons.flash_on,
+              onPressed: () => _applyDrillProcessing(),
             ),
           ],
         ),
@@ -696,28 +499,24 @@ Widget _buildIconButton({
     );
   }
 
-  Widget _buildAdvancedAITool(String title, String description, IconData icon, VoidCallback onPressed) {
-    return Consumer<DawViewModel>(
-      builder: (context, viewModel, child) {
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            child: Icon(icon, color: Colors.white),
-          ),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-          subtitle: Text(description),
-          trailing: ElevatedButton(
-            onPressed: viewModel.isProcessing ? null : onPressed,
-            child: viewModel.isProcessing 
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Apply'),
-          ),
-        );
-      },
+  Widget _buildIconButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onPressed,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: IconButton(
+        onPressed: onPressed,
+        icon: Icon(icon, size: 20),
+        style: IconButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
+          foregroundColor: Theme.of(context).colorScheme.primary,
+          padding: const EdgeInsets.all(8),
+          minimumSize: const Size(40, 40),
+          maximumSize: const Size(40, 40),
+        ),
+      ),
     );
   }
 
@@ -911,13 +710,11 @@ Widget _buildIconButton({
 
   Future<void> _applyVocalMixing() async {
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
-    final audioService = AudioProcessingService();
-    
     final vocalPaths = dawVM.vocalTracks
         .where((track) => track.hasAudio)
         .expand((track) => track.clips.map((clip) => clip.path))
         .toList();
-    
+
     if (vocalPaths.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -926,20 +723,10 @@ Widget _buildIconButton({
       }
       return;
     }
-    
-    final mixedPath = await audioService.applyVocalEffects(vocalPaths, preset: _selectedVocalPreset);
-    
+
+    final mixedPath = await dawVM.applyVocalMixing(vocalPaths, _selectedVocalPreset);
+
     if (mixedPath != null) {
-      // Add to mixed vocal track
-      await dawVM.importAudioFromPath(
-        dawVM.mixedVocalTrack ?? (dawVM.mixedVocalTrack = Track(
-          id: 'mixed_vocals', 
-          name: 'Mixed Vocals',
-          type: TrackType.mixed,
-        )),
-        mixedPath,
-      );
-      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Vocal mixing applied with ${_getPresetDisplayName(_selectedVocalPreset)} preset!')),
@@ -950,12 +737,11 @@ Widget _buildIconButton({
 
   Future<void> _applyMastering() async {
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
-    await dawVM.aiMasterSong();
-    
+    await dawVM.applyMastering(_selectedMasteringPreset);
+
     if (mounted) {
-      ProcessingSnackbar.show(
-        context,
-        'Mastering applied successfully!',
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Mastering applied successfully!')),
       );
     }
   }
@@ -993,5 +779,16 @@ Widget _buildIconButton({
   Future<void> _applyDrillProcessing() async {
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
     await dawVM.applyDrillProcessing();
+  }
+}
+
+class ProcessingSnackbar {
+  static void show(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ),
+    );
   }
 }
