@@ -75,6 +75,14 @@ class DawViewModel extends ChangeNotifier {
   String? get currentOperation => _currentOperation;
   double? get processingProgress => _processingProgress;
 
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  void clearErrorMessage() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   DawViewModel() {
     _init();
   }
@@ -546,7 +554,8 @@ void toggleSolo(Track track) {
         notifyListeners();
       }
     } catch (e) {
-      print('Error mixing vocals: $e');
+      _errorMessage = 'Error mixing vocals: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -615,7 +624,8 @@ void toggleSolo(Track track) {
         notifyListeners();
       }
     } catch (e) {
-      print('Error mastering song: $e');
+      _errorMessage = 'Error mastering song: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -657,7 +667,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(doubledTrack, doubledPath);
       }
     } catch (e) {
-      print('Error applying vocal doubling: $e');
+      _errorMessage = 'Error applying vocal doubling: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -700,7 +711,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(harmonizedTrack, harmonizedPath);
       }
     } catch (e) {
-      print('Error creating harmonies: $e');
+      _errorMessage = 'Error creating harmonies: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -742,7 +754,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(dereverbedTrack, dereverbedPath);
       }
     } catch (e) {
-      print('Error removing reverb: $e');
+      _errorMessage = 'Error removing reverb: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -784,7 +797,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(rapTrack, rapPath);
       }
     } catch (e) {
-      print('Error applying rap processing: $e');
+      _errorMessage = 'Error applying rap processing: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -826,7 +840,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(drillTrack, drillPath);
       }
     } catch (e) {
-      print('Error applying trap processing: $e');
+      _errorMessage = 'Error applying trap processing: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -868,7 +883,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(rapTrack, rapPath);
       }
     } catch (e) {
-      print('Error applying afrobeat processing: $e');
+      _errorMessage = 'Error applying afrobeat processing: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -910,7 +926,8 @@ void toggleSolo(Track track) {
         await importAudioFromPath(drillTrack, drillPath);
       }
     } catch (e) {
-      print('Error applying drill processing: $e');
+      _errorMessage = 'Error applying drill processing: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
