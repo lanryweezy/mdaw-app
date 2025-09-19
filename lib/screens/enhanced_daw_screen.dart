@@ -5,6 +5,7 @@ import 'package:studio_wiz/widgets/timeline_editor.dart';
 import 'package:studio_wiz/widgets/advanced_controls_panel.dart';
 import 'package:studio_wiz/services/audio_processing_service.dart';
 import 'package:studio_wiz/widgets/processing_indicator.dart';
+import 'package:studio_wiz/widgets/mixer_console.dart';
 import 'package:studio_wiz/widgets/collapsible_track_widget.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:provider/provider.dart';
@@ -270,7 +271,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   }
 
   Widget _buildMixTab() {
-    return const AdvancedControlsPanel();
+    return const MixerConsole();
   }
 
   Widget _buildAIToolsTab() {
@@ -493,32 +494,19 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
               icon: Icons.flash_on,
               onPressed: () => _applyDrillProcessing(),
             ),
+            const SizedBox(height: 12),
+            AIToolButton(
+              title: 'Pitch Correction',
+              description: 'Automatically correct the pitch of your vocals',
+              icon: Icons.tune,
+              onPressed: () => _applyPitchCorrection(),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildIconButton({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onPressed,
-  }) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-        style: IconButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
-          foregroundColor: Theme.of(context).colorScheme.primary,
-          padding: const EdgeInsets.all(8),
-          minimumSize: const Size(40, 40),
-          maximumSize: const Size(40, 40),
-        ),
-      ),
-    );
-  }
 
   Widget _buildTransportControls() {
     return Container(
@@ -780,15 +768,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
     await dawVM.applyDrillProcessing();
   }
-}
 
-class ProcessingSnackbar {
-  static void show(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+  Future<void> _applyPitchCorrection() async {
+    final dawVM = Provider.of<DawViewModel>(context, listen: false);
+    await dawVM.applyPitchCorrection();
   }
 }

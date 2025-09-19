@@ -560,12 +560,53 @@ void toggleSolo(Track track) {
     }
   }
 
+  Future<void> applyPitchCorrection() async {
+    _startProcessing('Applying pitch correction...');
+    try {
+      final vocalTrack = vocalTracks.firstWhere(
+        (track) => track.hasAudio,
+        orElse: () {
+          _errorMessage = 'No vocal tracks found for pitch correction.';
+          throw Exception(_errorMessage);
+        },
+      );
+      final correctedPath = await _audioProcessingService.pitchCorrection(
+        vocalTrack.clips.first.path,
+      );
+      if (correctedPath != null) {
+        final newTrack = Track(id: 'pitch_corrected', name: 'Pitch Corrected', type: TrackType.processed);
+        await importAudioFromPath(newTrack, correctedPath);
+        vocalTracks.add(newTrack);
+      }
+    } catch (e) {
+      _errorMessage = 'Error applying pitch correction: $e';
+      print(_errorMessage);
+    } finally {
+      _finishProcessing();
+    }
+  }
+
   Future<String?> applyVocalMixing(List<String> vocalPaths, VocalMixPreset preset) async {
     _startProcessing('Applying vocal mixing...');
     try {
-      // We are not using the preset for now, as the advanced service has its own chain.
-      // This could be enhanced later to map presets to different chains.
-      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(vocalPaths);
+      final fadeInDurations = <String, Duration>{};
+      final fadeOutDurations = <String, Duration>{};
+      for (final track in vocalTracks) {
+        for (final clip in track.clips) {
+          fadeInDurations[clip.path] = clip.fadeInDuration;
+          fadeOutDurations[clip.path] = clip.fadeOutDuration;
+        }
+      }
+
+      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(
+        vocalPaths,
+        fadeInDurations: fadeInDurations,
+        fadeOutDurations: fadeOutDurations,
+        effects: _effects.map((key, value) => MapEntry(key, {
+          'isEnabled': value.isEnabled,
+          'parameters': value.parameters,
+        })),
+      );
       if (mixedPath != null) {
         await importAudioFromPath(
           mixedVocalTrack ??
@@ -746,7 +787,7 @@ void toggleSolo(Track track) {
           throw Exception(_errorMessage);
         },
       );
-      final trapPath = await _audioProcessingService.drillProcessing(
+      final trapPath = await _audioProcessingService.trapProcessing(
         vocalTrack.clips.first.path,
       );
       if (trapPath != null) {
@@ -772,7 +813,7 @@ void toggleSolo(Track track) {
           throw Exception(_errorMessage);
         },
       );
-      final afrobeatPath = await _audioProcessingService.rapProcessing(
+      final afrobeatPath = await _audioProcessingService.afrobeatProcessing(
         vocalTrack.clips.first.path,
       );
       if (afrobeatPath != null) {
