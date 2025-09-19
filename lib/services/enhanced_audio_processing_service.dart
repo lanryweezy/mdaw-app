@@ -258,7 +258,7 @@ class EnhancedAudioProcessingService {
         fadeCommand += 'afade=t=out:d=$fadeOut';
       }
 
-        String effectsCommand = '';
+      String effectsCommand = '';
         if (effects.isNotEmpty) {
           effects.forEach((key, value) {
             if (value['isEnabled'] == true) {
