@@ -246,20 +246,6 @@ class EnhancedAudioProcessingService {
 
         final fadeIn = fadeInDurations[inputPath]?.inSeconds ?? 0;
         final fadeOut = fadeOutDurations[inputPath]?.inSeconds ?? 0;
-
-        final fadeCommand = fadeIn > 0 || fadeOut > 0
-            ? 'afade=t=in:st=0:d=$fadeIn,afade=t=out:st=0:d=$fadeOut'
-            : '';
-
-        String effectsCommand = '';
-        if (effects.isNotEmpty) {
-          effects.forEach((key, value) {
-            if (value['isEnabled'] == true) {
-              effectsCommand += _getEffectCommand(key, value['parameters']);
-            }
-          });
-        }
-
         final command =
             '-i "$inputPath" -filter_complex "[0:a]${fadeCommand.isNotEmpty ? ',$fadeCommand' : ''}${effectsCommand.isNotEmpty ? ',$effectsCommand' : ''},loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map "[a]" -c:a pcm_s16le "$processedPath"';
 

@@ -533,8 +533,7 @@ void toggleSolo(Track track) {
     }
   }
 
-  Future<void> applyPitchCorrection() async {
-    _startProcessing('Applying pitch correction...');
+
     try {
       final vocalTrack = vocalTracks.firstWhere(
         (track) => track.hasAudio,
@@ -543,13 +542,6 @@ void toggleSolo(Track track) {
           throw Exception(_errorMessage);
         },
       );
-      final correctedPath = await _audioProcessingService.pitchCorrection(
-        vocalTrack.clips.first.path,
-      );
-      if (correctedPath != null) {
-        final newTrack = Track(id: 'pitch_corrected', name: 'Pitch Corrected', type: TrackType.processed);
-        await importAudioFromPath(newTrack, correctedPath);
-        vocalTracks.add(newTrack);
       }
     } catch (e) {
       _errorMessage = 'Error applying pitch correction: $e';
@@ -558,37 +550,6 @@ void toggleSolo(Track track) {
       _finishProcessing();
     }
   }
-
-  Future<String?> applyVocalMixing(List<String> vocalPaths, VocalMixPreset preset) async {
-    _startProcessing('Applying vocal mixing...');
-    try {
-      final fadeInDurations = <String, Duration>{};
-      final fadeOutDurations = <String, Duration>{};
-      for (final track in vocalTracks) {
-        for (final clip in track.clips) {
-          fadeInDurations[clip.path] = clip.fadeInDuration;
-          fadeOutDurations[clip.path] = clip.fadeOutDuration;
-        }
-      }
-
-      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(
-        vocalPaths,
-        fadeInDurations: fadeInDurations,
-        fadeOutDurations: fadeOutDurations,
-        effects: _effects.map((key, value) => MapEntry(key, {
-          'isEnabled': value.isEnabled,
-          'parameters': value.parameters,
-        })),
-      );
-      if (mixedPath != null) {
-        await importAudioFromPath(
-          mixedVocalTrack ??
-              (mixedVocalTrack = Track(
-                id: 'mixed_vocals',
-                name: 'Mixed Vocals',
-                type: TrackType.mixed,
-              )),
-          mixedPath,
         );
       }
       return mixedPath;
@@ -601,40 +562,13 @@ void toggleSolo(Track track) {
     }
   }
 
-  Future<void> applyMastering(MasteringPreset preset) async {
-    // We are not using the preset for now, as the advanced service has its own chain.
-    // This could be enhanced later to map presets to different chains.
-    await aiMasterSong();
-  }
 
   Future<void> aiMasterSong() async {
     _startProcessing('Mastering song...');
 
-    try {
-      final vocalInputPaths = vocalTracks.where((t) => t.hasAudio).expand((t) => t.clips.map((c) => c.path)).toList();
-      final beatPath = beatTrack.hasAudio ? beatTrack.clips.first.path : null;
-
-      if (vocalInputPaths.isEmpty || beatPath == null) {
-        _errorMessage = 'Not enough audio to master. Need at least one vocal and one beat track.';
-        print(_errorMessage);
-        return;
       }
 
-      // For simplicity, we use the first vocal track for mastering.
-      // A more advanced implementation could mix them first.
-      final vocalPath = vocalInputPaths.first;
-
       final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
-
-      if (masteredPath != null) {
-        await importAudioFromPath(
-          masteredSongTrack ??
-              (masteredSongTrack = Track(
-                id: 'mastered_song',
-                name: 'Mastered Song',
-                type: TrackType.mastered,
-              )),
-          masteredPath,
         );
         notifyListeners();
       }
@@ -645,14 +579,6 @@ void toggleSolo(Track track) {
       _finishProcessing();
     }
   }
-
-  Future<void> _applyEffectAndCreateTrack(
-    String operationName,
-    String newTrackId,
-    String newTrackName,
-    Future<String?> Function(String) effectFunction,
-  ) async {
-    _startProcessing(operationName);
     try {
       final vocalTrack = vocalTracks.firstWhere(
         (track) => track.hasAudio,
@@ -661,11 +587,6 @@ void toggleSolo(Track track) {
           throw Exception(_errorMessage);
         },
       );
-      final processedPath = await effectFunction(vocalTrack.clips.first.path);
-      if (processedPath != null) {
-        final newTrack = Track(id: newTrackId, name: newTrackName, type: TrackType.processed);
-        await importAudioFromPath(newTrack, processedPath);
-        vocalTracks.add(newTrack);
       }
     } catch (e) {
       _errorMessage = 'Error applying $operationName: $e';
@@ -673,15 +594,6 @@ void toggleSolo(Track track) {
     } finally {
       _finishProcessing();
     }
-  }
-
-  Future<void> applyVocalDoubling() async {
-    await _applyEffectAndCreateTrack(
-      'Applying vocal doubling...',
-      'vocal_doubled',
-      'Vocal Doubled',
-      _audioProcessingService.vocalDoubler,
-    );
   }
 
   Future<void> applyHarmonizer() async {
@@ -693,24 +605,6 @@ void toggleSolo(Track track) {
     );
   }
 
-  Future<void> applyDeReverb() async {
-    await _applyEffectAndCreateTrack(
-      'Removing reverb...',
-      'de_reverb',
-      'De-Reverb',
-      _audioProcessingService.deReverb,
-    );
-  }
-
-  Future<void> applyRapProcessing() async {
-    await _applyEffectAndCreateTrack(
-      'Applying rap processing...',
-      'rap_processed',
-      'Rap Processed',
-      _audioProcessingService.rapProcessing,
-    );
-  }
-
   Future<void> applyTrapProcessing() async {
     await _applyEffectAndCreateTrack(
       'Applying trap processing...',
@@ -719,23 +613,6 @@ void toggleSolo(Track track) {
       _audioProcessingService.trapProcessing,
     );
   }
-
-  Future<void> applyAfrobeatProcessing() async {
-    await _applyEffectAndCreateTrack(
-      'Applying afrobeat processing...',
-      'afrobeat_processed',
-      'Afrobeat Processed',
-      _audioProcessingService.afrobeatProcessing,
-    );
-  }
-
-  Future<void> applyDrillProcessing() async {
-    await _applyEffectAndCreateTrack(
-      'Applying drill processing...',
-      'drill_processed',
-      'Drill Processed',
-      _audioProcessingService.drillProcessing,
-    );
   }
 
   // Project management methods

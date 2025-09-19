@@ -103,18 +103,6 @@ class TimelineEditor extends StatelessWidget {
         ),
       ),
       child: ListView.builder(
-        itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat');
-          } else if (index <= dawViewModel.vocalTracks.length) {
-            final track = dawViewModel.vocalTracks[index - 1];
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name);
-          } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, 'Mixed Vocals');
-          } else {
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, 'Mastered Song');
-          }
         },
       ),
     );
@@ -260,18 +248,6 @@ class TimelineEditor extends StatelessWidget {
 
   Widget _buildTracks(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
     return ListView.builder(
-      itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0);
-        } else if (index <= dawViewModel.vocalTracks.length) {
-          final track = dawViewModel.vocalTracks[index - 1];
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, track, index);
-        } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, index);
-        } else {
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, index);
-        }
       },
     );
   }
@@ -473,7 +449,6 @@ class TimelineEditor extends StatelessWidget {
                           timelineViewModel.trimClip(clip.id, newStartTime, clip.endTime);
                         }
                       } else {
-                        final newFadeInDuration = clip.fadeInDuration + timelineViewModel.pixelsToDuration(details.delta.dx);
                         if (newFadeInDuration.inMilliseconds >= 0 && newFadeInDuration < clip.duration) {
                           timelineViewModel.setFadeIn(clip.id, newFadeInDuration);
                         }
@@ -509,7 +484,6 @@ class TimelineEditor extends StatelessWidget {
                           timelineViewModel.trimClip(clip.id, clip.startTime, newEndTime);
                         }
                       } else {
-                        final newFadeOutDuration = clip.fadeOutDuration - timelineViewModel.pixelsToDuration(details.delta.dx);
                         if (newFadeOutDuration.inMilliseconds >= 0 && newFadeOutDuration < clip.duration) {
                           timelineViewModel.setFadeOut(clip.id, newFadeOutDuration);
                         }
