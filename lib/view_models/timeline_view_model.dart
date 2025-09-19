@@ -8,6 +8,8 @@ import 'package:studio_wiz/models/timing_system.dart';
 import 'package:studio_wiz/services/audio_resource_manager.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 
+enum TimelineTool { select, split, trim }
+
 class TimelineState {
   final Duration currentPosition;
   final Duration totalDuration;
@@ -23,6 +25,7 @@ class TimelineState {
   final String? selectedClipId;
   final bool isDragging;
   final Offset? dragStartPosition;
+  final TimelineTool selectedTool;
 
   TimelineState({
     required this.currentPosition,
@@ -39,6 +42,7 @@ class TimelineState {
     this.selectedClipId,
     this.isDragging = false,
     this.dragStartPosition,
+    this.selectedTool = TimelineTool.select,
   });
 
   TimelineState copyWith({
@@ -56,6 +60,7 @@ class TimelineState {
     String? selectedClipId,
     bool? isDragging,
     Offset? dragStartPosition,
+    TimelineTool? selectedTool,
   }) {
     return TimelineState(
       currentPosition: currentPosition ?? this.currentPosition,
@@ -72,6 +77,7 @@ class TimelineState {
       selectedClipId: selectedClipId ?? this.selectedClipId,
       isDragging: isDragging ?? this.isDragging,
       dragStartPosition: dragStartPosition ?? this.dragStartPosition,
+      selectedTool: selectedTool ?? this.selectedTool,
     );
   }
 }
@@ -152,11 +158,17 @@ class TimelineViewModel extends ChangeNotifier {
   String? get selectedClipId => _state.selectedClipId;
   bool get isDragging => _state.isDragging;
   Offset? get dragStartPosition => _state.dragStartPosition;
+  TimelineTool get selectedTool => _state.selectedTool;
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
 
   double get pixelsPerSecond => 100.0 * zoomLevel;
   double get trackHeight => 80.0;
+
+  void setTool(TimelineTool tool) {
+    _state = _state.copyWith(selectedTool: tool);
+    notifyListeners();
+  }
 
   void seekTo(Duration position) {
     final snappedPosition = snapDurationToGrid(position);
@@ -353,6 +365,22 @@ class TimelineViewModel extends ChangeNotifier {
     }
 
     _dawViewModel.notifyListeners();
+  }
+
+  void setFadeIn(String clipId, Duration fadeInDuration) {
+    final clip = _findClipById(clipId);
+    if (clip != null) {
+      clip.fadeInDuration = fadeInDuration;
+      notifyListeners();
+    }
+  }
+
+  void setFadeOut(String clipId, Duration fadeOutDuration) {
+    final clip = _findClipById(clipId);
+    if (clip != null) {
+      clip.fadeOutDuration = fadeOutDuration;
+      notifyListeners();
+    }
   }
 
   void _executeClipTrim(TimelineAction action, bool isUndo) {

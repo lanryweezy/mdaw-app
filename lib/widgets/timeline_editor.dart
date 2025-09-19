@@ -11,26 +11,39 @@ class TimelineEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dawViewModel = Provider.of<DawViewModel>(context);
-    final timelineViewModel = Provider.of<TimelineViewModel>(context);
-
     return SafeArea(
       bottom: false,
       child: Column(
-      children: [
-        _buildTimelineHeader(context, timelineViewModel),
-        Expanded(
-          child: Row(
-            children: [
-              _buildTrackList(context, dawViewModel, timelineViewModel),
-              Expanded(
-                child: _buildTimelineView(context, dawViewModel, timelineViewModel),
-              ),
-            ],
+        children: [
+          Consumer<TimelineViewModel>(
+            builder: (context, timelineViewModel, child) {
+              return _buildTimelineHeader(context, timelineViewModel);
+            },
           ),
-        ),
-        _buildTimelineControls(context, timelineViewModel),
-      ],
+          Expanded(
+            child: Row(
+              children: [
+                Consumer<DawViewModel>(
+                  builder: (context, dawViewModel, child) {
+                    return _buildTrackList(context, dawViewModel, context.watch<TimelineViewModel>());
+                  },
+                ),
+                Expanded(
+                  child: Consumer2<DawViewModel, TimelineViewModel>(
+                    builder: (context, dawViewModel, timelineViewModel, child) {
+                      return _buildTimelineView(context, dawViewModel, timelineViewModel);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Consumer<TimelineViewModel>(
+            builder: (context, timelineViewModel, child) {
+              return _buildTimelineControls(context, timelineViewModel);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -89,15 +102,20 @@ class TimelineEditor extends StatelessWidget {
           right: BorderSide(color: Colors.grey[700]!, width: 1),
         ),
       ),
-      child: ListView(
-        children: [
-          _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat'),
-          ...dawViewModel.vocalTracks.map((track) => _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name)),
-          if (dawViewModel.mixedVocalTrack != null)
-            _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, 'Mixed Vocals'),
-          if (dawViewModel.masteredSongTrack != null)
-            _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, 'Mastered Song'),
-        ],
+      child: ListView.builder(
+        itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat');
+          } else if (index <= dawViewModel.vocalTracks.length) {
+            final track = dawViewModel.vocalTracks[index - 1];
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name);
+          } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, 'Mixed Vocals');
+          } else {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, 'Mastered Song');
+          }
+        },
       ),
     );
   }
@@ -241,16 +259,20 @@ class TimelineEditor extends StatelessWidget {
   }
 
   Widget _buildTracks(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
-    return Column(
-      children: [
-        _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0),
-        ...dawViewModel.vocalTracks.asMap().entries.map((entry) =>
-            _buildTrackLane(context, dawViewModel, timelineViewModel, entry.value, entry.key + 1)),
-        if (dawViewModel.mixedVocalTrack != null)
-          _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, dawViewModel.vocalTracks.length + 1),
-        if (dawViewModel.masteredSongTrack != null)
-          _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, dawViewModel.vocalTracks.length + 2),
-      ],
+    return ListView.builder(
+      itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0);
+        } else if (index <= dawViewModel.vocalTracks.length) {
+          final track = dawViewModel.vocalTracks[index - 1];
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, track, index);
+        } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, index);
+        } else {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, index);
+        }
+      },
     );
   }
 
@@ -436,26 +458,37 @@ class TimelineEditor extends StatelessWidget {
                 ),
               ),
               if (isSelected) ...[
+                // Trim and Fade Handles
                 Positioned(
                   left: 0,
                   top: 0,
                   bottom: 0,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      final deltaX = details.delta.dx;
-                      final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                      final newStartTime = timelineViewModel.snapDurationToGrid(clip.startTime + deltaDuration);
-
-                      if (newStartTime < clip.endTime && newStartTime >= Duration.zero) {
-                        timelineViewModel.trimClip(clip.id, newStartTime, clip.endTime);
+                      if (timelineViewModel.selectedTool == TimelineTool.trim) {
+                        final deltaX = details.delta.dx;
+                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
+                        final newStartTime = timelineViewModel.snapDurationToGrid(clip.startTime + deltaDuration);
+                        if (newStartTime < clip.endTime && newStartTime >= Duration.zero) {
+                          timelineViewModel.trimClip(clip.id, newStartTime, clip.endTime);
+                        }
+                      } else {
+                        final newFadeInDuration = clip.fadeInDuration + timelineViewModel.pixelsToDuration(details.delta.dx);
+                        if (newFadeInDuration.inMilliseconds >= 0 && newFadeInDuration < clip.duration) {
+                          timelineViewModel.setFadeIn(clip.id, newFadeInDuration);
+                        }
                       }
                     },
                     child: Container(
                       width: 12,
                       decoration: BoxDecoration(
-border: Border.all(color: Colors.white.withAlpha(127), width: 1),                      ),
-                      child: const Icon(
-                        Icons.drag_handle,
+                        color: timelineViewModel.selectedTool == TimelineTool.trim
+                            ? Colors.yellow.withAlpha(100)
+                            : Colors.blue.withAlpha(100),
+                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(6)),
+                      ),
+                      child: Icon(
+                        timelineViewModel.selectedTool == TimelineTool.trim ? Icons.arrow_left : Icons.chevron_left,
                         color: Colors.white,
                         size: 16,
                       ),
@@ -468,23 +501,30 @@ border: Border.all(color: Colors.white.withAlpha(127), width: 1),               
                   bottom: 0,
                   child: GestureDetector(
                     onPanUpdate: (details) {
-                      final deltaX = details.delta.dx;
-                      final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                      final newEndTime = timelineViewModel.snapDurationToGrid(clip.endTime + deltaDuration);
-
-                      if (newEndTime > clip.startTime) {
-                        timelineViewModel.trimClip(clip.id, clip.startTime, newEndTime);
+                      if (timelineViewModel.selectedTool == TimelineTool.trim) {
+                        final deltaX = details.delta.dx;
+                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
+                        final newEndTime = timelineViewModel.snapDurationToGrid(clip.endTime + deltaDuration);
+                        if (newEndTime > clip.startTime) {
+                          timelineViewModel.trimClip(clip.id, clip.startTime, newEndTime);
+                        }
+                      } else {
+                        final newFadeOutDuration = clip.fadeOutDuration - timelineViewModel.pixelsToDuration(details.delta.dx);
+                        if (newFadeOutDuration.inMilliseconds >= 0 && newFadeOutDuration < clip.duration) {
+                          timelineViewModel.setFadeOut(clip.id, newFadeOutDuration);
+                        }
                       }
                     },
                     child: Container(
                       width: 12,
                       decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(51),
+                        color: timelineViewModel.selectedTool == TimelineTool.trim
+                            ? Colors.yellow.withAlpha(100)
+                            : Colors.blue.withAlpha(100),
                         borderRadius: const BorderRadius.horizontal(right: Radius.circular(6)),
-                        border: Border.all(color: Colors.white.withAlpha(127), width: 1),
                       ),
-                      child: const Icon(
-                        Icons.drag_handle,
+                      child: Icon(
+                        timelineViewModel.selectedTool == TimelineTool.trim ? Icons.arrow_right : Icons.chevron_right,
                         color: Colors.white,
                         size: 16,
                       ),
@@ -527,8 +567,29 @@ border: Border.all(color: Colors.white.withAlpha(127), width: 1),               
       onTapDown: (details) {
         final localPosition = details.localPosition;
         final newPosition = timelineViewModel.pixelsToDuration(localPosition.dx);
-        timelineViewModel.seekTo(newPosition);
-        timelineViewModel.selectClip(null);
+
+        if (timelineViewModel.selectedTool == TimelineTool.split) {
+          final trackIndex = (localPosition.dy / timelineViewModel.trackHeight).floor();
+          final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
+          final tracks = [
+            dawViewModel.beatTrack,
+            ...dawViewModel.vocalTracks,
+            if (dawViewModel.mixedVocalTrack != null) dawViewModel.mixedVocalTrack!,
+            if (dawViewModel.masteredSongTrack != null) dawViewModel.masteredSongTrack!,
+          ];
+          if (trackIndex < tracks.length) {
+            final track = tracks[trackIndex];
+            for (final clip in track.clips) {
+              if (newPosition >= clip.startTime && newPosition <= clip.endTime) {
+                timelineViewModel.splitClip(clip.id, newPosition);
+                break;
+              }
+            }
+          }
+        } else {
+          timelineViewModel.seekTo(newPosition);
+          timelineViewModel.selectClip(null);
+        }
       },
       child: Container(
         // Fills via Positioned.fill from parent Stack
@@ -618,6 +679,22 @@ border: Border.all(color: Colors.white.withAlpha(127), width: 1),               
                   style: const TextStyle(fontFamily: 'monospace'),
                 ),
               ),
+            ),
+            const SizedBox(width: 16),
+            ToggleButtons(
+              isSelected: [
+                timelineViewModel.selectedTool == TimelineTool.select,
+                timelineViewModel.selectedTool == TimelineTool.split,
+                timelineViewModel.selectedTool == TimelineTool.trim,
+              ],
+              onPressed: (index) {
+                timelineViewModel.setTool(TimelineTool.values[index]);
+              },
+              children: const [
+                Icon(Icons.select_all),
+                Icon(Icons.content_cut),
+                Icon(Icons.straighten),
+              ],
             ),
             ],
           ),

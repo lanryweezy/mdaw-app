@@ -20,6 +20,12 @@ class AudioClip {
   /// End time relative to the beginning of the track
   Duration endTime;
 
+  /// Fade-in duration
+  Duration fadeInDuration;
+
+  /// Fade-out duration
+  Duration fadeOutDuration;
+
   /// Creates a new AudioClip instance
   ///
   /// [id] Unique identifier (required)
@@ -36,6 +42,8 @@ class AudioClip {
     this.startTime = Duration.zero,
     this.endTime = Duration.zero,
     this.waveform = const [],
+    this.fadeInDuration = Duration.zero,
+    this.fadeOutDuration = Duration.zero,
   });
 
   /// Duration of the audio clip
@@ -51,6 +59,8 @@ class AudioClip {
     Duration? startTime,
     Duration? endTime,
     List<double>? waveform,
+    Duration? fadeInDuration,
+    Duration? fadeOutDuration,
   }) {
     return AudioClip(
       id: id ?? this.id,
@@ -60,6 +70,8 @@ class AudioClip {
       startTime: startTime ?? this.startTime,
       endTime: endTime ?? this.endTime,
       waveform: waveform ?? this.waveform,
+      fadeInDuration: fadeInDuration ?? this.fadeInDuration,
+      fadeOutDuration: fadeOutDuration ?? this.fadeOutDuration,
     );
   }
 }
