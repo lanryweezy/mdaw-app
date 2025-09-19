@@ -68,177 +68,117 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       providers: [
         ChangeNotifierProvider.value(value: _timelineViewModel),
       ],
-      child: Consumer<DawViewModel>(
-        builder: (context, viewModel, child) {
-          return Stack(
-            children: [
-              Scaffold(
-                appBar: isLandscape ? null : AppBar(
-                  title: const Text('ProStudio DAW'),
-                  centerTitle: true,
-                  bottom: PreferredSize(
-                    preferredSize: const Size.fromHeight(48),
-                    child: TabBar(
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.center,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      tabs: const [
-                        Tab(
-                          icon: Icon(Icons.timeline, size: 20),
-                          text: 'Timeline',
-                          height: 48,
-                        ),
-                        Tab(
-                          icon: Icon(Icons.equalizer, size: 20),
-                          text: 'Mix',
-                          height: 48,
-                        ),
-                        Tab(
-                          icon: Icon(Icons.auto_awesome, size: 20),
-                          text: 'AI Tools',
-                          height: 48,
-                        ),
-                      ],
-                    ),
+      child: Scaffold(
+        appBar: isLandscape
+            ? null
+            : AppBar(
+                title: const Text('ProStudio DAW'),
+                centerTitle: true,
+                bottom: TabBar(
+                  controller: _tabController,
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.center,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  tabs: const [
+                    Tab(icon: Icon(Icons.timeline, size: 20), text: 'Timeline', height: 48),
+                    Tab(icon: Icon(Icons.equalizer, size: 20), text: 'Mix', height: 48),
+                    Tab(icon: Icon(Icons.auto_awesome, size: 20), text: 'AI Tools', height: 48),
+                  ],
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.add, size: 20),
+                    onPressed: () {
+                      context.read<DawViewModel>().addVocalTrack();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Added new vocal track')),
+                      );
+                    },
+                    tooltip: 'Add Track',
                   ),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.add, size: 20),
-                      onPressed: () {
-                        final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
-                        dawViewModel.addVocalTrack();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Added new vocal track')),
-                        );
-                      },
-                      tooltip: 'Add Track',
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.audio_file, size: 20),
-                      onPressed: () {
-                        final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
-                        dawViewModel.importAudio(dawViewModel.beatTrack);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Importing audio to beat track...')),
-                        );
-                      },
-                      tooltip: 'Import Audio',
-                    ),
-                    // Responsive actions based on screen size
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        final isWideScreen = constraints.maxWidth > 600;
-                        return Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Undo/Redo buttons
-                            Consumer<TimelineViewModel>(
-                              builder: (context, timelineVM, child) {
-                                return Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      icon: const Icon(Icons.undo, size: 20),
-                                      onPressed: timelineVM.canUndo ? timelineVM.undo : null,
-                                      tooltip: 'Undo',
-                                      padding: const EdgeInsets.all(8),
-                                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                    ),
-                                    IconButton(
-                                      icon: const Icon(Icons.redo, size: 20),
-                                      onPressed: timelineVM.canRedo ? timelineVM.redo : null,
-                                      tooltip: 'Redo',
-                                      padding: const EdgeInsets.all(8),
-                                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                    ),
-                                  ],
-                                );
-                              },
-                            ),
-                            // Metronome toggle
-                            Consumer<TimelineViewModel>(
-                              builder: (context, timelineVM, child) {
-                                return IconButton(
-                                  icon: Icon(
-                                    timelineVM.metronomeEnabled ? Icons.music_note : Icons.music_off,
-                                    color: timelineVM.metronomeEnabled ? Colors.red : null,
-                                    size: 20,
-                                  ),
-                                  onPressed: timelineVM.toggleMetronome,
-                                  tooltip: 'Metronome',
-                                  padding: const EdgeInsets.all(8),
-                                  constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                body: Column(
-                  children: [
-                    // Landscape tab bar
-                    if (isLandscape) Container(
-                      color: const Color(0xFF1A1A1A),
-                      child: TabBar(
-                        controller: _tabController,
-                        indicatorSize: TabBarIndicatorSize.label,
-                        labelColor: const Color(0xFF00D4FF),
-                        unselectedLabelColor: Colors.grey[600],
-                        tabs: const [
-                          Tab(
-                            icon: Icon(Icons.timeline, size: 18),
-                            text: 'Timeline',
-                            height: 36,
-                          ),
-                          Tab(
-                            icon: Icon(Icons.equalizer, size: 18),
-                            text: 'Mix',
-                            height: 36,
-                          ),
-                          Tab(
-                            icon: Icon(Icons.auto_awesome, size: 18),
-                            text: 'AI Tools',
-                            height: 36,
-                          ),
-                        ],
-                      ),
-                    ),
-                    // Main content
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
+                  IconButton(
+                    icon: const Icon(Icons.audio_file, size: 20),
+                    onPressed: () {
+                      context.read<DawViewModel>().importAudio(context.read<DawViewModel>().beatTrack);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Importing audio to beat track...')),
+                      );
+                    },
+                    tooltip: 'Import Audio',
+                  ),
+                  Consumer<TimelineViewModel>(
+                    builder: (context, timelineVM, child) {
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildTimelineTab(),
-                          _buildMixTab(),
-                          _buildAIToolsTab(),
+                          IconButton(
+                            icon: const Icon(Icons.undo, size: 20),
+                            onPressed: timelineVM.canUndo ? timelineVM.undo : null,
+                            tooltip: 'Undo',
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.redo, size: 20),
+                            onPressed: timelineVM.canRedo ? timelineVM.redo : null,
+                            tooltip: 'Redo',
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              timelineVM.metronomeEnabled ? Icons.music_note : Icons.music_off,
+                              color: timelineVM.metronomeEnabled ? Colors.red : null,
+                              size: 20,
+                            ),
+                            onPressed: timelineVM.toggleMetronome,
+                            tooltip: 'Metronome',
+                          ),
                         ],
-                      ),
-                    ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+        body: Column(
+          children: [
+            if (isLandscape)
+              Container(
+                color: const Color(0xFF1A1A1A),
+                child: TabBar(
+                  controller: _tabController,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  labelColor: const Color(0xFF00D4FF),
+                  unselectedLabelColor: Colors.grey[600],
+                  tabs: const [
+                    Tab(icon: Icon(Icons.timeline, size: 18), text: 'Timeline', height: 36),
+                    Tab(icon: Icon(Icons.equalizer, size: 18), text: 'Mix', height: 36),
+                    Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'AI Tools', height: 36),
                   ],
                 ),
-                bottomNavigationBar: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                  height: _isTransportVisible ? 100 : 0, // Increased height to accommodate responsive buttons
-                  child: _isTransportVisible ? _buildTransportControls() : null,
-                ),
-                // Floating action button to show transport when hidden
-                floatingActionButton: !_isTransportVisible ? FloatingActionButton(
-                  mini: true,
-                  backgroundColor: const Color(0xFF00D4FF),
-                  onPressed: () => setState(() => _isTransportVisible = true),
-                  child: const Icon(Icons.play_arrow, color: Colors.black),
-                ) : null,
               ),
-              if (viewModel.isProcessing)
-                _buildProcessingOverlay(context, viewModel),
-            ],
-          );
-        },
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildTimelineTab(),
+                  _buildMixTab(),
+                  _buildAIToolsTab(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        bottomNavigationBar: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          height: _isTransportVisible ? 100 : 0,
+          child: _isTransportVisible ? _buildTransportControls() : null,
+        ),
+        floatingActionButton: !_isTransportVisible
+            ? FloatingActionButton(
+                mini: true,
+                backgroundColor: const Color(0xFF00D4FF),
+                onPressed: () => setState(() => _isTransportVisible = true),
+                child: const Icon(Icons.play_arrow, color: Colors.black),
+              )
+            : null,
       ),
     );
   }

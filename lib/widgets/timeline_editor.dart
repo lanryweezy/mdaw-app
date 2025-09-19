@@ -11,26 +11,39 @@ class TimelineEditor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dawViewModel = Provider.of<DawViewModel>(context);
-    final timelineViewModel = Provider.of<TimelineViewModel>(context);
-
     return SafeArea(
       bottom: false,
       child: Column(
-      children: [
-        _buildTimelineHeader(context, timelineViewModel),
-        Expanded(
-          child: Row(
-            children: [
-              _buildTrackList(context, dawViewModel, timelineViewModel),
-              Expanded(
-                child: _buildTimelineView(context, dawViewModel, timelineViewModel),
-              ),
-            ],
+        children: [
+          Consumer<TimelineViewModel>(
+            builder: (context, timelineViewModel, child) {
+              return _buildTimelineHeader(context, timelineViewModel);
+            },
           ),
-        ),
-        _buildTimelineControls(context, timelineViewModel),
-      ],
+          Expanded(
+            child: Row(
+              children: [
+                Consumer<DawViewModel>(
+                  builder: (context, dawViewModel, child) {
+                    return _buildTrackList(context, dawViewModel, context.watch<TimelineViewModel>());
+                  },
+                ),
+                Expanded(
+                  child: Consumer2<DawViewModel, TimelineViewModel>(
+                    builder: (context, dawViewModel, timelineViewModel, child) {
+                      return _buildTimelineView(context, dawViewModel, timelineViewModel);
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Consumer<TimelineViewModel>(
+            builder: (context, timelineViewModel, child) {
+              return _buildTimelineControls(context, timelineViewModel);
+            },
+          ),
+        ],
       ),
     );
   }
@@ -89,15 +102,20 @@ class TimelineEditor extends StatelessWidget {
           right: BorderSide(color: Colors.grey[700]!, width: 1),
         ),
       ),
-      child: ListView(
-        children: [
-          _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat'),
-          ...dawViewModel.vocalTracks.map((track) => _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name)),
-          if (dawViewModel.mixedVocalTrack != null)
-            _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, 'Mixed Vocals'),
-          if (dawViewModel.masteredSongTrack != null)
-            _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, 'Mastered Song'),
-        ],
+      child: ListView.builder(
+        itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat');
+          } else if (index <= dawViewModel.vocalTracks.length) {
+            final track = dawViewModel.vocalTracks[index - 1];
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name);
+          } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, 'Mixed Vocals');
+          } else {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, 'Mastered Song');
+          }
+        },
       ),
     );
   }
@@ -241,16 +259,20 @@ class TimelineEditor extends StatelessWidget {
   }
 
   Widget _buildTracks(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
-    return Column(
-      children: [
-        _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0),
-        ...dawViewModel.vocalTracks.asMap().entries.map((entry) =>
-            _buildTrackLane(context, dawViewModel, timelineViewModel, entry.value, entry.key + 1)),
-        if (dawViewModel.mixedVocalTrack != null)
-          _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, dawViewModel.vocalTracks.length + 1),
-        if (dawViewModel.masteredSongTrack != null)
-          _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, dawViewModel.vocalTracks.length + 2),
-      ],
+    return ListView.builder(
+      itemCount: dawViewModel.vocalTracks.length + 2 + (dawViewModel.mixedVocalTrack != null ? 1 : 0) + (dawViewModel.masteredSongTrack != null ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0);
+        } else if (index <= dawViewModel.vocalTracks.length) {
+          final track = dawViewModel.vocalTracks[index - 1];
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, track, index);
+        } else if (index == dawViewModel.vocalTracks.length + 1 && dawViewModel.mixedVocalTrack != null) {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.mixedVocalTrack!, index);
+        } else {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.masteredSongTrack!, index);
+        }
+      },
     );
   }
 
