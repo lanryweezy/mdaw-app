@@ -527,7 +527,8 @@ void toggleSolo(Track track) {
         notifyListeners();
       }
     } catch (e) {
-      print('Error mixing vocals: $e');
+      _errorMessage = 'Error mixing vocals: $e';
+      print(_errorMessage);
     } finally {
       _finishProcessing();
     }
@@ -544,7 +545,6 @@ void toggleSolo(Track track) {
       );
       }
     } catch (e) {
-      _errorMessage = 'Error applying pitch correction: $e';
       print(_errorMessage);
     } finally {
       _finishProcessing();
@@ -554,9 +554,6 @@ void toggleSolo(Track track) {
       }
       return mixedPath;
     } catch (e) {
-      _errorMessage = 'Error applying vocal mixing: $e';
-      print(_errorMessage);
-      return null;
     } finally {
       _finishProcessing();
     }
@@ -573,7 +570,7 @@ void toggleSolo(Track track) {
         notifyListeners();
       }
     } catch (e) {
-      _errorMessage = 'Error mastering song: $e';
+
       print(_errorMessage);
     } finally {
       _finishProcessing();
@@ -589,30 +586,12 @@ void toggleSolo(Track track) {
       );
       }
     } catch (e) {
-      _errorMessage = 'Error applying $operationName: $e';
       print(_errorMessage);
     } finally {
       _finishProcessing();
     }
   }
 
-  Future<void> applyHarmonizer() async {
-    await _applyEffectAndCreateTrack(
-      'Creating harmonies...',
-      'harmonized',
-      'Harmonized',
-      _audioProcessingService.harmonizer,
-    );
-  }
-
-  Future<void> applyTrapProcessing() async {
-    await _applyEffectAndCreateTrack(
-      'Applying trap processing...',
-      'trap_processed',
-      'Trap Processed',
-      _audioProcessingService.trapProcessing,
-    );
-  }
   }
 
   // Project management methods

@@ -235,17 +235,7 @@ class EnhancedAudioProcessingService {
     if (inputPaths.isEmpty) return null;
 
     final tempDir = await _getTempDir();
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-
-    try {
-      // Step 1: Normalize and apply fades and effects
-      final processedFiles = <String>[];
-      for (int i = 0; i < inputPaths.length; i++) {
-        final inputPath = inputPaths[i];
-        final processedPath = '${tempDir.path}/processed_vocal_${i}_${timestamp}.wav';
-
-        final fadeIn = fadeInDurations[inputPath]?.inSeconds ?? 0;
-        final fadeOut = fadeOutDurations[inputPath]?.inSeconds ?? 0;
+    final timestamp = Date
         final command =
             '-i "$inputPath" -filter_complex "[0:a]${fadeCommand.isNotEmpty ? ',$fadeCommand' : ''}${effectsCommand.isNotEmpty ? ',$effectsCommand' : ''},loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map "[a]" -c:a pcm_s16le "$processedPath"';
 
