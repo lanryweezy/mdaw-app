@@ -46,8 +46,6 @@ class DawViewModel extends ChangeNotifier {
   Duration _currentPlaybackPosition = Duration.zero;
   Duration get currentPlaybackPosition => _currentPlaybackPosition;
 
-  StreamSubscription<int>? _playbackPositionSubscription;
-  
   // Processing states
   bool _isProcessing = false;
   String? _currentOperation;
@@ -164,8 +162,6 @@ class DawViewModel extends ChangeNotifier {
           clip.controller.playerState == PlayerState.stopped);
       if (allCompleted) {
         _isPlaying = false;
-        _currentPlaybackPosition = Duration.zero; // Reset on full stop
-        _playbackPositionSubscription?.cancel(); // Stop listening
         notifyListeners();
       }
     }
@@ -241,41 +237,10 @@ class DawViewModel extends ChangeNotifier {
     if (_isPlaying) return;
     if (_allActiveClips.isEmpty) return;
 
-    // Start listening to playback position from the first active clip
-    _playbackPositionSubscription?.cancel(); // Cancel previous subscription
-    final firstActiveClip = _allActiveClips.first;
-    _playbackPositionSubscription = firstActiveClip.controller.onCurrentDurationChanged.listen((duration) {
-      _currentPlaybackPosition = Duration(milliseconds: duration);
-      
-      // If recording automation, record data points
-      if (_isRecordingAutomation) {
-        for (final param in _automatedParameters) {
-          // In a real implementation, we would get the current value of the parameter
-          // For now, we'll just record a dummy value
-          final dummyValue = param == 'Volume' ? 0.8 : 0.5;
-          recordAutomationDataPoint(param, dummyValue);
-        }
-      }
-      
-      // If playing automation, update parameter values
-      if (_isPlayingAutomation) {
-        for (final param in _automatedParameters) {
-          final value = getAutomationValueAtTime(param, _currentPlaybackPosition);
-          if (value != null) {
-            updateAutomationValue(param, value);
-          }
-        }
-      }
-      
-      notifyListeners(); // Notify UI about position change
-    });
-
     for (var clip in _allActiveClips) {
-      // Apply master volume when starting playback
       final finalVolume = clip.volume * masterVolume;
       clip.controller.setVolume(finalVolume);
-      
-      clip.controller.seekTo(_currentPlaybackPosition.inMilliseconds); // Seek to current position
+      clip.controller.seekTo(_currentPlaybackPosition.inMilliseconds);
       clip.controller.startPlayer();
     }
     _isPlaying = true;
@@ -290,7 +255,6 @@ class DawViewModel extends ChangeNotifier {
       }
     }
     _isPlaying = false;
-    _playbackPositionSubscription?.cancel(); // Stop listening
     notifyListeners();
   }
 
@@ -300,7 +264,6 @@ class DawViewModel extends ChangeNotifier {
     }
     _isPlaying = false;
     _currentPlaybackPosition = Duration.zero; // Reset to start
-    _playbackPositionSubscription?.cancel(); // Stop listening
     
     // Stop automation recording/playback if active
     if (_isRecordingAutomation) {
@@ -995,9 +958,6 @@ void toggleSolo(Track track) {
     
     // Dispose the audio recorder
     _audioRecorder.dispose();
-    
-    // Cancel the playback position subscription
-    _playbackPositionSubscription?.cancel();
     
     super.dispose();
   }

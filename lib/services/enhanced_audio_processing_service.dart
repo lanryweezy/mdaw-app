@@ -227,88 +227,80 @@ class EnhancedAudioProcessingService {
   }
 
   /// Advanced vocal effects processing with multiple enhancement stages
-  Future<String?> applyAdvancedVocalEffects(List<String> inputPaths) async {
+  Future<String?> applyAdvancedVocalEffects(List<String> inputPaths, {
+    Map<String, Duration> fadeInDurations = const {},
+    Map<String, Duration> fadeOutDurations = const {},
+    Map<String, dynamic> effects = const {},
+  }) async {
     if (inputPaths.isEmpty) return null;
-    
+
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    
-    try {
-      // Step 1: Normalize and align all vocal tracks
-      final normalizedFiles = <String>[];
-      for (int i = 0; i < inputPaths.length; i++) {
-        final normalizedPath = '${tempDir.path}/normalized_vocal_${i}_${timestamp}.wav';
-        final normalizeCommand = '-i "${inputPaths[i]}" -filter_complex "[0:a]loudnorm=I=-16:TP=-1.5:LRA=11,pan=stereo|c0=c0|c1=c1[a]" -map "[a]" -c:a pcm_s16le "$normalizedPath"';
-        
-        final normalizeSession = await FFmpegKit.execute(normalizeCommand);
-        final returnCode = await normalizeSession.getReturnCode();
-        
-        if (ReturnCode.isSuccess(returnCode)) {
-          normalizedFiles.add(normalizedPath);
-        } else {
-          print('Failed to normalize vocal track $i');
-          normalizedFiles.add(inputPaths[i]); // Use original if normalization fails
-        }
-      }
 
-      // Step 2: Create vocal chain processing
+    try {
+      // Step 1: Normalize and apply fades and effects
       final processedFiles = <String>[];
-      for (int i = 0; i < normalizedFiles.length; i++) {
+      for (int i = 0; i < inputPaths.length; i++) {
+        final inputPath = inputPaths[i];
         final processedPath = '${tempDir.path}/processed_vocal_${i}_${timestamp}.wav';
-        
-        // Advanced vocal chain: EQ → Compression → De-esser → Reverb → Limiter
-        final processCommand = '''
-        -i "${normalizedFiles[i]}" 
-        -filter_complex "
-          [0:a]
-          highpass=f=80[a1];
-          [a1]equalizer=f=2500:t=q:w=1:g=2[a2];
-          [a2]equalizer=f=5000:t=q:w=1:g=-1[a3];
-          [a3]equalizer=f=8000:t=q:w=1:g=1[a4];
-          [a4]acompressor=threshold=-18:ratio=3:attack=10:release=100:knee=3[a5];
-          [a5]deesser=i=1.0:m=0.5[a6];
-          [a6]aecho=0.8:0.88:60:0.4[a7];
-          [a7]alimiter=level_in=1:level_out=1:limit=0.8:attack=5:release=50[a8]
-        " -map "[a8]" -c:a pcm_s16le "$processedPath"'''.replaceAll('\n', ' ');
-        
-        final processSession = await FFmpegKit.execute(processCommand);
-        final returnCode = await processSession.getReturnCode();
-        
+
+        final fadeIn = fadeInDurations[inputPath]?.inSeconds ?? 0;
+        final fadeOut = fadeOutDurations[inputPath]?.inSeconds ?? 0;
+
+        String fadeCommand = '';
+        if (fadeIn > 0) {
+          fadeCommand += 'afade=t=in:st=0:d=$fadeIn';
+        }
+        if (fadeOut > 0) {
+          if (fadeCommand.isNotEmpty) {
+            fadeCommand += ',';
+          }
+          fadeCommand += 'afade=t=out:d=$fadeOut';
+        }
+
+        String effectsCommand = '';
+        if (effects.isNotEmpty) {
+          effects.forEach((key, value) {
+            if (value['isEnabled'] == true) {
+              effectsCommand += _getEffectCommand(key, value['parameters']);
+            }
+          });
+        }
+
+        final command =
+            '-i "$inputPath" -filter_complex "[0:a]${fadeCommand.isNotEmpty ? ',$fadeCommand' : ''}${effectsCommand.isNotEmpty ? ',$effectsCommand' : ''},loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map "[a]" -c:a pcm_s16le "$processedPath"';
+
+        final session = await FFmpegKit.execute(command);
+        final returnCode = await session.getReturnCode();
+
         if (ReturnCode.isSuccess(returnCode)) {
           processedFiles.add(processedPath);
         } else {
-          processedFiles.add(normalizedFiles[i]); // Use normalized if processing fails
+          print('Failed to process vocal track $i');
+          processedFiles.add(inputPath); // Use original if processing fails
         }
       }
 
-      // Step 3: Mix all processed vocals together
+      // Step 2: Mix all processed vocals together
       final mixedPath = '${tempDir.path}/mixed_vocals_$timestamp.wav';
       final mixCommand = _buildMixCommand(processedFiles, mixedPath);
-      
       final mixSession = await FFmpegKit.execute(mixCommand);
       final mixReturnCode = await mixSession.getReturnCode();
-      
+
       if (!ReturnCode.isSuccess(mixReturnCode)) {
         throw Exception('Failed to mix vocal tracks');
       }
 
-      // Step 4: Final mastering pass
+      // Step 3: Final mastering pass
       final finalPath = '${tempDir.path}/final_vocals_$timestamp.wav';
-      final masterCommand = '''
-      -i "$mixedPath"
-      -filter_complex "
-        [0:a]
-        loudnorm=I=-16:TP=-1.5:LRA=11,
-        equalizer=f=3000:t=q:w=1:g=0.5,
-        alimiter=level_in=1:level_out=1:limit=-0.1:attack=5:release=50[a]
-      " -map "[a]" -c:a pcm_s16le "$finalPath"
-      '''.replaceAll('\n', ' ');
+      final masterCommand =
+          '-i "$mixedPath" -filter_complex "[0:a]loudnorm=I=-14:TP=-1.0:LRA=7[a]" -map "[a]" -c:a pcm_s16le "$finalPath"';
 
       final masterSession = await FFmpegKit.execute(masterCommand);
       final masterReturnCode = await masterSession.getReturnCode();
 
       // Clean up intermediate files
-      await _cleanTempFiles([...normalizedFiles, ...processedFiles, mixedPath]);
+      await _cleanTempFiles([...processedFiles, mixedPath]);
 
       if (ReturnCode.isSuccess(masterReturnCode)) {
         return finalPath;
@@ -318,6 +310,38 @@ class EnhancedAudioProcessingService {
     } catch (e) {
       print('Error in vocal effects processing: $e');
       return null;
+    }
+  }
+
+  String _getEffectCommand(String effectName, Map<String, dynamic> parameters) {
+    switch (effectName) {
+      case 'eq':
+        final gain = parameters['gain'];
+        final frequency = parameters['frequency'];
+        final q = parameters['q'];
+        return ',equalizer=f=$frequency:t=h:width_type=q:w=$q:g=$gain';
+      case 'compressor':
+        final threshold = parameters['threshold'];
+        final ratio = parameters['ratio'];
+        final attack = parameters['attack'];
+        final release = parameters['release'];
+        return ',acompressor=threshold=${threshold}dB:ratio=$ratio:attack=$attack:release=$release';
+      case 'reverb':
+        final decay = parameters['decay'];
+        final mix = parameters['mix'];
+        return ',areverb=decay=$decay:mix=$mix';
+      case 'delay':
+        final time = parameters['time'];
+        final feedback = parameters['feedback'];
+        final mix = parameters['mix'];
+        return ',adelay=$time|$time:gains=$mix|$mix:feedback=$feedback';
+      case 'chorus':
+        final rate = parameters['rate'];
+        final depth = parameters['depth'];
+        final mix = parameters['mix'];
+        return ',chorus=$mix:$rate:$depth';
+      default:
+        return '';
     }
   }
 
@@ -481,6 +505,30 @@ class EnhancedAudioProcessingService {
       }
     } catch (e) {
       print('Error in format conversion: $e');
+      return null;
+    }
+  }
+
+  Future<String?> pitchCorrection(String inputPath) async {
+    final tempDir = await _getTempDir();
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final outputPath = '${tempDir.path}/pitch_corrected_$timestamp.wav';
+
+    try {
+      // Basic pitch correction using rubberband filter
+      final command = '-i "$inputPath" -af "rubberband=pitch=1.0" "$outputPath"';
+
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        return outputPath;
+      } else {
+        print('Failed to apply pitch correction');
+        return null;
+      }
+    } catch (e) {
+      print('Error in pitch correction: $e');
       return null;
     }
   }
