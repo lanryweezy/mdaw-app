@@ -4,68 +4,16 @@ import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:studio_wiz/widgets/effect_settings.dart';
 
-class AdvancedControlsPanel extends StatelessWidget {
-  final Track track;
-  const AdvancedControlsPanel({super.key, required this.track});
 
-  @override
-  Widget build(BuildContext context) {
-    final viewModel = Provider.of<DawViewModel>(context);
-    return Stack(
-      children: [
-        SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: _buildEffectsSection(context, viewModel),
-        ),
-        // Effect settings dialog overlay
-        if (viewModel.currentEffectSettings != null)
-          Positioned.fill(
-            child: GestureDetector(
-              onTap: () {
-                // Close effect settings when tapping outside
-                viewModel.closeEffectSettings();
-              },
-              child: Container(
-                color: Colors.black.withAlpha(127),
-                child: Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      // Prevent tap from closing dialog when tapping inside
-                    },
-                    child: Material(
-                      child: EffectSettings(
-                        effect: viewModel.currentEffectSettings!,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildEffectsSection(BuildContext context, DawViewModel viewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Effects for ${track.name}',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 16),
-        _buildEffectSlot(context, 'EQ', Icons.equalizer, true),
-        const SizedBox(height: 8),
-        _buildEffectSlot(context, 'Compressor', Icons.compress, false),
-        const SizedBox(height: 8),
-        _buildEffectSlot(context, 'Reverb', Icons.surround_sound, false),
-        const SizedBox(height: 8),
-        _buildEffectSlot(context, 'Delay', Icons.schedule, false),
-        const SizedBox(height: 8),
-        _buildEffectSlot(context, 'Chorus', Icons.waves, false),
       ],
     );
   }
