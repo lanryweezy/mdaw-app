@@ -235,13 +235,6 @@ class EnhancedAudioProcessingService {
     if (inputPaths.isEmpty) return null;
 
     final tempDir = await _getTempDir();
-    final timestamp = Date
-        final command =
-            '-i "$inputPath" -filter_complex "[0:a]${fadeCommand.isNotEmpty ? ',$fadeCommand' : ''}${effectsCommand.isNotEmpty ? ',$effectsCommand' : ''},loudnorm=I=-16:TP=-1.5:LRA=11[a]" -map "[a]" -c:a pcm_s16le "$processedPath"';
-
-        final session = await FFmpegKit.execute(command);
-        final returnCode = await session.getReturnCode();
-
         if (ReturnCode.isSuccess(returnCode)) {
           processedFiles.add(processedPath);
         } else {

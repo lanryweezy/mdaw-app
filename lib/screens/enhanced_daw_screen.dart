@@ -211,7 +211,6 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   }
 
   Widget _buildMixTab() {
-    return const MixerConsole();
   }
 
   Widget _buildAIToolsTab() {
@@ -405,37 +404,6 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
               description: 'Remove unwanted room reverb from vocals',
               icon: Icons.cleaning_services,
               onPressed: () => _applyDeReverb(),
-            ),
-            const SizedBox(height: 12),
-            AIToolButton(
-              title: 'Rap Processing',
-              description: 'Specialized processing for rap vocals',
-              icon: Icons.mic,
-              onPressed: () => _applyRapProcessing(),
-            ),
-            const SizedBox(height: 12),
-            AIToolButton(
-              title: 'Trap Processing',
-              description: 'Aggressive processing for trap vocals',
-              icon: Icons.volume_up,
-              onPressed: () => _applyTrapProcessing(),
-            ),
-            const SizedBox(height: 12),
-            AIToolButton(
-              title: 'Afrobeat Processing',
-              description: 'Warm processing for afrobeat vocals',
-              icon: Icons.music_note,
-              onPressed: () => _applyAfrobeatProcessing(),
-            ),
-            const SizedBox(height: 12),
-            AIToolButton(
-              title: 'Drill Processing',
-              description: 'Extreme processing for drill vocals',
-              icon: Icons.flash_on,
-              onPressed: () => _applyDrillProcessing(),
-            ),
-            const SizedBox(height: 12),
-            AIToolButton(
               title: 'Pitch Correction',
               description: 'Automatically correct the pitch of your vocals',
               icon: Icons.tune,
