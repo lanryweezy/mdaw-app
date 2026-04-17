@@ -234,12 +234,25 @@ class EnhancedAudioProcessingService {
   }) async {
     if (inputPaths.isEmpty) return null;
 
-    final tempDir = await _getTempDir();
+    try {
+      final tempDir = await _getTempDir();
+      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final List<String> processedFiles = [];
+
+      // Simulate processing for each track (in a real app, this would apply the effects)
+      for (int i = 0; i < inputPaths.length; i++) {
+        final inputPath = inputPaths[i];
+        final processedPath = '${tempDir.path}/processed_${i}_$timestamp.wav';
+
+        final command = '-i "$inputPath" -c:a pcm_s16le "$processedPath"';
+        final session = await FFmpegKit.execute(command);
+        final returnCode = await session.getReturnCode();
+
         if (ReturnCode.isSuccess(returnCode)) {
           processedFiles.add(processedPath);
         } else {
           print('Failed to process vocal track $i');
-          processedFiles.add(inputPath); // Use original if processing fails
+          processedFiles.add(inputPath);
         }
       }
 

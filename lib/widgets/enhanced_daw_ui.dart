@@ -165,16 +165,6 @@ class EnhancedDawUI extends StatelessWidget {
           ),
           color: Colors.purple,
         ),
-        const SizedBox(width: 16),
-        _buildProcessingButton(
-          label: 'AI Master Song',
-          onPressed: () => _showProcessingConfirmation(
-            context,
-            viewModel.aiMasterSong,
-            'Apply AI mastering to your song?',
-          ),
-          color: Colors.orange,
-        ),
       ],
     );
   }

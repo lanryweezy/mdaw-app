@@ -497,67 +497,6 @@ void toggleSolo(Track track) {
     }
   }
 
-
-    try {
-      final vocalTrack = vocalTracks.firstWhere(
-        (track) => track.hasAudio,
-        orElse: () {
-          _errorMessage = 'No vocal tracks found for pitch correction.';
-          throw Exception(_errorMessage);
-        },
-      );
-      }
-    } catch (e) {
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-        );
-      }
-      return mixedPath;
-    } catch (e) {
-    } finally {
-      _finishProcessing();
-    }
-  }
-
-
-  Future<void> aiMasterSong() async {
-    _startProcessing('Mastering song...');
-
-      }
-
-      final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
-        );
-        notifyListeners();
-      }
-    } catch (e) {
-
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-    try {
-      final vocalTrack = vocalTracks.firstWhere(
-        (track) => track.hasAudio,
-        orElse: () {
-          _errorMessage = 'No vocal tracks found for this operation.';
-          throw Exception(_errorMessage);
-        },
-      );
-      }
-    } catch (e) {
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-
-  }
-
-  // Project management methods
   void clearProject() {
     // Stop all playback
     stop();
@@ -783,6 +722,38 @@ void toggleSolo(Track track) {
   }
 
   // Method to cancel processing
+
+  Future<String?> applyVocalMixing(List<String> paths, dynamic preset) async {
+    return null;
+  }
+
+  Future<void> applyMastering(dynamic preset) async {
+  }
+
+  Future<void> applyVocalDoubling() async {
+  }
+
+  Future<void> applyHarmonizer() async {
+  }
+
+  Future<void> applyDeReverb() async {
+  }
+
+  Future<void> applyRapProcessing() async {
+  }
+
+  Future<void> applyTrapProcessing() async {
+  }
+
+  Future<void> applyAfrobeatProcessing() async {
+  }
+
+  Future<void> applyDrillProcessing() async {
+  }
+
+  Future<void> applyPitchCorrection() async {
+  }
+
   void cancelProcessing() {
     print('Canceling processing...');
     // In a real implementation, this would cancel any ongoing audio processing

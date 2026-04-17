@@ -211,6 +211,15 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   }
 
   Widget _buildMixTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AdvancedControlsPanel(),
+        ],
+      ),
+    );
   }
 
   Widget _buildAIToolsTab() {
@@ -404,6 +413,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
               description: 'Remove unwanted room reverb from vocals',
               icon: Icons.cleaning_services,
               onPressed: () => _applyDeReverb(),
+            ),
+            const SizedBox(height: 12),
+            AIToolButton(
               title: 'Pitch Correction',
               description: 'Automatically correct the pitch of your vocals',
               icon: Icons.tune,

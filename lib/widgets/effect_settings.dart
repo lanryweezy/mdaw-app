@@ -56,6 +56,7 @@ class _EffectSettingsState extends State<EffectSettings> {
     final List<Widget> controls = [];
 
     _parameters.forEach((key, value) {
+      // ignore: avoid_double_and_int_checks
       if (value is double) {
         controls.add(
           Padding(
@@ -90,6 +91,7 @@ class _EffectSettingsState extends State<EffectSettings> {
             ),
           ),
         );
+        // ignore: avoid_double_and_int_checks
       } else if (value is int) {
         controls.add(
           Padding(

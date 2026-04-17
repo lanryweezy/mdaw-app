@@ -102,7 +102,15 @@ class TimelineEditor extends StatelessWidget {
           right: BorderSide(color: Colors.grey[700]!, width: 1),
         ),
       ),
-      child: ListView.builder(
+      child: ListView.builder(primary: false,
+        itemCount: dawViewModel.vocalTracks.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat');
+          } else {
+            final track = dawViewModel.vocalTracks[index - 1];
+            return _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name);
+          }
         },
       ),
     );
@@ -215,7 +223,7 @@ class TimelineEditor extends StatelessWidget {
       child: Scrollbar(
         interactive: true,
         thumbVisibility: true,
-        child: SingleChildScrollView(
+        child: SingleChildScrollView(primary: false,
           scrollDirection: Axis.horizontal,
           child: SizedBox(
             width: contentWidth,
@@ -248,6 +256,13 @@ class TimelineEditor extends StatelessWidget {
 
   Widget _buildTracks(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
     return ListView.builder(
+      itemCount: dawViewModel.vocalTracks.length + 1,
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0);
+        } else {
+          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.vocalTracks[index - 1], index);
+        }
       },
     );
   }
@@ -449,6 +464,9 @@ class TimelineEditor extends StatelessWidget {
                           timelineViewModel.trimClip(clip.id, newStartTime, clip.endTime);
                         }
                       } else {
+                        final deltaX = details.delta.dx;
+                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
+                        final newFadeInDuration = clip.fadeInDuration + deltaDuration;
                         if (newFadeInDuration.inMilliseconds >= 0 && newFadeInDuration < clip.duration) {
                           timelineViewModel.setFadeIn(clip.id, newFadeInDuration);
                         }
@@ -484,6 +502,9 @@ class TimelineEditor extends StatelessWidget {
                           timelineViewModel.trimClip(clip.id, clip.startTime, newEndTime);
                         }
                       } else {
+                        final deltaX = -details.delta.dx;
+                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
+                        final newFadeOutDuration = clip.fadeOutDuration + deltaDuration;
                         if (newFadeOutDuration.inMilliseconds >= 0 && newFadeOutDuration < clip.duration) {
                           timelineViewModel.setFadeOut(clip.id, newFadeOutDuration);
                         }
@@ -585,7 +606,7 @@ class TimelineEditor extends StatelessWidget {
       child: Scrollbar(
         interactive: true,
         thumbVisibility: false,
-        child: SingleChildScrollView(
+        child: SingleChildScrollView(primary: false,
           scrollDirection: Axis.horizontal,
           child: Row(
             mainAxisSize: MainAxisSize.min,
