@@ -723,15 +723,22 @@ void toggleSolo(Track track) {
 
   // Method to cancel processing
 
-  Future<void> _processFirstVocalTrack(String operationName, Future<String?> Function(String) processor) async {
+  Future<void> _processTargetVocalTrack(String operationName, Future<String?> Function(String) processor) async {
     _startProcessing(operationName);
     try {
-      final vocalTrack = vocalTracks.firstWhere(
-        (track) => track.hasAudio,
-        orElse: () => throw Exception('No vocal tracks found.'),
-      );
+      Track? targetTrack = selectedTrack;
+      if (targetTrack == null || !targetTrack.hasAudio) {
+        targetTrack = vocalTracks.firstWhere(
+          (track) => track.hasAudio,
+          orElse: () => throw Exception('No vocal tracks found with audio. Please select a track or record audio.'),
+        );
+      }
 
-      final inputPath = vocalTrack.clips.first.path;
+      if (targetTrack.clips.isEmpty) {
+        throw Exception('The selected track has no audio clips.');
+      }
+
+      final inputPath = targetTrack.clips.first.path;
       final processedPath = await processor(inputPath);
 
       if (processedPath != null) {
@@ -749,8 +756,8 @@ void toggleSolo(Track track) {
         );
 
         // Update track
-        vocalTrack.clips.clear();
-        vocalTrack.clips.add(newClip);
+        targetTrack.clips.clear();
+        targetTrack.clips.add(newClip);
         notifyListeners();
       }
     } catch (e) {
@@ -834,35 +841,35 @@ void toggleSolo(Track track) {
   }
 
   Future<void> applyVocalDoubling() async {
-    await _processFirstVocalTrack('Vocal Doubling', _audioProcessingService.vocalDoubler);
+    await _processTargetVocalTrack('Vocal Doubling', _audioProcessingService.vocalDoubler);
   }
 
   Future<void> applyHarmonizer() async {
-    await _processFirstVocalTrack('Harmonizing', (p) => _audioProcessingService.harmonizer(p)); // simple harmony
+    await _processTargetVocalTrack('Harmonizing', (p) => _audioProcessingService.harmonizer(p)); // simple harmony
   }
 
   Future<void> applyDeReverb() async {
-    await _processFirstVocalTrack('De-Reverb', _audioProcessingService.deReverb);
+    await _processTargetVocalTrack('De-Reverb', _audioProcessingService.deReverb);
   }
 
   Future<void> applyRapProcessing() async {
-    await _processFirstVocalTrack('Rap Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack('Rap Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyTrapProcessing() async {
-    await _processFirstVocalTrack('Trap Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack('Trap Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyAfrobeatProcessing() async {
-    await _processFirstVocalTrack('Afrobeat Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack('Afrobeat Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyDrillProcessing() async {
-    await _processFirstVocalTrack('Drill Processing', _audioProcessingService.drillProcessing);
+    await _processTargetVocalTrack('Drill Processing', _audioProcessingService.drillProcessing);
   }
 
   Future<void> applyPitchCorrection() async {
-    await _processFirstVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
+    await _processTargetVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
   }
 
   void cancelProcessing() {
