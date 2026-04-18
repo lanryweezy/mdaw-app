@@ -43,7 +43,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply vocal doubler effect');
@@ -77,7 +77,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply harmonizer effect');
@@ -107,7 +107,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply de-reverb effect');
@@ -142,7 +142,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply drill processing effect');
@@ -177,7 +177,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply rap processing effect');
@@ -248,7 +248,7 @@ class EnhancedAudioProcessingService {
         final session = await FFmpegKit.execute(command);
         final returnCode = await session.getReturnCode();
 
-        if (ReturnCode.isSuccess(returnCode)) {
+        if (returnCode?.isValueSuccess() == true) {
           processedFiles.add(processedPath);
         } else {
           print('Failed to process vocal track $i');
@@ -262,7 +262,7 @@ class EnhancedAudioProcessingService {
       final mixSession = await FFmpegKit.execute(mixCommand);
       final mixReturnCode = await mixSession.getReturnCode();
 
-      if (!ReturnCode.isSuccess(mixReturnCode)) {
+      if (mixReturnCode?.isValueSuccess() != true) {
         throw Exception('Failed to mix vocal tracks');
       }
 
@@ -277,7 +277,7 @@ class EnhancedAudioProcessingService {
       // Clean up intermediate files
       await _cleanTempFiles([...processedFiles, mixedPath]);
 
-      if (ReturnCode.isSuccess(masterReturnCode)) {
+      if (masterReturnCode?.isValueSuccess() == true) {
         return finalPath;
       } else {
         throw Exception('Failed to master vocal mix');
@@ -359,7 +359,7 @@ class EnhancedAudioProcessingService {
       final alignSession = await FFmpegKit.execute(alignCommand);
       final alignReturnCode = await alignSession.getReturnCode();
       
-      if (!ReturnCode.isSuccess(alignReturnCode)) {
+      if (alignReturnCode?.isValueSuccess() != true) {
         throw Exception('Failed to align vocal and beat');
       }
 
@@ -401,7 +401,7 @@ class EnhancedAudioProcessingService {
       // Clean up intermediate file
       await _cleanTempFiles([alignedPath, processedPath]);
 
-      if (ReturnCode.isSuccess(finalReturnCode)) {
+      if (finalReturnCode?.isValueSuccess() == true) {
         return finalPath;
       } else {
         throw Exception('Failed to master song');
@@ -439,7 +439,7 @@ class EnhancedAudioProcessingService {
       
       await _cleanTempFiles([noiseProfilePath]);
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         throw Exception('Failed to reduce noise');
@@ -473,7 +473,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
       
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         throw Exception('Failed to convert audio format');
@@ -496,7 +496,7 @@ class EnhancedAudioProcessingService {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
 
-      if (ReturnCode.isSuccess(returnCode)) {
+      if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
         print('Failed to apply pitch correction');

@@ -723,35 +723,146 @@ void toggleSolo(Track track) {
 
   // Method to cancel processing
 
+  Future<void> _processFirstVocalTrack(String operationName, Future<String?> Function(String) processor) async {
+    _startProcessing(operationName);
+    try {
+      final vocalTrack = vocalTracks.firstWhere(
+        (track) => track.hasAudio,
+        orElse: () => throw Exception('No vocal tracks found.'),
+      );
+
+      final inputPath = vocalTrack.clips.first.path;
+      final processedPath = await processor(inputPath);
+
+      if (processedPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(processedPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: processedPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        // Update track
+        vocalTrack.clips.clear();
+        vocalTrack.clips.add(newClip);
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Error processing: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
   Future<String?> applyVocalMixing(List<String> paths, dynamic preset) async {
-    return null;
+    _startProcessing('Mixing Vocals...');
+    try {
+      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(paths);
+      if (mixedPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(mixedPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: mixedPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        mixedVocalTrack = Track(
+          id: 'mixed_vocals',
+          name: 'Mixed Vocals',
+          type: TrackType.mixed,
+          clips: [newClip]
+        );
+        notifyListeners();
+      }
+      return mixedPath;
+    } catch (e) {
+      _errorMessage = 'Error mixing vocals: $e';
+      return null;
+    } finally {
+      _finishProcessing();
+    }
   }
 
   Future<void> applyMastering(dynamic preset) async {
+    _startProcessing('Mastering song...');
+    try {
+      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty) return;
+      final vocalPath = vocalTracks.firstWhere((t) => t.hasAudio).clips.first.path;
+      final beatPath = beatTrack.clips.first.path;
+      final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
+
+      if (masteredPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(masteredPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: masteredPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        masteredSongTrack = Track(
+          id: 'mastered_song',
+          name: 'Mastered Song',
+          type: TrackType.mastered,
+          clips: [newClip]
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Error mastering: $e';
+    } finally {
+      _finishProcessing();
+    }
+
   }
 
   Future<void> applyVocalDoubling() async {
+    await _processFirstVocalTrack('Vocal Doubling', _audioProcessingService.vocalDoubler);
   }
 
   Future<void> applyHarmonizer() async {
+    await _processFirstVocalTrack('Harmonizing', (p) => _audioProcessingService.harmonizer(p)); // simple harmony
   }
 
   Future<void> applyDeReverb() async {
+    await _processFirstVocalTrack('De-Reverb', _audioProcessingService.deReverb);
   }
 
   Future<void> applyRapProcessing() async {
+    await _processFirstVocalTrack('Rap Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyTrapProcessing() async {
+    await _processFirstVocalTrack('Trap Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyAfrobeatProcessing() async {
+    await _processFirstVocalTrack('Afrobeat Processing', _audioProcessingService.rapProcessing);
   }
 
   Future<void> applyDrillProcessing() async {
+    await _processFirstVocalTrack('Drill Processing', _audioProcessingService.drillProcessing);
   }
 
   Future<void> applyPitchCorrection() async {
+    await _processFirstVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
   }
 
   void cancelProcessing() {
