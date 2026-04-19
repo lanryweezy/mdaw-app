@@ -6,6 +6,7 @@ import 'package:record/record.dart' as recorder;
 import 'package:path_provider/path_provider.dart';
 import 'package:studio_wiz/services/enhanced_audio_processing_service.dart';
 import 'package:studio_wiz/services/audio_resource_manager.dart';
+import 'package:studio_wiz/services/ai_audio_service.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/models/audio_clip.dart';
 import 'package:studio_wiz/models/timing_system.dart';
@@ -36,6 +37,7 @@ class DawViewModel extends ChangeNotifier {
 
   final recorder.AudioRecorder _audioRecorder = recorder.AudioRecorder();
   final EnhancedAudioProcessingService _audioProcessingService = EnhancedAudioProcessingService();
+  final AiAudioService _aiAudioService = AiAudioService();
 
   bool _isRecording = false;
   bool get isRecording => _isRecording;
@@ -870,6 +872,86 @@ void toggleSolo(Track track) {
 
   Future<void> applyPitchCorrection() async {
     await _processTargetVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
+  }
+
+  Future<void> separateStems() async {
+    _startProcessing('Separating Stems with AI...');
+    try {
+      if (beatTrack.clips.isEmpty) throw Exception('No beat track to separate.');
+      final inputPath = beatTrack.clips.first.path;
+      final separated = await _aiAudioService.separateStems(inputPath);
+
+      // Update beat track with instrumental
+      final instrumentalPath = separated['instrumental'];
+      if (instrumentalPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(instrumentalPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: instrumentalPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+        beatTrack.clips.clear();
+        beatTrack.clips.add(newClip);
+      }
+
+      // Move vocals to a vocal track
+      final vocalsPath = separated['vocals'];
+      if (vocalsPath != null) {
+        final targetVocalTrack = vocalTracks.firstWhere((t) => !t.hasAudio, orElse: () => vocalTracks.last);
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString() + "_vocals";
+        final controller = await AudioResourceManager().getOrCreateController(vocalsPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: vocalsPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+        targetVocalTrack.clips.clear();
+        targetVocalTrack.clips.add(newClip);
+      }
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Stem separation failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<void> generateAIAudio(String prompt) async {
+    _startProcessing('Generating AI Audio...');
+    try {
+      final generatedPath = await _aiAudioService.generateBeat(prompt);
+      final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final controller = await AudioResourceManager().getOrCreateController(generatedPath);
+      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+      final newClip = AudioClip(
+        id: clipId,
+        path: generatedPath,
+        controller: controller,
+        volume: 1.0,
+        startTime: Duration.zero,
+        endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+      );
+
+      beatTrack.clips.clear();
+      beatTrack.clips.add(newClip);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'AI generation failed: $e';
+    } finally {
+      _finishProcessing();
+    }
   }
 
   void cancelProcessing() {

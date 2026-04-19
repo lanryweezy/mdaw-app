@@ -175,6 +175,26 @@ class EnhancedDawUI extends StatelessWidget {
           ),
           color: Colors.orange,
         ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Stem Separation',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.separateStems(),
+            'Extract instrumental and vocals from the current beat?',
+          ),
+          color: Colors.teal,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'AI Beat Gen',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.generateAIAudio('A Lo-Fi hip hop beat'),
+            'Generate a new instrumental beat using AI?',
+          ),
+          color: Colors.cyan,
+        ),
       ],
     );
   }
