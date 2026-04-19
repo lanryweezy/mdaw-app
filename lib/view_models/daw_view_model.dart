@@ -954,6 +954,75 @@ void toggleSolo(Track track) {
     }
   }
 
+
+  Future<void> autoTuneVocals({String key = 'C Major'}) async {
+    await _processTargetVocalTrack('Auto-Tuning Vocals', (p) => _aiAudioService.autoTuneVocals(p, key: key));
+  }
+
+  Future<void> smartEqVocals() async {
+    _startProcessing('Smart EQ...');
+    try {
+      Track? targetTrack = selectedTrack;
+      if (targetTrack == null || !targetTrack.hasAudio) {
+        targetTrack = vocalTracks.firstWhere(
+          (track) => track.hasAudio,
+          orElse: () => throw Exception('No vocal tracks found with audio.'),
+        );
+      }
+
+      if (beatTrack.clips.isEmpty) throw Exception('No beat track to analyze against.');
+
+      final vocalPath = targetTrack.clips.first.path;
+      final beatPath = beatTrack.clips.first.path;
+      final eqPath = await _aiAudioService.smartEqVocals(vocalPath, beatPath);
+
+      final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final controller = await AudioResourceManager().getOrCreateController(eqPath);
+      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+      final newClip = AudioClip(
+        id: clipId,
+        path: eqPath,
+        controller: controller,
+        volume: 1.0,
+        startTime: Duration.zero,
+        endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+      );
+
+      targetTrack.clips.clear();
+      targetTrack.clips.add(newClip);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Smart EQ failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<void> detectBeatBpm() async {
+    if (beatTrack.clips.isEmpty) {
+      _errorMessage = 'No beat loaded.';
+      notifyListeners();
+      return;
+    }
+
+    _startProcessing('Detecting BPM/Key...');
+    try {
+      final inputPath = beatTrack.clips.first.path;
+      final info = await _aiAudioService.detectBpmAndKey(inputPath);
+
+      // Update UI with detected values (hypothetical, we can just show a success message for now)
+      // _timingSystem.setBpm(info['bpm'].round());
+
+      _errorMessage = 'Detected: ${info['bpm']} BPM in ${info['key']}';
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'BPM Detection failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
   void cancelProcessing() {
     print('Canceling processing...');
     // In a real implementation, this would cancel any ongoing audio processing

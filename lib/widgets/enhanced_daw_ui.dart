@@ -195,6 +195,26 @@ class EnhancedDawUI extends StatelessWidget {
           ),
           color: Colors.cyan,
         ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Auto-Tune',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.autoTuneVocals(),
+            'Apply AI pitch correction to selected vocal?',
+          ),
+          color: Colors.pink,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Smart EQ',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.smartEqVocals(),
+            'Analyze beat to carve out EQ space for the vocal?',
+          ),
+          color: Colors.indigo,
+        ),
       ],
     );
   }
