@@ -14,6 +14,8 @@ Transform your device into a professional recording studio with Studio Wiz, the 
 **🎛️ Professional Features:**
 • Multi-track recording and editing
 • Real-time audio processing with low latency
+• AI-powered mastering and vocal mixing
+• Professional effects (Auto-Tune, Reverb, Chorus, Delay, EQ)
 • Visual waveform editing with precise timeline control
 • Professional transport controls (play, pause, record, stop)
 • Zoom and scroll for detailed audio editing

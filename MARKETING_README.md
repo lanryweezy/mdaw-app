@@ -9,6 +9,8 @@ Studio Wiz is a professional-grade Digital Audio Workstation (DAW) built with Fl
 ### 🎛️ Professional Audio Editing
 - **Multi-track Recording**: Record and edit multiple audio tracks simultaneously
 - **Real-time Audio Processing**: Low-latency audio processing with professional-grade effects
+- **AI-Powered Mastering**: Instantly master tracks with advanced AI processing
+- **Professional Effects**: Auto-Tune, Reverb, Chorus, Delay, and EQ
 - **Waveform Visualization**: Visual audio editing with detailed waveform displays
 - **Timeline Editor**: Precise timeline editing with zoom and scroll capabilities
 
