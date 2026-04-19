@@ -41,8 +41,25 @@ class AiAudioService {
     final generatedPath = '${tempDir.path}/ai_generated_beat_$timestamp.wav';
 
     // Simulate the generated file (in a real app, we'd download the response bytes)
-    // We'll just create an empty file here as a stub for the path
-    await File(generatedPath).writeAsBytes([]);
+    // Here we generate 1 second of silence so the audio player doesn't crash on an empty file.
+    // A 44.1kHz 16-bit mono WAV file with 1 second of silence:
+    final header = [
+      0x52, 0x49, 0x46, 0x46, // "RIFF"
+      0x24, 0x58, 0x01, 0x00, // Chunk size
+      0x57, 0x41, 0x56, 0x45, // "WAVE"
+      0x66, 0x6d, 0x74, 0x20, // "fmt "
+      0x10, 0x00, 0x00, 0x00, // Subchunk1Size (16 for PCM)
+      0x01, 0x00, // AudioFormat (1 for PCM)
+      0x01, 0x00, // NumChannels (1)
+      0x44, 0xac, 0x00, 0x00, // SampleRate (44100)
+      0x88, 0x58, 0x01, 0x00, // ByteRate (44100 * 1 * 16 / 8)
+      0x02, 0x00, // BlockAlign
+      0x10, 0x00, // BitsPerSample (16)
+      0x64, 0x61, 0x74, 0x61, // "data"
+      0x00, 0x58, 0x01, 0x00  // Subchunk2Size (44100 * 2 = 88200)
+    ];
+    final audioData = List<int>.filled(88200, 0); // 1 second of silence
+    await File(generatedPath).writeAsBytes([...header, ...audioData]);
 
     return generatedPath;
   }
