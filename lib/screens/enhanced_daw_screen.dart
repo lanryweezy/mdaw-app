@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:studio_wiz/view_models/timeline_view_model.dart';
+import 'package:studio_wiz/widgets/adaptive_layout.dart';
 import 'package:studio_wiz/widgets/timeline_editor.dart';
 import 'package:studio_wiz/widgets/advanced_controls_panel.dart';
 import 'package:studio_wiz/services/audio_processing_service.dart';
@@ -29,24 +30,27 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   MasteringPreset _selectedMasteringPreset = MasteringPreset.loudAndClear;
   bool _isTransportVisible = true;
 
+  late DawViewModel _dawViewModel;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
-    _timelineViewModel = TimelineViewModel(dawViewModel);
-    dawViewModel.addListener(_handleDawViewModelChanges);
+    _dawViewModel = Provider.of<DawViewModel>(context, listen: false);
+    _timelineViewModel = TimelineViewModel(_dawViewModel);
+    _dawViewModel.addListener(_handleDawViewModelChanges);
   }
 
   @override
   void dispose() {
-    Provider.of<DawViewModel>(context, listen: false).removeListener(_handleDawViewModelChanges);
+    _dawViewModel.removeListener(_handleDawViewModelChanges);
     _tabController.dispose();
     _timelineViewModel.dispose();
     super.dispose();
   }
 
   void _handleDawViewModelChanges() {
+    if (!mounted) return;
     final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
     if (dawViewModel.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -62,135 +66,176 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _timelineViewModel),
       ],
-      child: Scaffold(
-        appBar: isLandscape
-            ? null
-            : AppBar(
-                title: const Text('ProStudio DAW'),
-                centerTitle: true,
-                bottom: TabBar(
-                  controller: _tabController,
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.center,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  tabs: const [
-                    Tab(icon: Icon(Icons.timeline, size: 20), text: 'Timeline', height: 48),
-                    Tab(icon: Icon(Icons.equalizer, size: 20), text: 'Mix', height: 48),
-                    Tab(icon: Icon(Icons.auto_awesome, size: 20), text: 'AI Tools', height: 48),
-                  ],
-                ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.add, size: 20),
-                    onPressed: () {
-                      context.read<DawViewModel>().addVocalTrack();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Added new vocal track')),
-                      );
-                    },
-                    tooltip: 'Add Track',
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.audio_file, size: 20),
-                    onPressed: () {
-                      context.read<DawViewModel>().importAudio(context.read<DawViewModel>().beatTrack);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Importing audio to beat track...')),
-                      );
-                    },
-                    tooltip: 'Import Audio',
-                  ),
-                  Consumer<TimelineViewModel>(
-                    builder: (context, timelineVM, child) {
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.undo, size: 20),
-                            onPressed: timelineVM.canUndo ? timelineVM.undo : null,
-                            tooltip: 'Undo',
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.redo, size: 20),
-                            onPressed: timelineVM.canRedo ? timelineVM.redo : null,
-                            tooltip: 'Redo',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              timelineVM.metronomeEnabled ? Icons.music_note : Icons.music_off,
-                              color: timelineVM.metronomeEnabled ? Colors.red : null,
-                              size: 20,
-                            ),
-                            onPressed: timelineVM.toggleMetronome,
-                            tooltip: 'Metronome',
-                          ),
-                        ],
-                      );
-                    },
-                  ),
-                ],
-              ),
-        body: Column(
-          children: [
-            if (isLandscape)
-              Container(
-                color: const Color(0xFF1A1A1A),
-                child: TabBar(
-                  controller: _tabController,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  labelColor: const Color(0xFF00D4FF),
-                  unselectedLabelColor: Colors.grey[600],
-                  tabs: const [
-                    Tab(icon: Icon(Icons.timeline, size: 18), text: 'Timeline', height: 36),
-                    Tab(icon: Icon(Icons.equalizer, size: 18), text: 'Mix', height: 36),
-                    Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'AI Tools', height: 36),
-                  ],
-                ),
-              ),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildTimelineTab(),
-                  _buildMixTab(),
-                  _buildAIToolsTab(),
-                ],
-              ),
-            ),
-          ],
-        ),
-        bottomNavigationBar: AnimatedContainer(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOut,
-          height: _isTransportVisible ? 100 : 0,
-          child: _isTransportVisible ? _buildTransportControls() : null,
-        ),
-        floatingActionButton: !_isTransportVisible
-            ? FloatingActionButton(
-                mini: true,
-                backgroundColor: const Color(0xFF00D4FF),
-                onPressed: () => setState(() => _isTransportVisible = true),
-                child: const Icon(Icons.play_arrow, color: Colors.black),
-              )
-            : null,
+      child: AdaptiveLayout(
+        mobileLayout: _buildMobileLayout(),
+        tabletLayout: _buildTabletLayout(),
+        desktopLayout: _buildDesktopLayout(),
       ),
+    );
+  }
+
+  Widget _buildMobileLayout() {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Column(
+        children: [
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                _buildTimelineTab(),
+                _buildMixTab(),
+                _buildAIToolsTab(),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        height: _isTransportVisible ? 100 : 0,
+        child: _isTransportVisible ? _buildTransportControls() : null,
+      ),
+      floatingActionButton: !_isTransportVisible
+          ? FloatingActionButton(
+              mini: true,
+              backgroundColor: const Color(0xFF00D4FF),
+              onPressed: () => setState(() => _isTransportVisible = true),
+              child: const Icon(Icons.play_arrow, color: Colors.black),
+            )
+          : null,
+    );
+  }
+
+  Widget _buildTabletLayout() {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: _buildTimelineTab(),
+          ),
+          Expanded(
+            flex: 1,
+            child: Column(
+              children: [
+                Expanded(child: _buildAIToolsTab()),
+              ],
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildTransportControls(),
+    );
+  }
+
+  Widget _buildDesktopLayout() {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: Row(
+        children: [
+          Expanded(
+            flex: 3,
+            child: Column(
+              children: [
+                Expanded(child: _buildTimelineTab()),
+                SizedBox(
+                  height: 200,
+                  child: _buildMixTab(),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: _buildAIToolsTab(),
+          ),
+        ],
+      ),
+      bottomNavigationBar: _buildTransportControls(),
+    );
+  }
+
+  AppBar _buildAppBar() {
+    return AppBar(
+      title: const Text('ProStudio DAW'),
+      centerTitle: true,
+      bottom: TabBar(
+        controller: _tabController,
+        isScrollable: true,
+        tabAlignment: TabAlignment.center,
+        indicatorSize: TabBarIndicatorSize.label,
+        tabs: const [
+          Tab(icon: Icon(Icons.timeline, size: 20), text: 'Timeline', height: 48),
+          Tab(icon: Icon(Icons.equalizer, size: 20), text: 'Mix', height: 48),
+          Tab(icon: Icon(Icons.auto_awesome, size: 20), text: 'AI Tools', height: 48),
+        ],
+      ),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.add, size: 20),
+          onPressed: () {
+            context.read<DawViewModel>().addVocalTrack();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Added new vocal track')),
+            );
+          },
+          tooltip: 'Add Track',
+        ),
+        IconButton(
+          icon: const Icon(Icons.audio_file, size: 20),
+          onPressed: () {
+            context.read<DawViewModel>().importAudio(context.read<DawViewModel>().beatTrack);
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Importing audio to beat track...')),
+            );
+          },
+          tooltip: 'Import Audio',
+        ),
+        Consumer<TimelineViewModel>(
+          builder: (context, timelineVM, child) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.undo, size: 20),
+                  onPressed: timelineVM.canUndo ? timelineVM.undo : null,
+                  tooltip: 'Undo',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.redo, size: 20),
+                  onPressed: timelineVM.canRedo ? timelineVM.redo : null,
+                  tooltip: 'Redo',
+                ),
+                IconButton(
+                  icon: Icon(
+                    timelineVM.metronomeEnabled ? Icons.music_note : Icons.music_off,
+                    color: timelineVM.metronomeEnabled ? Colors.red : null,
+                    size: 20,
+                  ),
+                  onPressed: timelineVM.toggleMetronome,
+                  tooltip: 'Metronome',
+                ),
+              ],
+            );
+          },
+        ),
+      ],
     );
   }
 
   Widget _buildProcessingOverlay(BuildContext context, DawViewModel viewModel) {
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withAlpha(200),
       child: Center(
-        child: ProcessingDialog(
-          operation: viewModel.currentOperation ?? 'Processing...',
-          progress: viewModel.processingProgress,
-          onCancel: () => viewModel.cancelProcessing(),
+        child: VisualProcessingIndicator(
+          text: viewModel.currentOperation ?? 'Cooking your sound...',
         ),
       ),
     );
@@ -214,6 +259,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+          mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AdvancedControlsPanel(),
@@ -226,6 +272,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+          mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildVocalMixSection(),
@@ -243,6 +290,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -314,6 +362,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -385,6 +434,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -446,6 +496,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       ),
       child: SafeArea(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Collapse button
             SizedBox(
@@ -466,7 +517,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
             ),
             // Transport buttons
             SizedBox(
-              height: 56, // Explicitly set height to fit within 100 (100 - 20 - 12 - 12 = 56)
+              height: 48,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

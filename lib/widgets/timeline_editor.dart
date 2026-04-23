@@ -22,16 +22,26 @@ class TimelineEditor extends StatelessWidget {
           ),
           Expanded(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Consumer<DawViewModel>(
-                  builder: (context, dawViewModel, child) {
-                    return _buildTrackList(context, dawViewModel, context.watch<TimelineViewModel>());
-                  },
+                SizedBox(
+                  width: 120,
+                  child: Consumer<DawViewModel>(
+                    builder: (context, dawViewModel, child) {
+                      return _buildTrackList(context, dawViewModel, context.watch<TimelineViewModel>());
+                    },
+                  ),
                 ),
                 Expanded(
                   child: Consumer2<DawViewModel, TimelineViewModel>(
                     builder: (context, dawViewModel, timelineViewModel, child) {
-                      return _buildTimelineView(context, dawViewModel, timelineViewModel);
+                      return InteractiveViewer(
+                        constrained: false,
+                        boundaryMargin: const EdgeInsets.all(double.infinity),
+                        minScale: 0.1,
+                        maxScale: 5.0,
+                        child: _buildTimelineView(context, dawViewModel, timelineViewModel),
+                      );
                     },
                   ),
                 ),
@@ -50,7 +60,7 @@ class TimelineEditor extends StatelessWidget {
 
   Widget _buildTimelineHeader(BuildContext context, TimelineViewModel timelineViewModel) {
     return Container(
-      height: 60,
+      height: 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         border: Border(
@@ -62,7 +72,7 @@ class TimelineEditor extends StatelessWidget {
           // Track header
           Container(
             width: 200,
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(8),
             child: const Text(
               'Tracks',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -79,7 +89,7 @@ class TimelineEditor extends StatelessWidget {
 
   Widget _buildTimelineRuler(BuildContext context, TimelineViewModel timelineViewModel) {
     return SizedBox(
-      height: 60,
+      height: 24,
       child: RepaintBoundary(
         child: CustomPaint(
         painter: TimelineRulerPainter(
@@ -220,10 +230,7 @@ class TimelineEditor extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
       ),
-      child: Scrollbar(
-        interactive: true,
-        thumbVisibility: true,
-        child: SingleChildScrollView(primary: false,
+      child: SingleChildScrollView(primary: false,
           scrollDirection: Axis.horizontal,
           child: SizedBox(
             width: contentWidth,
@@ -236,11 +243,9 @@ class TimelineEditor extends StatelessWidget {
               ],
             ),
           ),
-        ),
       ),
     );
   }
-
   Widget _buildGridBackground(BuildContext context, TimelineViewModel timelineViewModel) {
     return RepaintBoundary(
       child: CustomPaint(
@@ -603,10 +608,7 @@ class TimelineEditor extends StatelessWidget {
           top: BorderSide(color: Colors.grey[700]!, width: 1),
         ),
       ),
-      child: Scrollbar(
-        interactive: true,
-        thumbVisibility: false,
-        child: SingleChildScrollView(primary: false,
+      child: SingleChildScrollView(primary: false,
           scrollDirection: Axis.horizontal,
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -693,7 +695,6 @@ class TimelineEditor extends StatelessWidget {
             ),
             ],
           ),
-        ),
       ),
     );
   }
