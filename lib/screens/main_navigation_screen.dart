@@ -41,7 +41,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       bottomNavigationBar: isLandscape ? null : AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
-        height: _isNavigationVisible ? 80 : 0,
+        height: _isNavigationVisible ? 85 : 0,
         child: _isNavigationVisible ? Container(
           decoration: BoxDecoration(
             color: const Color(0xFF1A1A1A),

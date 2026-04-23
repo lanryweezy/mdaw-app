@@ -40,13 +40,14 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
 
   @override
   void dispose() {
-    Provider.of<DawViewModel>(context, listen: false).removeListener(_handleDawViewModelChanges);
+    // Provider.of<DawViewModel>(context, listen: false).removeListener(_handleDawViewModelChanges);
     _tabController.dispose();
     _timelineViewModel.dispose();
     super.dispose();
   }
 
   void _handleDawViewModelChanges() {
+    if (!mounted) return;
     final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
     if (dawViewModel.errorMessage != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +64,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   @override
   Widget build(BuildContext context) {
     final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
-    
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: _timelineViewModel),
@@ -147,9 +148,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   labelColor: const Color(0xFF00D4FF),
                   unselectedLabelColor: Colors.grey[600],
                   tabs: const [
-                    Tab(icon: Icon(Icons.timeline, size: 18), text: 'Timeline', height: 36),
-                    Tab(icon: Icon(Icons.equalizer, size: 18), text: 'Mix', height: 36),
-                    Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'AI Tools', height: 36),
+                    Tab(icon: Icon(Icons.timeline, size: 18), text: 'Timeline', height: 48),
+                    Tab(icon: Icon(Icons.equalizer, size: 18), text: 'Mix', height: 48),
+                    Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'AI Tools', height: 48),
                   ],
                 ),
               ),
@@ -185,12 +186,10 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
 
   Widget _buildProcessingOverlay(BuildContext context, DawViewModel viewModel) {
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withAlpha(200),
       child: Center(
-        child: ProcessingDialog(
-          operation: viewModel.currentOperation ?? 'Processing...',
-          progress: viewModel.processingProgress,
-          onCancel: () => viewModel.cancelProcessing(),
+        child: VisualProcessingIndicator(
+          text: viewModel.currentOperation ?? 'Cooking your sound...',
         ),
       ),
     );
@@ -211,12 +210,23 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   }
 
   Widget _buildMixTab() {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+          mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const AdvancedControlsPanel(),
+        ],
+      ),
+    );
   }
 
   Widget _buildAIToolsTab() {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
+          mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildVocalMixSection(),
@@ -234,6 +244,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -305,6 +316,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -376,6 +388,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
@@ -404,6 +417,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
               description: 'Remove unwanted room reverb from vocals',
               icon: Icons.cleaning_services,
               onPressed: () => _applyDeReverb(),
+            ),
+            const SizedBox(height: 12),
+            AIToolButton(
               title: 'Pitch Correction',
               description: 'Automatically correct the pitch of your vocals',
               icon: Icons.tune,
@@ -434,6 +450,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
       ),
       child: SafeArea(
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             // Collapse button
             SizedBox(
@@ -454,7 +471,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
             ),
             // Transport buttons
             SizedBox(
-              height: 56, // Explicitly set height to fit within 100 (100 - 20 - 12 - 12 = 56)
+              height: 48,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [

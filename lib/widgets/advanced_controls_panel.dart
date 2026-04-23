@@ -4,16 +4,26 @@ import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:provider/provider.dart';
 import 'package:studio_wiz/widgets/effect_settings.dart';
 
+class AdvancedControlsPanel extends StatelessWidget {
+  const AdvancedControlsPanel({Key? key}) : super(key: key);
 
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
+          'Advanced Controls',
           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
         ),
         const SizedBox(height: 16),
+        _buildEffectSlot(context, 'eq', Icons.tune, false),
+        _buildEffectSlot(context, 'compressor', Icons.compress, false),
+        _buildEffectSlot(context, 'reverb', Icons.spatial_audio_off, false),
+        _buildEffectSlot(context, 'delay', Icons.replay, false),
+        _buildEffectSlot(context, 'chorus', Icons.group, false),
       ],
     );
   }

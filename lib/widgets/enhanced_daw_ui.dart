@@ -170,10 +170,50 @@ class EnhancedDawUI extends StatelessWidget {
           label: 'AI Master Song',
           onPressed: () => _showProcessingConfirmation(
             context,
-            viewModel.aiMasterSong,
+            () => viewModel.applyMastering(null),
             'Apply AI mastering to your song?',
           ),
           color: Colors.orange,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Stem Separation',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.separateStems(),
+            'Extract instrumental and vocals from the current beat?',
+          ),
+          color: Colors.teal,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'AI Beat Gen',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.generateAIAudio('A Lo-Fi hip hop beat'),
+            'Generate a new instrumental beat using AI?',
+          ),
+          color: Colors.cyan,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Auto-Tune',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.autoTuneVocals(),
+            'Apply AI pitch correction to selected vocal?',
+          ),
+          color: Colors.pink,
+        ),
+        const SizedBox(width: 16),
+        _buildProcessingButton(
+          label: 'Smart EQ',
+          onPressed: () => _showProcessingConfirmation(
+            context,
+            () => viewModel.smartEqVocals(),
+            'Analyze beat to carve out EQ space for the vocal?',
+          ),
+          color: Colors.indigo,
         ),
       ],
     );

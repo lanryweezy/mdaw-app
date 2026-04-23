@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:file_picker/file_picker.dart';
 import 'package:record/record.dart' as recorder;
 import 'package:path_provider/path_provider.dart';
 import 'package:studio_wiz/services/enhanced_audio_processing_service.dart';
 import 'package:studio_wiz/services/audio_resource_manager.dart';
+import 'package:studio_wiz/services/ai_audio_service.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/models/audio_clip.dart';
 import 'package:studio_wiz/models/timing_system.dart';
@@ -36,6 +38,7 @@ class DawViewModel extends ChangeNotifier {
 
   final recorder.AudioRecorder _audioRecorder = recorder.AudioRecorder();
   final EnhancedAudioProcessingService _audioProcessingService = EnhancedAudioProcessingService();
+  final AiAudioService _aiAudioService = AiAudioService();
 
   bool _isRecording = false;
   bool get isRecording => _isRecording;
@@ -497,67 +500,6 @@ void toggleSolo(Track track) {
     }
   }
 
-
-    try {
-      final vocalTrack = vocalTracks.firstWhere(
-        (track) => track.hasAudio,
-        orElse: () {
-          _errorMessage = 'No vocal tracks found for pitch correction.';
-          throw Exception(_errorMessage);
-        },
-      );
-      }
-    } catch (e) {
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-        );
-      }
-      return mixedPath;
-    } catch (e) {
-    } finally {
-      _finishProcessing();
-    }
-  }
-
-
-  Future<void> aiMasterSong() async {
-    _startProcessing('Mastering song...');
-
-      }
-
-      final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
-        );
-        notifyListeners();
-      }
-    } catch (e) {
-
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-    try {
-      final vocalTrack = vocalTracks.firstWhere(
-        (track) => track.hasAudio,
-        orElse: () {
-          _errorMessage = 'No vocal tracks found for this operation.';
-          throw Exception(_errorMessage);
-        },
-      );
-      }
-    } catch (e) {
-      print(_errorMessage);
-    } finally {
-      _finishProcessing();
-    }
-  }
-
-  }
-
-  // Project management methods
   void clearProject() {
     // Stop all playback
     stop();
@@ -783,6 +725,305 @@ void toggleSolo(Track track) {
   }
 
   // Method to cancel processing
+
+  Future<void> _processTargetVocalTrack(String operationName, Future<String?> Function(String) processor) async {
+    _startProcessing(operationName);
+    try {
+      Track? targetTrack = selectedTrack;
+      if (targetTrack == null || !targetTrack.hasAudio) {
+        targetTrack = vocalTracks.firstWhere(
+          (track) => track.hasAudio,
+          orElse: () => throw Exception('No vocal tracks found with audio. Please select a track or record audio.'),
+        );
+      }
+
+      if (targetTrack.clips.isEmpty) {
+        throw Exception('The selected track has no audio clips.');
+      }
+
+      final inputPath = targetTrack.clips.first.path;
+      final processedPath = await processor(inputPath);
+
+      if (processedPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(processedPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: processedPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        // Update track
+        targetTrack.clips.clear();
+        targetTrack.clips.add(newClip);
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Error processing: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<String?> applyVocalMixing(List<String> paths, dynamic preset) async {
+    _startProcessing('Mixing Vocals...');
+    try {
+      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(paths);
+      if (mixedPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(mixedPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: mixedPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        mixedVocalTrack = Track(
+          id: 'mixed_vocals',
+          name: 'Mixed Vocals',
+          type: TrackType.mixed,
+          clips: [newClip]
+        );
+        notifyListeners();
+      }
+      return mixedPath;
+    } catch (e) {
+      _errorMessage = 'Error mixing vocals: $e';
+      return null;
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<void> applyMastering(dynamic preset) async {
+    _startProcessing('Mastering song...');
+    try {
+      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty) return;
+      final vocalPath = vocalTracks.firstWhere((t) => t.hasAudio).clips.first.path;
+      final beatPath = beatTrack.clips.first.path;
+      final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
+
+      if (masteredPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(masteredPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: masteredPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+
+        masteredSongTrack = Track(
+          id: 'mastered_song',
+          name: 'Mastered Song',
+          type: TrackType.mastered,
+          clips: [newClip]
+        );
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Error mastering: $e';
+    } finally {
+      _finishProcessing();
+    }
+
+  }
+
+  Future<void> applyVocalDoubling() async {
+    await _processTargetVocalTrack('Vocal Doubling', _audioProcessingService.vocalDoubler);
+  }
+
+  Future<void> applyHarmonizer() async {
+    await _processTargetVocalTrack('Harmonizing', (p) => _audioProcessingService.harmonizer(p)); // simple harmony
+  }
+
+  Future<void> applyDeReverb() async {
+    await _processTargetVocalTrack('De-Reverb', _audioProcessingService.deReverb);
+  }
+
+  Future<void> applyRapProcessing() async {
+    await _processTargetVocalTrack('Rap Processing', _audioProcessingService.rapProcessing);
+  }
+
+  Future<void> applyTrapProcessing() async {
+    await _processTargetVocalTrack('Trap Processing', _audioProcessingService.rapProcessing);
+  }
+
+  Future<void> applyAfrobeatProcessing() async {
+    await _processTargetVocalTrack('Afrobeat Processing', _audioProcessingService.rapProcessing);
+  }
+
+  Future<void> applyDrillProcessing() async {
+    await _processTargetVocalTrack('Drill Processing', _audioProcessingService.drillProcessing);
+  }
+
+  Future<void> applyPitchCorrection() async {
+    await _processTargetVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
+  }
+
+  Future<void> separateStems() async {
+    _startProcessing('Separating Stems with AI...');
+    try {
+      if (beatTrack.clips.isEmpty) throw Exception('No beat track to separate.');
+      final inputPath = beatTrack.clips.first.path;
+      final separated = await _aiAudioService.separateStems(inputPath);
+
+      // Update beat track with instrumental
+      final instrumentalPath = separated['instrumental'];
+      if (instrumentalPath != null) {
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+        final controller = await AudioResourceManager().getOrCreateController(instrumentalPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: instrumentalPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+        beatTrack.clips.clear();
+        beatTrack.clips.add(newClip);
+      }
+
+      // Move vocals to a vocal track
+      final vocalsPath = separated['vocals'];
+      if (vocalsPath != null) {
+        final targetVocalTrack = vocalTracks.firstWhere((t) => !t.hasAudio, orElse: () => vocalTracks.last);
+        final clipId = DateTime.now().millisecondsSinceEpoch.toString() + "_vocals";
+        final controller = await AudioResourceManager().getOrCreateController(vocalsPath);
+        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+        final newClip = AudioClip(
+          id: clipId,
+          path: vocalsPath,
+          controller: controller,
+          volume: 1.0,
+          startTime: Duration.zero,
+          endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+        );
+        targetVocalTrack.clips.clear();
+        targetVocalTrack.clips.add(newClip);
+      }
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Stem separation failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<void> generateAIAudio(String prompt) async {
+    _startProcessing('Generating AI Audio...');
+    try {
+      final generatedPath = await _aiAudioService.generateBeat(prompt);
+      final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final controller = await AudioResourceManager().getOrCreateController(generatedPath);
+      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+      final newClip = AudioClip(
+        id: clipId,
+        path: generatedPath,
+        controller: controller,
+        volume: 1.0,
+        startTime: Duration.zero,
+        endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+      );
+
+      beatTrack.clips.clear();
+      beatTrack.clips.add(newClip);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'AI generation failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+
+  Future<void> autoTuneVocals({String key = 'C Major'}) async {
+    await _processTargetVocalTrack('Auto-Tuning Vocals', (p) => _aiAudioService.autoTuneVocals(p, key: key));
+  }
+
+  Future<void> smartEqVocals() async {
+    _startProcessing('Smart EQ...');
+    try {
+      Track? targetTrack = selectedTrack;
+      if (targetTrack == null || !targetTrack.hasAudio) {
+        targetTrack = vocalTracks.firstWhere(
+          (track) => track.hasAudio,
+          orElse: () => throw Exception('No vocal tracks found with audio.'),
+        );
+      }
+
+      if (beatTrack.clips.isEmpty) throw Exception('No beat track to analyze against.');
+
+      final vocalPath = targetTrack.clips.first.path;
+      final beatPath = beatTrack.clips.first.path;
+      final eqPath = await _aiAudioService.smartEqVocals(vocalPath, beatPath);
+
+      final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final controller = await AudioResourceManager().getOrCreateController(eqPath);
+      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+      final newClip = AudioClip(
+        id: clipId,
+        path: eqPath,
+        controller: controller,
+        volume: 1.0,
+        startTime: Duration.zero,
+        endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+      );
+
+      targetTrack.clips.clear();
+      targetTrack.clips.add(newClip);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Smart EQ failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
+  Future<void> detectBeatBpm() async {
+    if (beatTrack.clips.isEmpty) {
+      _errorMessage = 'No beat loaded.';
+      notifyListeners();
+      return;
+    }
+
+    _startProcessing('Detecting BPM/Key...');
+    try {
+      final inputPath = beatTrack.clips.first.path;
+      final info = await _aiAudioService.detectBpmAndKey(inputPath);
+
+      // Update UI with detected values (hypothetical, we can just show a success message for now)
+      // _timingSystem.setBpm(info['bpm'].round());
+
+      _errorMessage = 'Detected: ${info['bpm']} BPM in ${info['key']}';
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'BPM Detection failed: $e';
+    } finally {
+      _finishProcessing();
+    }
+  }
+
   void cancelProcessing() {
     print('Canceling processing...');
     // In a real implementation, this would cancel any ongoing audio processing

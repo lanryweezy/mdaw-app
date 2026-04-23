@@ -20,7 +20,7 @@
 **Target Audience**: Gen Z and Millennial music creators
 **Content Strategy**:
 - **Quick Tutorials**: 15-30 second feature demonstrations
-- **Before/After**: Show audio quality improvements
+- **Before/After**: Show audio quality improvements, such as AI Mastering and Vocal Effects
 - **Trending Sounds**: Use popular audio with Studio Wiz creations
 - **Behind-the-Scenes**: Development process and team content
 - **User Spotlights**: Feature creators using Studio Wiz

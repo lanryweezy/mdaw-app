@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:studio_wiz/widgets/visual_feedback.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/models/audio_clip.dart';
@@ -135,8 +136,10 @@ class EnhancedTrackWidget extends StatelessWidget {
   }
 
   Widget _buildClipWidget(AudioClip clip) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 8),
+    return GlowingTrackBorder(
+      isSelected: isSelected,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey[800],

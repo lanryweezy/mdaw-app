@@ -110,51 +110,60 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
   }
 
   Widget _buildTrackHeader(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: widget.color.withAlpha(25),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      child: Row(
-        children: [
-          Icon(
-            _getTrackIcon(),
-            color: widget.color,
-            size: 24,
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              widget.title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+    final viewModel = Provider.of<DawViewModel>(context, listen: false);
+    final isSelected = viewModel.selectedTrack?.id == widget.track.id;
+
+    return GestureDetector(
+      onTap: () {
+        viewModel.selectTrack(widget.track);
+      },
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isSelected ? widget.color.withAlpha(76) : widget.color.withAlpha(25),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+          border: isSelected ? Border.all(color: widget.color, width: 2) : null,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              _getTrackIcon(),
+              color: widget.color,
+              size: 24,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                widget.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-          ),
-          _buildTrackStatusChip(),
-          // Add a visual indicator for collapsed state
-          if (widget.track.collapsed)
-            const Icon(
-              Icons.expand,
-              color: Colors.grey,
-              size: 16,
-            ),
-          IconButton(
-            icon: AnimatedRotation(
-              turns: widget.track.collapsed ? 0.5 : 0.0,
-              duration: const Duration(milliseconds: 200),
-              child: Icon(
-                widget.track.collapsed ? Icons.expand_more : Icons.expand_less,
-                color: widget.track.collapsed ? Colors.grey[400] : Colors.white,
+            _buildTrackStatusChip(),
+            // Add a visual indicator for collapsed state
+            if (widget.track.collapsed)
+              const Icon(
+                Icons.expand,
+                color: Colors.grey,
+                size: 16,
               ),
+            IconButton(
+              icon: AnimatedRotation(
+                turns: widget.track.collapsed ? 0.5 : 0.0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  widget.track.collapsed ? Icons.expand_more : Icons.expand_less,
+                  color: widget.track.collapsed ? Colors.grey[400] : Colors.white,
+                ),
+              ),
+              onPressed: _toggleCollapse,
+              tooltip: widget.track.collapsed ? 'Expand track' : 'Collapse track',
             ),
-            onPressed: _toggleCollapse,
-            tooltip: widget.track.collapsed ? 'Expand track' : 'Collapse track',
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

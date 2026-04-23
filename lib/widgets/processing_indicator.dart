@@ -1,172 +1,98 @@
 import 'package:flutter/material.dart';
+import 'dart:math' as math;
 
-/// Widget to show processing status for audio operations
-class ProcessingIndicator extends StatelessWidget {
-  final bool isProcessing;
-  final String? operation;
-  final double? progress;
+class VisualProcessingIndicator extends StatefulWidget {
+  final String text;
 
-  const ProcessingIndicator({
-    super.key,
-    required this.isProcessing,
-    this.operation,
-    this.progress,
-  });
+  const VisualProcessingIndicator({super.key, required this.text});
+
+  @override
+  State<VisualProcessingIndicator> createState() => _VisualProcessingIndicatorState();
+}
+
+class _VisualProcessingIndicatorState extends State<VisualProcessingIndicator> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (!isProcessing) return const SizedBox.shrink();
-
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.black.withAlpha(178),
-        borderRadius: BorderRadius.circular(12),
+        color: const Color(0xFF1A1A1A),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF00D4FF).withAlpha(76)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF00D4FF).withAlpha(50),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
+        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+          AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(5, (index) {
+                  return Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    width: 8,
+                    height: 20 + 20 * (0.5 + 0.5 * _sineWave(_controller.value, index)),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00D4FF),
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF00D4FF).withAlpha(127),
+                          blurRadius: 5,
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              );
+            },
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
           Text(
-            operation ?? 'Processing...',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          if (progress != null) ...[
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey[800],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}
-
-/// Dialog for showing processing status with dismiss option
-class ProcessingDialog extends StatelessWidget {
-  final String operation;
-  final double? progress;
-  final VoidCallback? onCancel;
-
-  const ProcessingDialog({
-    super.key,
-    required this.operation,
-    this.progress,
-    this.onCancel,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Colors.grey[900],
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-          ),
-          const SizedBox(height: 20),
-          Text(
-            operation,
+            widget.text,
             style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 1.2,
             ),
-            textAlign: TextAlign.center,
           ),
-          if (progress != null) ...[
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: progress,
-              backgroundColor: Colors.grey[800],
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+          const SizedBox(height: 8),
+          Text(
+            'A.I. Brain is learning your sound...',
+            style: TextStyle(
+              color: Colors.grey[400],
+              fontSize: 12,
             ),
-          ],
-          const SizedBox(height: 20),
-          if (onCancel != null)
-            TextButton(
-              onPressed: onCancel,
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.red),
-              ),
-            ),
+          ),
         ],
       ),
     );
   }
-}
 
-/// Snackbar for showing operation results
-class ProcessingSnackbar {
-  static void showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.check_circle, color: Colors.green),
-            const SizedBox(width: 8),
-            Text(message),
-          ],
-        ),
-        backgroundColor: Colors.green[800],
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  static void showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error, color: Colors.red),
-            const SizedBox(width: 8),
-            Text(message),
-          ],
-        ),
-        backgroundColor: Colors.red[800],
-        duration: const Duration(seconds: 3),
-      ),
-    );
-  }
-
-  static void showInfo(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.info, color: Colors.blue),
-            const SizedBox(width: 8),
-            Text(message),
-          ],
-        ),
-        backgroundColor: Colors.blue[800],
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
-
-  static void show(BuildContext context, String message, {Duration? duration}) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: duration ?? const Duration(seconds: 2),
-      ),
-    );
+  double _sineWave(double t, int index) {
+    return math.sin((t * 2 * math.pi) + (index * math.pi / 2));
   }
 }
