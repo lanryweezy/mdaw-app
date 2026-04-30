@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/services/ai_audio_brain.dart';
+import 'package:studio_wiz/widgets/ai_chat_interface.dart';
 
 class AIToolsPanel extends StatelessWidget {
   final Track track;
@@ -37,8 +38,100 @@ class AIToolsPanel extends StatelessWidget {
           icon: Icons.call_split,
           onPressed: () => _applyStemSeparation(context),
         ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Generate AI Beat',
+          description: 'Create a custom instrumental using AI',
+          icon: Icons.music_note,
+          onPressed: () => _generateAIBeat(context),
+        ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Smart EQ',
+          description: 'AI analyzes the track and applies professional EQ',
+          icon: Icons.equalizer,
+          onPressed: () => _applySmartEQ(context),
+        ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Detect BPM & Key',
+          description: 'Automatically find tempo and musical key',
+          icon: Icons.speed,
+          onPressed: () => _detectBPM(context),
+        ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Auto-Master',
+          description: 'AI balances the mix and optimizes loudness',
+          icon: Icons.album,
+          onPressed: () => _autoMaster(context),
+        ),
+        const SizedBox(height: 32),
+        const Divider(color: Colors.grey),
+        const SizedBox(height: 16),
+        const SizedBox(
+          height: 300,
+          child: AIChatInterface(),
+        ),
       ],
     );
+  }
+
+  void _autoMaster(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).applyMastering(null);
+  }
+
+  void _generateAIBeat(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final TextEditingController controller = TextEditingController();
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text('Generate AI Beat', style: TextStyle(color: Colors.white)),
+          content: TextField(
+            controller: controller,
+            style: const TextStyle(color: Colors.white),
+            decoration: InputDecoration(
+              hintText: 'e.g., A Lo-Fi hip hop beat',
+              hintStyle: TextStyle(color: Colors.grey[500]),
+              enabledBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF00D4FF)),
+              ),
+              focusedBorder: const UnderlineInputBorder(
+                borderSide: BorderSide(color: Color(0xFF00D4FF), width: 2),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel', style: TextStyle(color: Colors.grey[400])),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF00D4FF),
+                foregroundColor: Colors.black,
+              ),
+              onPressed: () {
+                final prompt = controller.text.isNotEmpty ? controller.text : 'A Lo-Fi hip hop beat';
+                Navigator.pop(context);
+                Provider.of<DawViewModel>(context, listen: false).generateAIAudio(prompt);
+              },
+              child: const Text('Generate'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _applySmartEQ(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).smartEqVocals();
+  }
+
+  void _detectBPM(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).detectBeatBpm();
   }
 
   String _formatIntentName(String name) {

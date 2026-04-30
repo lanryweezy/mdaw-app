@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:studio_wiz/services/enhanced_audio_processing_service.dart';
 import 'package:studio_wiz/services/audio_resource_manager.dart';
 import 'package:studio_wiz/services/ai_audio_service.dart';
+import 'package:studio_wiz/services/ai_audio_brain.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/models/audio_clip.dart';
 import 'package:studio_wiz/models/timing_system.dart';
@@ -39,6 +40,12 @@ class DawViewModel extends ChangeNotifier {
   final recorder.AudioRecorder _audioRecorder = recorder.AudioRecorder();
   final EnhancedAudioProcessingService _audioProcessingService = EnhancedAudioProcessingService();
   final AiAudioService _aiAudioService = AiAudioService();
+  late final AIAudioBrain _aiAudioBrain;
+
+  DawViewModel() {
+    _aiAudioBrain = AIAudioBrain(_aiAudioService);
+    _init();
+  }
 
   bool _isRecording = false;
   bool get isRecording => _isRecording;
@@ -59,7 +66,7 @@ class DawViewModel extends ChangeNotifier {
   final TimingSystem _timingSystem = TimingSystem();
   
   // Automation system
-  final AutomationSystem _automationSystem = AutomationSystem();
+  final AutomationSystem automationSystem = AutomationSystem();
   
   // Effects management
   final Map<String, AudioEffect> _effects = {};
@@ -82,10 +89,6 @@ class DawViewModel extends ChangeNotifier {
   void clearErrorMessage() {
     _errorMessage = null;
     notifyListeners();
-  }
-
-  DawViewModel() {
-    _init();
   }
 
   void _init() {
@@ -873,6 +876,46 @@ void toggleSolo(Track track) {
 
   Future<void> applyPitchCorrection() async {
     await _processTargetVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
+  }
+
+  Future<void> applyStudioMode(Track track, String intent) async {
+    if (track.clips.isEmpty) return;
+
+    _startProcessing('Applying Studio Mode...');
+    try {
+      final inputPath = track.clips.first.path;
+      String? beatPath;
+      if (beatTrack.clips.isNotEmpty) {
+        beatPath = beatTrack.clips.first.path;
+      }
+
+      final processedPath = await _aiAudioBrain.process(
+        rawVocalPath: inputPath,
+        beatPath: beatPath,
+        intentId: intent,
+      );
+
+      final clipId = DateTime.now().millisecondsSinceEpoch.toString();
+      final controller = await AudioResourceManager().getOrCreateController(processedPath);
+      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+
+      final newClip = AudioClip(
+        id: clipId,
+        path: processedPath,
+        controller: controller,
+        volume: track.clips.first.volume,
+        startTime: track.clips.first.startTime,
+        endTime: Duration(milliseconds: await controller.getDuration() ?? 0),
+      );
+
+      track.clips.clear();
+      track.clips.add(newClip);
+      notifyListeners();
+    } catch (e) {
+      _errorMessage = 'Studio Mode failed: $e';
+    } finally {
+      _finishProcessing();
+    }
   }
 
   Future<void> separateStems() async {
