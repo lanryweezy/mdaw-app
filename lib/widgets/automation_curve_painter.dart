@@ -22,7 +22,8 @@ class AutomationCurvePainter extends CustomPainter {
     for (final point in lane.points) {
       final x = (point.time.inMilliseconds / totalDuration.inMilliseconds) * size.width;
       // Normalize value to 0-1 range based on min/max
-      final normalizedValue = (point.value - lane.minValue) / (lane.maxValue - lane.minValue);
+      final range = lane.maxValue - lane.minValue;
+      final normalizedValue = range == 0 ? 0.5 : (point.value - lane.minValue) / range;
       // Invert Y so higher value = higher on screen
       final y = size.height - (normalizedValue * size.height);
 
