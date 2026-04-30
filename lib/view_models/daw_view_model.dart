@@ -66,7 +66,7 @@ class DawViewModel extends ChangeNotifier {
   final TimingSystem _timingSystem = TimingSystem();
   
   // Automation system
-  final AutomationSystem _automationSystem = AutomationSystem();
+  final AutomationSystem automationSystem = AutomationSystem();
   
   // Effects management
   final Map<String, AudioEffect> _effects = {};
