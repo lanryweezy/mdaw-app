@@ -127,26 +127,30 @@ class EnhancedTrackWidget extends StatelessWidget {
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      child: Column(
-        children: track.clips.map((clip) => _buildClipWidget(clip)).toList(),
-      ),
+    return Consumer<DawViewModel>(
+      builder: (context, viewModel, child) {
+        return Container(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            children: track.clips.map((clip) => _buildClipWidget(clip, viewModel.selectedTrack?.id == track.id)).toList(),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildClipWidget(AudioClip clip) {
+  Widget _buildClipWidget(AudioClip clip, bool isSelected) {
     return GlowingTrackBorder(
       isSelected: isSelected,
       child: Container(
         margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey[800],
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[700]!),
-      ),
-      child: Row(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey[800],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey[700]!),
+        ),
+        child: Row(
         children: [
           Container(
             width: 4,
@@ -180,6 +184,7 @@ class EnhancedTrackWidget extends StatelessWidget {
           ),
           _buildClipActions(clip),
         ],
+        ),
       ),
     );
   }

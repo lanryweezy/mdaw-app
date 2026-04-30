@@ -37,8 +37,41 @@ class AIToolsPanel extends StatelessWidget {
           icon: Icons.call_split,
           onPressed: () => _applyStemSeparation(context),
         ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Generate AI Beat',
+          description: 'Create a custom instrumental using AI',
+          icon: Icons.music_note,
+          onPressed: () => _generateAIBeat(context),
+        ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Smart EQ',
+          description: 'AI analyzes the track and applies professional EQ',
+          icon: Icons.equalizer,
+          onPressed: () => _applySmartEQ(context),
+        ),
+        const SizedBox(height: 16),
+        AIToolButton(
+          title: 'Detect BPM & Key',
+          description: 'Automatically find tempo and musical key',
+          icon: Icons.speed,
+          onPressed: () => _detectBPM(context),
+        ),
       ],
     );
+  }
+
+  void _generateAIBeat(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).generateAIAudio('A Lo-Fi hip hop beat');
+  }
+
+  void _applySmartEQ(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).smartEqVocals();
+  }
+
+  void _detectBPM(BuildContext context) {
+    Provider.of<DawViewModel>(context, listen: false).detectBeatBpm();
   }
 
   String _formatIntentName(String name) {

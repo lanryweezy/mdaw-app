@@ -337,9 +337,8 @@ class EnhancedDawUI extends StatelessWidget {
     return Container(
       color: Colors.black54,
       child: Center(
-        child: ProcessingDialog(
-          operation: viewModel.currentOperation ?? 'Processing...',
-          progress: viewModel.processingProgress,
+        child: VisualProcessingIndicator(
+          text: viewModel.currentOperation ?? 'Processing...',
         ),
       ),
     );
@@ -387,9 +386,8 @@ class EnhancedDawUI extends StatelessWidget {
             onPressed: () {
               Navigator.pop(context);
               viewModel.clearProject();
-              ProcessingSnackbar.showSuccess(
-                context,
-                'Project cleared successfully',
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Project cleared successfully')),
               );
             },
             child: const Text('Clear'),
