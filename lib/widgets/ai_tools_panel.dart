@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/services/ai_audio_brain.dart';
+import 'package:studio_wiz/widgets/ai_chat_interface.dart';
 
 class AIToolsPanel extends StatelessWidget {
   final Track track;
@@ -64,6 +65,13 @@ class AIToolsPanel extends StatelessWidget {
           description: 'AI balances the mix and optimizes loudness',
           icon: Icons.album,
           onPressed: () => _autoMaster(context),
+        ),
+        const SizedBox(height: 32),
+        const Divider(color: Colors.grey),
+        const SizedBox(height: 16),
+        const SizedBox(
+          height: 300,
+          child: AIChatInterface(),
         ),
       ],
     );
