@@ -15,26 +15,41 @@ class AIToolsPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('A.I. Producer Mode', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF00D4FF))),
-        const SizedBox(height: 8),
-        Text('Select your vision. The AI Brain will automatically detect pitch, set EQ, and master the mix.',
-            style: TextStyle(color: Colors.grey[400], fontSize: 14)),
-        const SizedBox(height: 24),
-        ...AIAudioBrain.intents.map((intent) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
-          child: AIToolButton(
-            title: _formatIntentName(intent.name),
-            description: intent.description,
-            icon: Icons.auto_awesome,
-            onPressed: () => _applyMode(context, intent.name),
+        const Text(
+          'A.I. Producer Mode',
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+            color: Color(0xFF00D4FF),
           ),
-        )),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Select your vision. The AI Brain will automatically detect pitch, set EQ, and master the mix.',
+          style: TextStyle(color: Colors.grey[400], fontSize: 14),
+        ),
+        const SizedBox(height: 24),
+        ...AIAudioBrain.intents.map(
+          (intent) => Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: AIToolButton(
+              title: _formatIntentName(intent.name),
+              description: intent.description,
+              icon: Icons.auto_awesome,
+              onPressed: () => _applyMode(context, intent.name),
+            ),
+          ),
+        ),
         const SizedBox(height: 32),
-        const Text('Pro Utility Tools', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const Text(
+          'Pro Utility Tools',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 16),
         AIToolButton(
           title: 'Extract Stems',
-          description: 'Uses Neural Networks to split vocals from instrumentals',
+          description:
+              'Uses Neural Networks to split vocals from instrumentals',
           icon: Icons.call_split,
           onPressed: () => _applyStemSeparation(context),
         ),
@@ -69,10 +84,7 @@ class AIToolsPanel extends StatelessWidget {
         const SizedBox(height: 32),
         const Divider(color: Colors.grey),
         const SizedBox(height: 16),
-        const SizedBox(
-          height: 300,
-          child: AIChatInterface(),
-        ),
+        const SizedBox(height: 300, child: AIChatInterface()),
       ],
     );
   }
@@ -88,7 +100,10 @@ class AIToolsPanel extends StatelessWidget {
         final TextEditingController controller = TextEditingController();
         return AlertDialog(
           backgroundColor: const Color(0xFF1E1E1E),
-          title: const Text('Generate AI Beat', style: TextStyle(color: Colors.white)),
+          title: const Text(
+            'Generate AI Beat',
+            style: TextStyle(color: Colors.white),
+          ),
           content: TextField(
             controller: controller,
             style: const TextStyle(color: Colors.white),
@@ -114,9 +129,14 @@ class AIToolsPanel extends StatelessWidget {
                 foregroundColor: Colors.black,
               ),
               onPressed: () {
-                final prompt = controller.text.isNotEmpty ? controller.text : 'A Lo-Fi hip hop beat';
+                final prompt = controller.text.isNotEmpty
+                    ? controller.text
+                    : 'A Lo-Fi hip hop beat';
                 Navigator.pop(context);
-                Provider.of<DawViewModel>(context, listen: false).generateAIAudio(prompt);
+                Provider.of<DawViewModel>(
+                  context,
+                  listen: false,
+                ).generateAIAudio(prompt);
               },
               child: const Text('Generate'),
             ),
@@ -171,7 +191,8 @@ class AIToolButton extends StatefulWidget {
   State<AIToolButton> createState() => _AIToolButtonState();
 }
 
-class _AIToolButtonState extends State<AIToolButton> with SingleTickerProviderStateMixin {
+class _AIToolButtonState extends State<AIToolButton>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
 
@@ -182,9 +203,10 @@ class _AIToolButtonState extends State<AIToolButton> with SingleTickerProviderSt
       vsync: this,
       duration: const Duration(milliseconds: 150),
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.95,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
   }
 
   @override
@@ -195,52 +217,75 @@ class _AIToolButtonState extends State<AIToolButton> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) => _controller.forward(),
-      onTapUp: (_) {
-        _controller.reverse();
-        widget.onPressed();
-      },
-      onTapCancel: () => _controller.reverse(),
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E1E1E),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: const Color(0xFF333333)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(50),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                                    color: const Color(0xFF00D4FF).withAlpha(20),
-                  borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      button: true,
+      label: widget.title,
+      hint: widget.description,
+      child: GestureDetector(
+        onTapDown: (_) => _controller.forward(),
+        onTapUp: (_) {
+          _controller.reverse();
+          widget.onPressed();
+        },
+        onTapCancel: () => _controller.reverse(),
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E1E),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: const Color(0xFF333333)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withAlpha(50),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-                child: Icon(widget.icon, color: const Color(0xFF00D4FF), size: 24),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(widget.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
-                    const SizedBox(height: 6),
-                    Text(widget.description, style: TextStyle(color: Colors.grey[400], fontSize: 13)),
-                  ],
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00D4FF).withAlpha(20),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    color: const Color(0xFF00D4FF),
+                    size: 24,
+                  ),
                 ),
-              ),
-              const Icon(Icons.arrow_forward_ios, color: Color(0xFF00D4FF), size: 16),
-            ],
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        widget.description,
+                        style: TextStyle(color: Colors.grey[400], fontSize: 13),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Color(0xFF00D4FF),
+                  size: 16,
+                ),
+              ],
+            ),
           ),
         ),
       ),
