@@ -200,6 +200,7 @@ class TimelineEditor extends StatelessWidget {
                 onPressed: () => dawViewModel.toggleMute(track),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                tooltip: track.muted ? 'Unmute track' : 'Mute track',
               ),
               IconButton(
                 icon: Icon(
@@ -209,6 +210,7 @@ class TimelineEditor extends StatelessWidget {
                 onPressed: () => dawViewModel.toggleSolo(track),
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(minWidth: 24, minHeight: 24),
+                tooltip: track.soloed ? 'Unsolo track' : 'Solo track',
               ),
               if (track.collapsed) ...[
                 if (track.muted)
@@ -619,6 +621,7 @@ class TimelineEditor extends StatelessWidget {
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
+              tooltip: 'Zoom out',
             ),
             Text('${(timelineViewModel.zoomLevel * 100).round()}%', style: const TextStyle(fontSize: 12)),
             IconButton(
@@ -627,6 +630,7 @@ class TimelineEditor extends StatelessWidget {
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
+              tooltip: 'Zoom in',
             ),
             const SizedBox(width: 16),
             IconButton(
@@ -688,9 +692,9 @@ class TimelineEditor extends StatelessWidget {
                 timelineViewModel.setTool(TimelineTool.values[index]);
               },
               children: const [
-                Icon(Icons.select_all),
-                Icon(Icons.content_cut),
-                Icon(Icons.straighten),
+                Tooltip(message: 'Select tool', child: Icon(Icons.select_all)),
+                Tooltip(message: 'Split tool', child: Icon(Icons.content_cut)),
+                Tooltip(message: 'Trim tool', child: Icon(Icons.straighten)),
               ],
             ),
             ],
