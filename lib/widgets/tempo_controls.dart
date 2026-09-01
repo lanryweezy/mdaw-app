@@ -13,9 +13,7 @@ class TempoControls extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[700]!, width: 1)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -29,7 +27,10 @@ class TempoControls extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('BPM', style: TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'BPM',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -39,12 +40,19 @@ class TempoControls extends StatelessWidget {
                             final currentBpm = timelineViewModel.bpm;
                             timelineViewModel.setBpm(currentBpm - 1);
                           },
-                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
                           padding: EdgeInsets.zero,
+                          tooltip: 'Decrease BPM',
                         ),
                         Container(
                           width: 50,
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             border: Border.all(color: Colors.grey[600]!),
                             borderRadius: BorderRadius.circular(4),
@@ -52,7 +60,10 @@ class TempoControls extends StatelessWidget {
                           child: Text(
                             '${timelineViewModel.bpm}',
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                         IconButton(
@@ -61,8 +72,12 @@ class TempoControls extends StatelessWidget {
                             final currentBpm = timelineViewModel.bpm;
                             timelineViewModel.setBpm(currentBpm + 1);
                           },
-                          constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                          constraints: const BoxConstraints(
+                            minWidth: 32,
+                            minHeight: 32,
+                          ),
                           padding: EdgeInsets.zero,
+                          tooltip: 'Increase BPM',
                         ),
                       ],
                     ),
@@ -73,7 +88,13 @@ class TempoControls extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Time Signature', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+                    const Text(
+                      'Time Signature',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -82,12 +103,18 @@ class TempoControls extends StatelessWidget {
                           items: [4, 3, 2].map((num) {
                             return DropdownMenuItem(
                               value: num,
-                              child: Text('$num', style: const TextStyle(fontSize: 12)),
+                              child: Text(
+                                '$num',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             );
                           }).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              timelineViewModel.setTimeSignature(value, timelineViewModel.timeSignatureDenominator);
+                              timelineViewModel.setTimeSignature(
+                                value,
+                                timelineViewModel.timeSignatureDenominator,
+                              );
                             }
                           },
                           style: const TextStyle(fontSize: 12),
@@ -98,12 +125,18 @@ class TempoControls extends StatelessWidget {
                           items: [4, 8].map((den) {
                             return DropdownMenuItem(
                               value: den,
-                              child: Text('$den', style: const TextStyle(fontSize: 12)),
+                              child: Text(
+                                '$den',
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             );
                           }).toList(),
                           onChanged: (value) {
                             if (value != null) {
-                              timelineViewModel.setTimeSignature(timelineViewModel.timeSignatureNumerator, value);
+                              timelineViewModel.setTimeSignature(
+                                timelineViewModel.timeSignatureNumerator,
+                                value,
+                              );
                             }
                           },
                           style: const TextStyle(fontSize: 12),
@@ -120,7 +153,8 @@ class TempoControls extends StatelessWidget {
                     const Text('Snap', style: TextStyle(fontSize: 12)),
                     Switch(
                       value: timelineViewModel.snapToGrid,
-                      onChanged: (value) => timelineViewModel.toggleSnapToGrid(),
+                      onChanged: (value) =>
+                          timelineViewModel.toggleSnapToGrid(),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ],
@@ -138,9 +172,9 @@ class TempoControls extends StatelessWidget {
                 tooltip: 'Zoom In',
                 onPressed: () {
                   timelineViewModel.zoomIn();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Zoomed in')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Zoomed in')));
                 },
               ),
               _buildIconButton(
@@ -149,9 +183,9 @@ class TempoControls extends StatelessWidget {
                 tooltip: 'Zoom Out',
                 onPressed: () {
                   timelineViewModel.zoomOut();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Zoomed out')),
-                  );
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(const SnackBar(content: Text('Zoomed out')));
                 },
               ),
               _buildIconButton(
