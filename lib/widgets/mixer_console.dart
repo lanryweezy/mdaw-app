@@ -13,22 +13,52 @@ class MixerConsole extends StatelessWidget {
       scrollDirection: Axis.horizontal,
       child: Row(
         children: [
-          _buildTrackChannel(context, viewModel, viewModel.beatTrack, 'Beat', Colors.blue),
+          _buildTrackChannel(
+            context,
+            viewModel,
+            viewModel.beatTrack,
+            'Beat',
+            Colors.blue,
+          ),
           ...viewModel.vocalTracks.asMap().entries.map((entry) {
             final index = entry.key;
             final track = entry.value;
-            return _buildTrackChannel(context, viewModel, track, 'Vocal ${index + 1}', _getTrackColor(index));
+            return _buildTrackChannel(
+              context,
+              viewModel,
+              track,
+              'Vocal ${index + 1}',
+              _getTrackColor(index),
+            );
           }),
           if (viewModel.mixedVocalTrack != null)
-            _buildTrackChannel(context, viewModel, viewModel.mixedVocalTrack!, 'Mixed', Colors.purple),
+            _buildTrackChannel(
+              context,
+              viewModel,
+              viewModel.mixedVocalTrack!,
+              'Mixed',
+              Colors.purple,
+            ),
           if (viewModel.masteredSongTrack != null)
-            _buildTrackChannel(context, viewModel, viewModel.masteredSongTrack!, 'Master', Colors.orange),
+            _buildTrackChannel(
+              context,
+              viewModel,
+              viewModel.masteredSongTrack!,
+              'Master',
+              Colors.orange,
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildTrackChannel(BuildContext context, DawViewModel viewModel, Track track, String name, Color color) {
+  Widget _buildTrackChannel(
+    BuildContext context,
+    DawViewModel viewModel,
+    Track track,
+    String name,
+    Color color,
+  ) {
     return Container(
       width: 120,
       margin: const EdgeInsets.all(8),
@@ -49,11 +79,13 @@ class MixerConsole extends StatelessWidget {
                 icon: Icon(track.muted ? Icons.volume_off : Icons.volume_up),
                 onPressed: () => viewModel.toggleMute(track),
                 color: track.muted ? Colors.red : null,
+                tooltip: track.muted ? 'Unmute' : 'Mute',
               ),
               IconButton(
                 icon: Icon(track.soloed ? Icons.star : Icons.star_border),
                 onPressed: () => viewModel.toggleSolo(track),
                 color: track.soloed ? Colors.yellow : null,
+                tooltip: track.soloed ? 'Unsolo' : 'Solo',
               ),
             ],
           ),
