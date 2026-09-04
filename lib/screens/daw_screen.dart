@@ -267,6 +267,7 @@ class _DawScreenState extends State<DawScreen> {
                       icon: const Icon(Icons.stop, size: 32),
                       onPressed: viewModel.stop,
                       color: Colors.white,
+                      tooltip: 'Stop',
                     ),
                     // Play/Pause Button
                     IconButton(
@@ -276,6 +277,7 @@ class _DawScreenState extends State<DawScreen> {
                       ),
                       onPressed: viewModel.isPlaying ? viewModel.pause : viewModel.play,
                       color: Colors.white,
+                      tooltip: viewModel.isPlaying ? 'Pause' : 'Play',
                     ),
                     // Record Button (Global, for first available vocal track)
                     IconButton(
@@ -291,6 +293,7 @@ class _DawScreenState extends State<DawScreen> {
                         viewModel.toggleRecording(emptyVocalTrack);
                       },
                       color: viewModel.isRecording ? Colors.redAccent : Colors.white,
+                      tooltip: viewModel.isRecording ? 'Stop Recording' : 'Record',
                     ),
                   ],
                 ),

@@ -155,6 +155,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             IconButton(
               icon: const Icon(Icons.send, color: Color(0xFF00D4FF)),
               onPressed: _sendMessage,
+              tooltip: 'Send message',
             ),
           ],
         ),
