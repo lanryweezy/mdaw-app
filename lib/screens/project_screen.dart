@@ -230,6 +230,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadProjects,
+            tooltip: 'Refresh projects',
           ),
         ],
       ),
