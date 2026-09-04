@@ -793,21 +793,26 @@ class TimelineViewModel extends ChangeNotifier {
   }
 
   AudioClip? _findClipById(String clipId) {
+    // ⚡ Bolt Optimization: Replaced expensive try-catch blocks and O(2N)
+    // .any() + .firstWhere() calls with O(N) nested for-loops. This prevents
+    // jank during rapid UI callbacks (e.g., dragClip operations).
     for (final track in _dawViewModel.vocalTracks) {
-      try {
-        return track.clips.firstWhere((c) => c.id == clipId);
-      } catch (e) {
-        // not found in this track
+      for (final clip in track.clips) {
+        if (clip.id == clipId) return clip;
       }
     }
-    if (_dawViewModel.beatTrack.clips.any((c) => c.id == clipId)) {
-      return _dawViewModel.beatTrack.clips.firstWhere((c) => c.id == clipId);
+    for (final clip in _dawViewModel.beatTrack.clips) {
+      if (clip.id == clipId) return clip;
     }
-    if (_dawViewModel.mixedVocalTrack?.clips.any((c) => c.id == clipId) ?? false) {
-      return _dawViewModel.mixedVocalTrack!.clips.firstWhere((c) => c.id == clipId);
+    if (_dawViewModel.mixedVocalTrack != null) {
+      for (final clip in _dawViewModel.mixedVocalTrack!.clips) {
+        if (clip.id == clipId) return clip;
+      }
     }
-    if (_dawViewModel.masteredSongTrack?.clips.any((c) => c.id == clipId) ?? false) {
-      return _dawViewModel.masteredSongTrack!.clips.firstWhere((c) => c.id == clipId);
+    if (_dawViewModel.masteredSongTrack != null) {
+      for (final clip in _dawViewModel.masteredSongTrack!.clips) {
+        if (clip.id == clipId) return clip;
+      }
     }
     return null;
   }
