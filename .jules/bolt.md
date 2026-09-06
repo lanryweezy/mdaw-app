@@ -1,0 +1,3 @@
+## 2023-10-27 - Exception-based control flow in high-frequency callbacks
+**Learning:** Found a major performance anti-pattern in Dart/Flutter codebase: using `firstWhere` and catching `StateError` for control flow, or doing `.any()` followed by `.firstWhere()`. During rapid UI updates like drag events in the timeline, exceptions add significant overhead and cause jank.
+**Action:** Always prefer standard `for` loops or checking for nullability (e.g., `firstWhereOrNull` from `collection` package or manual loop) over throwing and catching exceptions for standard logic flows, especially in high-frequency paths.
