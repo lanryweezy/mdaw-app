@@ -33,19 +33,29 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     String intentId = 'vocal_polish';
     String responseText = '';
 
-    if (lowerText.contains('radio') || lowerText.contains('pop') || lowerText.contains('mainstream')) {
+    if (lowerText.contains('radio') ||
+        lowerText.contains('pop') ||
+        lowerText.contains('mainstream')) {
       intentId = 'radio_ready';
       responseText = 'Applying "Radio Ready" preset to your vocals...';
-    } else if (lowerText.contains('club') || lowerText.contains('bass') || lowerText.contains('punch')) {
+    } else if (lowerText.contains('club') ||
+        lowerText.contains('bass') ||
+        lowerText.contains('punch')) {
       intentId = 'club_mix';
       responseText = 'Applying "Club Mix" preset to give it more punch...';
-    } else if (lowerText.contains('afrobeat') || lowerText.contains('warm') || lowerText.contains('groovy')) {
+    } else if (lowerText.contains('afrobeat') ||
+        lowerText.contains('warm') ||
+        lowerText.contains('groovy')) {
       intentId = 'afrobeat';
       responseText = 'Applying "Afrobeat Vibe" to your vocals...';
-    } else if (lowerText.contains('drill') || lowerText.contains('dark') || lowerText.contains('aggressive')) {
+    } else if (lowerText.contains('drill') ||
+        lowerText.contains('dark') ||
+        lowerText.contains('aggressive')) {
       intentId = 'drill_uk';
       responseText = 'Applying "UK Drill" preset...';
-    } else if (lowerText.contains('beat') || lowerText.contains('generate') || lowerText.contains('instrumental')) {
+    } else if (lowerText.contains('beat') ||
+        lowerText.contains('generate') ||
+        lowerText.contains('instrumental')) {
       // AI Beat Generation
       setState(() {
         _messages.add('AI: Generating a custom beat based on "$text"...');
@@ -54,7 +64,8 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
       Provider.of<DawViewModel>(context, listen: false).generateAIAudio(text);
       return;
     } else {
-      responseText = 'I will clean and tune your vocals with the "Vocal Polish" preset.';
+      responseText =
+          'I will clean and tune your vocals with the "Vocal Polish" preset.';
     }
 
     setState(() {
@@ -65,11 +76,14 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
     if (dawVM.selectedTrack != null && dawVM.selectedTrack!.clips.isNotEmpty) {
       dawVM.applyStudioMode(dawVM.selectedTrack!, intentId);
-    } else if (dawVM.vocalTracks.isNotEmpty && dawVM.vocalTracks.first.clips.isNotEmpty) {
+    } else if (dawVM.vocalTracks.isNotEmpty &&
+        dawVM.vocalTracks.first.clips.isNotEmpty) {
       dawVM.applyStudioMode(dawVM.vocalTracks.first, intentId);
     } else {
       setState(() {
-         _messages.add('AI: I could not find an active vocal track to process. Please select a track first.');
+        _messages.add(
+          'AI: I could not find an active vocal track to process. Please select a track first.',
+        );
       });
     }
   }
@@ -82,7 +96,11 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
           padding: EdgeInsets.only(bottom: 8.0),
           child: Text(
             'AI Assistant',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF00D4FF)),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF00D4FF),
+            ),
           ),
         ),
         Expanded(
@@ -100,20 +118,31 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Align(
-                    alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment: isUser
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isUser ? const Color(0xFF00D4FF).withAlpha(40) : Colors.grey[800],
+                        color: isUser
+                            ? const Color(0xFF00D4FF).withAlpha(40)
+                            : Colors.grey[800],
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: isUser ? const Color(0xFF00D4FF).withAlpha(128) : Colors.transparent,
+                          color: isUser
+                              ? const Color(0xFF00D4FF).withAlpha(128)
+                              : Colors.transparent,
                         ),
                       ),
                       child: Text(
-                        _messages[index].replaceFirst(isUser ? 'You: ' : 'AI: ', ''),
+                        _messages[index].replaceFirst(
+                          isUser ? 'You: ' : 'AI: ',
+                          '',
+                        ),
                         style: TextStyle(
-                          color: isUser ? const Color(0xFF00D4FF) : Colors.white,
+                          color: isUser
+                              ? const Color(0xFF00D4FF)
+                              : Colors.white,
                         ),
                       ),
                     ),
@@ -128,7 +157,13 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             padding: EdgeInsets.all(8.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text('AI is thinking...', style: TextStyle(color: Colors.grey, fontStyle: FontStyle.italic)),
+              child: Text(
+                'AI is thinking...',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ),
           ),
         const SizedBox(height: 8),
@@ -147,7 +182,10 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
                     borderRadius: BorderRadius.circular(20),
                     borderSide: BorderSide.none,
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
                 ),
               ),
             ),
@@ -155,6 +193,7 @@ class _AIChatInterfaceState extends State<AIChatInterface> {
             IconButton(
               icon: const Icon(Icons.send, color: Color(0xFF00D4FF)),
               onPressed: _sendMessage,
+              tooltip: 'Send message',
             ),
           ],
         ),

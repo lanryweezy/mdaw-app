@@ -27,28 +27,27 @@ class _ProjectScreenState extends State<ProjectScreen> {
     try {
       final dir = await getApplicationDocumentsDirectory();
       final projectsDir = Directory('${dir.path}/projects');
-      
+
       if (!await projectsDir.exists()) {
         await projectsDir.create(recursive: true);
       }
-      
+
       final files = await projectsDir.list().toList();
-      final projectFiles = files.where((file) => file.path.endsWith('.json')).toList();
-      
+      final projectFiles = files
+          .where((file) => file.path.endsWith('.json'))
+          .toList();
+
       _projects = [];
       for (final file in projectFiles) {
         try {
           final content = await File(file.path).readAsString();
           final projectData = jsonDecode(content);
           _projects.add(ProjectInfo.fromJson(projectData));
-        } catch (e) {
-
-        }
+        } catch (e) {}
       }
-      
+
       _projects.sort((a, b) => b.lastModified.compareTo(a.lastModified));
     } catch (e) {
-
     } finally {
       setState(() => _isLoading = false);
     }
@@ -71,39 +70,53 @@ class _ProjectScreenState extends State<ProjectScreen> {
         'createdAt': DateTime.now().toIso8601String(),
         'lastModified': DateTime.now().toIso8601String(),
         'beatTrack': {
-          'clips': viewModel.beatTrack.clips.map((clip) => {
-            'path': clip.path,
-            'volume': clip.volume,
-            'startTime': clip.startTime.inMilliseconds,
-            'endTime': clip.endTime.inMilliseconds,
-          }).toList(),
+          'clips': viewModel.beatTrack.clips
+              .map(
+                (clip) => {
+                  'path': clip.path,
+                  'volume': clip.volume,
+                  'startTime': clip.startTime.inMilliseconds,
+                  'endTime': clip.endTime.inMilliseconds,
+                },
+              )
+              .toList(),
         },
-        'vocalTracks': viewModel.vocalTracks.map((track) => {
-          'id': track.id,
-          'name': track.name,
-          'isMuted': track.muted,
-          'isSolo': track.soloed,
-          'clips': track.clips.map((clip) => {
-            'path': clip.path,
-            'volume': clip.volume,
-            'startTime': clip.startTime.inMilliseconds,
-            'endTime': clip.endTime.inMilliseconds,
-          }).toList(),
-        }).toList(),
+        'vocalTracks': viewModel.vocalTracks
+            .map(
+              (track) => {
+                'id': track.id,
+                'name': track.name,
+                'isMuted': track.muted,
+                'isSolo': track.soloed,
+                'clips': track.clips
+                    .map(
+                      (clip) => {
+                        'path': clip.path,
+                        'volume': clip.volume,
+                        'startTime': clip.startTime.inMilliseconds,
+                        'endTime': clip.endTime.inMilliseconds,
+                      },
+                    )
+                    .toList(),
+              },
+            )
+            .toList(),
       };
 
-      final projectFile = File('${projectsDir.path}/${projectName.replaceAll(' ', '_')}.json');
+      final projectFile = File(
+        '${projectsDir.path}/${projectName.replaceAll(' ', '_')}.json',
+      );
       await projectFile.writeAsString(jsonEncode(projectData));
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Project "$projectName" saved successfully!')),
       );
-      
+
       _loadProjects();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving project: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving project: $e')));
     }
   }
 
@@ -138,23 +151,28 @@ class _ProjectScreenState extends State<ProjectScreen> {
   Future<void> _loadProject(ProjectInfo project) async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      final projectFile = File('${dir.path}/projects/${project.name.replaceAll(' ', '_')}.json');
+      final projectFile = File(
+        '${dir.path}/projects/${project.name.replaceAll(' ', '_')}.json',
+      );
       final content = await projectFile.readAsString();
       final projectData = jsonDecode(content);
-      
+
       final viewModel = Provider.of<DawViewModel>(context, listen: false);
-      
+
       // Clear current project
       viewModel.clearProject();
-      
+
       // Load beat track
       if (projectData['beatTrack'] != null) {
         final beatData = projectData['beatTrack'];
         for (final clipData in beatData['clips']) {
-          await viewModel.importAudioFromPath(viewModel.beatTrack, clipData['path']);
+          await viewModel.importAudioFromPath(
+            viewModel.beatTrack,
+            clipData['path'],
+          );
         }
       }
-      
+
       // Load vocal tracks
       if (projectData['vocalTracks'] != null) {
         for (final trackData in projectData['vocalTracks']) {
@@ -162,23 +180,25 @@ class _ProjectScreenState extends State<ProjectScreen> {
             (t) => t.id == trackData['id'],
             orElse: () => viewModel.vocalTracks.first,
           );
-          
+
           track.muted = trackData['isMuted'] ?? false;
           track.soloed = trackData['isSolo'] ?? false;
-          
+
           for (final clipData in trackData['clips']) {
             await viewModel.importAudioFromPath(track, clipData['path']);
           }
         }
       }
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Project "${project.name}" loaded successfully!')),
+        SnackBar(
+          content: Text('Project "${project.name}" loaded successfully!'),
+        ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading project: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading project: $e')));
     }
   }
 
@@ -205,18 +225,20 @@ class _ProjectScreenState extends State<ProjectScreen> {
     if (confirmed == true) {
       try {
         final dir = await getApplicationDocumentsDirectory();
-        final projectFile = File('${dir.path}/projects/${project.name.replaceAll(' ', '_')}.json');
+        final projectFile = File(
+          '${dir.path}/projects/${project.name.replaceAll(' ', '_')}.json',
+        );
         await projectFile.delete();
-        
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Project "${project.name}" deleted!')),
         );
-        
+
         _loadProjects();
       } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error deleting project: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error deleting project: $e')));
       }
     }
   }
@@ -230,98 +252,96 @@ class _ProjectScreenState extends State<ProjectScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadProjects,
+            tooltip: 'Refresh projects',
           ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _projects.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.folder_open,
-                        size: 64,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No projects found',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Create your first project in the Studio',
-                        style: TextStyle(
-                          color: Colors.grey[500],
-                        ),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.folder_open, size: 64, color: Colors.grey[600]),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No projects found',
+                    style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                   ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadProjects,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _projects.length,
-                    itemBuilder: (context, index) {
-                      final project = _projects[index];
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.primary,
-                            child: const Icon(Icons.music_note, color: Colors.white),
-                          ),
-                          title: Text(
-                            project.name,
-                            style: const TextStyle(fontWeight: FontWeight.w600),
-                          ),
-                          subtitle: Text(
-                            'Modified: ${_formatDate(project.lastModified)}',
-                            style: TextStyle(color: Colors.grey[600]),
-                          ),
-                          trailing: PopupMenuButton(
-                            itemBuilder: (context) => [
-                              const PopupMenuItem(
-                                value: 'load',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.play_arrow),
-                                    SizedBox(width: 8),
-                                    Text('Load'),
-                                  ],
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete, color: Colors.red),
-                                    SizedBox(width: 8),
-                                    Text('Delete', style: TextStyle(color: Colors.red)),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onSelected: (value) {
-                              if (value == 'load') {
-                                _loadProject(project);
-                              } else if (value == 'delete') {
-                                _deleteProject(project);
-                              }
-                            },
-                          ),
-                          onTap: () => _loadProject(project),
-                        ),
-                      );
-                    },
+                  const SizedBox(height: 8),
+                  Text(
+                    'Create your first project in the Studio',
+                    style: TextStyle(color: Colors.grey[500]),
                   ),
-                ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: _loadProjects,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: _projects.length,
+                itemBuilder: (context, index) {
+                  final project = _projects[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: const Icon(
+                          Icons.music_note,
+                          color: Colors.white,
+                        ),
+                      ),
+                      title: Text(
+                        project.name,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      subtitle: Text(
+                        'Modified: ${_formatDate(project.lastModified)}',
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      trailing: PopupMenuButton(
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                            value: 'load',
+                            child: Row(
+                              children: [
+                                Icon(Icons.play_arrow),
+                                SizedBox(width: 8),
+                                Text('Load'),
+                              ],
+                            ),
+                          ),
+                          const PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                Icon(Icons.delete, color: Colors.red),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Delete',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        onSelected: (value) {
+                          if (value == 'load') {
+                            _loadProject(project);
+                          } else if (value == 'delete') {
+                            _deleteProject(project);
+                          }
+                        },
+                      ),
+                      onTap: () => _loadProject(project),
+                    ),
+                  );
+                },
+              ),
+            ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _saveCurrentProject,
         icon: const Icon(Icons.save),
@@ -333,7 +353,7 @@ class _ProjectScreenState extends State<ProjectScreen> {
   String _formatDate(DateTime date) {
     final now = DateTime.now();
     final difference = now.difference(date);
-    
+
     if (difference.inDays == 0) {
       return 'Today';
     } else if (difference.inDays == 1) {
