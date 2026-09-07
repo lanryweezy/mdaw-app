@@ -1,0 +1,3 @@
+## 2024-05-19 - Try-Catch Overhead in Dart
+**Learning:** Using `try-catch` blocks inside rapidly executing functions (like list `firstWhere` lookups during 60fps drag-and-drop operations) introduces massive performance overhead in Dart. A common anti-pattern found in this codebase is throwing an exception for control flow when an item isn't found, or worse, combining `.any()` with `.firstWhere()` resulting in O(2n) complexity.
+**Action:** Always prefer `indexWhere` or standard explicit `for` loops instead of `firstWhere` with `orElse: throw` when searching for items that might not exist, especially inside hot paths like UI event handlers or timeline operations.

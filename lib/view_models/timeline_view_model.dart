@@ -70,8 +70,10 @@ class TimelineState {
       snapToGrid: snapToGrid ?? this.snapToGrid,
       gridSize: gridSize ?? this.gridSize,
       bpm: bpm ?? this.bpm,
-      timeSignatureNumerator: timeSignatureNumerator ?? this.timeSignatureNumerator,
-      timeSignatureDenominator: timeSignatureDenominator ?? this.timeSignatureDenominator,
+      timeSignatureNumerator:
+          timeSignatureNumerator ?? this.timeSignatureNumerator,
+      timeSignatureDenominator:
+          timeSignatureDenominator ?? this.timeSignatureDenominator,
       metronomeEnabled: metronomeEnabled ?? this.metronomeEnabled,
       ticksPerBeat: ticksPerBeat ?? this.ticksPerBeat,
       selectedClipId: selectedClipId ?? this.selectedClipId,
@@ -222,7 +224,10 @@ class TimelineViewModel extends ChangeNotifier {
     return MusicalPosition.fromMilliseconds(
       milliseconds: _state.currentPosition.inMilliseconds,
       bpm: _state.bpm,
-      timeSignature: TimeSignature(numerator: _state.timeSignatureNumerator, denominator: _state.timeSignatureDenominator),
+      timeSignature: TimeSignature(
+        numerator: _state.timeSignatureNumerator,
+        denominator: _state.timeSignatureDenominator,
+      ),
       ticksPerBeat: _state.ticksPerBeat,
     );
   }
@@ -468,14 +473,15 @@ class TimelineViewModel extends ChangeNotifier {
       if (trackId == _dawViewModel.beatTrack.id) {
         targetTrack = _dawViewModel.beatTrack;
       } else {
-        try {
-          targetTrack = _dawViewModel.vocalTracks.firstWhere((track) => track.id == trackId);
-        } catch (e) {
-          if (_dawViewModel.mixedVocalTrack?.id == trackId) {
-            targetTrack = _dawViewModel.mixedVocalTrack;
-          } else if (_dawViewModel.masteredSongTrack?.id == trackId) {
-            targetTrack = _dawViewModel.masteredSongTrack;
-          }
+        final index = _dawViewModel.vocalTracks.indexWhere(
+          (track) => track.id == trackId,
+        );
+        if (index != -1) {
+          targetTrack = _dawViewModel.vocalTracks[index];
+        } else if (_dawViewModel.mixedVocalTrack?.id == trackId) {
+          targetTrack = _dawViewModel.mixedVocalTrack;
+        } else if (_dawViewModel.masteredSongTrack?.id == trackId) {
+          targetTrack = _dawViewModel.masteredSongTrack;
         }
       }
 
@@ -500,8 +506,10 @@ class TimelineViewModel extends ChangeNotifier {
       for (final track in [
         _dawViewModel.beatTrack,
         ..._dawViewModel.vocalTracks,
-        if (_dawViewModel.mixedVocalTrack != null) _dawViewModel.mixedVocalTrack!,
-        if (_dawViewModel.masteredSongTrack != null) _dawViewModel.masteredSongTrack!,
+        if (_dawViewModel.mixedVocalTrack != null)
+          _dawViewModel.mixedVocalTrack!,
+        if (_dawViewModel.masteredSongTrack != null)
+          _dawViewModel.masteredSongTrack!,
       ]) {
         final clipIndex = track.clips.indexWhere((c) => c.id == clipId);
         if (clipIndex != -1) {
@@ -521,24 +529,26 @@ class TimelineViewModel extends ChangeNotifier {
     final snappedTime = snapDurationToGrid(newStartTime);
 
     for (final track in _dawViewModel.vocalTracks) {
-      final clip = track.clips.firstWhere(
-        (c) => c.id == clipId,
-        orElse: () => throw Exception('Clip not found'),
-      );
+      final clipIndex = track.clips.indexWhere((c) => c.id == clipId);
+      if (clipIndex == -1) continue;
+
+      final clip = track.clips[clipIndex];
 
       final oldStartTime = clip.startTime;
       clip.startTime = snappedTime;
       clip.endTime = clip.endTime + (snappedTime - oldStartTime);
 
-      _addAction(TimelineAction(
-        type: 'clip_move',
-        data: {
-          'clipId': clipId,
-          'oldStartTime': oldStartTime.inMilliseconds,
-          'newStartTime': snappedTime.inMilliseconds,
-        },
-        timestamp: DateTime.now(),
-      ));
+      _addAction(
+        TimelineAction(
+          type: 'clip_move',
+          data: {
+            'clipId': clipId,
+            'oldStartTime': oldStartTime.inMilliseconds,
+            'newStartTime': snappedTime.inMilliseconds,
+          },
+          timestamp: DateTime.now(),
+        ),
+      );
 
       break;
     }
@@ -551,10 +561,10 @@ class TimelineViewModel extends ChangeNotifier {
     final snappedEndTime = snapDurationToGrid(newEndTime);
 
     for (final track in _dawViewModel.vocalTracks) {
-      final clip = track.clips.firstWhere(
-        (c) => c.id == clipId,
-        orElse: () => throw Exception('Clip not found'),
-      );
+      final clipIndex = track.clips.indexWhere((c) => c.id == clipId);
+      if (clipIndex == -1) continue;
+
+      final clip = track.clips[clipIndex];
 
       final oldStartTime = clip.startTime;
       final oldEndTime = clip.endTime;
@@ -562,17 +572,19 @@ class TimelineViewModel extends ChangeNotifier {
       clip.startTime = snappedStartTime;
       clip.endTime = snappedEndTime;
 
-      _addAction(TimelineAction(
-        type: 'clip_trim',
-        data: {
-          'clipId': clipId,
-          'oldStartTime': oldStartTime.inMilliseconds,
-          'oldEndTime': oldEndTime.inMilliseconds,
-          'newStartTime': snappedStartTime.inMilliseconds,
-          'newEndTime': snappedEndTime.inMilliseconds,
-        },
-        timestamp: DateTime.now(),
-      ));
+      _addAction(
+        TimelineAction(
+          type: 'clip_trim',
+          data: {
+            'clipId': clipId,
+            'oldStartTime': oldStartTime.inMilliseconds,
+            'oldEndTime': oldEndTime.inMilliseconds,
+            'newStartTime': snappedStartTime.inMilliseconds,
+            'newEndTime': snappedEndTime.inMilliseconds,
+          },
+          timestamp: DateTime.now(),
+        ),
+      );
 
       break;
     }
@@ -603,15 +615,17 @@ class TimelineViewModel extends ChangeNotifier {
 
       track.clips.insert(clipIndex + 1, newClip);
 
-      _addAction(TimelineAction(
-        type: 'clip_split',
-        data: {
-          'clipId': clipId,
-          'splitTime': snappedSplitTime.inMilliseconds,
-          'newClipId': newClip.id,
-        },
-        timestamp: DateTime.now(),
-      ));
+      _addAction(
+        TimelineAction(
+          type: 'clip_split',
+          data: {
+            'clipId': clipId,
+            'splitTime': snappedSplitTime.inMilliseconds,
+            'newClipId': newClip.id,
+          },
+          timestamp: DateTime.now(),
+        ),
+      );
 
       break;
     }
@@ -636,11 +650,13 @@ class TimelineViewModel extends ChangeNotifier {
 
       track.clips.removeAt(clipIndex);
 
-      _addAction(TimelineAction(
-        type: 'clip_delete',
-        data: clipData,
-        timestamp: DateTime.now(),
-      ));
+      _addAction(
+        TimelineAction(
+          type: 'clip_delete',
+          data: clipData,
+          timestamp: DateTime.now(),
+        ),
+      );
 
       break;
     }
@@ -654,8 +670,10 @@ class TimelineViewModel extends ChangeNotifier {
     final allClips = [
       ..._dawViewModel.beatTrack.clips,
       ..._dawViewModel.vocalTracks.expand((track) => track.clips),
-      if (_dawViewModel.mixedVocalTrack != null) ..._dawViewModel.mixedVocalTrack!.clips,
-      if (_dawViewModel.masteredSongTrack != null) ..._dawViewModel.masteredSongTrack!.clips,
+      if (_dawViewModel.mixedVocalTrack != null)
+        ..._dawViewModel.mixedVocalTrack!.clips,
+      if (_dawViewModel.masteredSongTrack != null)
+        ..._dawViewModel.masteredSongTrack!.clips,
     ];
 
     for (final clip in allClips) {
@@ -725,7 +743,8 @@ class TimelineViewModel extends ChangeNotifier {
       }
     }
 
-    if (_dawViewModel.mixedVocalTrack != null && _dawViewModel.mixedVocalTrack!.clips.isNotEmpty) {
+    if (_dawViewModel.mixedVocalTrack != null &&
+        _dawViewModel.mixedVocalTrack!.clips.isNotEmpty) {
       final originalClip = _dawViewModel.mixedVocalTrack!.clips.first;
 
       final newClip = AudioClip(
@@ -764,7 +783,11 @@ class TimelineViewModel extends ChangeNotifier {
   }
 
   void startDragging(String clipId, Offset position) {
-    _state = _state.copyWith(isDragging: true, dragStartPosition: position, selectedClipId: clipId);
+    _state = _state.copyWith(
+      isDragging: true,
+      dragStartPosition: position,
+      selectedClipId: clipId,
+    );
     notifyListeners();
   }
 
@@ -777,8 +800,9 @@ class TimelineViewModel extends ChangeNotifier {
     final clip = _findClipById(selectedClipId!);
     if (clip == null) return;
 
-    final newStartTime =
-        snapToGrid ? snapDurationToGrid(clip.startTime + deltaDuration) : clip.startTime + deltaDuration;
+    final newStartTime = snapToGrid
+        ? snapDurationToGrid(clip.startTime + deltaDuration)
+        : clip.startTime + deltaDuration;
 
     if (newStartTime >= Duration.zero) {
       moveClip(selectedClipId!, newStartTime);
@@ -794,20 +818,30 @@ class TimelineViewModel extends ChangeNotifier {
 
   AudioClip? _findClipById(String clipId) {
     for (final track in _dawViewModel.vocalTracks) {
-      try {
-        return track.clips.firstWhere((c) => c.id == clipId);
-      } catch (e) {
-        // not found in this track
+      for (final clip in track.clips) {
+        if (clip.id == clipId) {
+          return clip;
+        }
       }
     }
-    if (_dawViewModel.beatTrack.clips.any((c) => c.id == clipId)) {
-      return _dawViewModel.beatTrack.clips.firstWhere((c) => c.id == clipId);
+    for (final clip in _dawViewModel.beatTrack.clips) {
+      if (clip.id == clipId) {
+        return clip;
+      }
     }
-    if (_dawViewModel.mixedVocalTrack?.clips.any((c) => c.id == clipId) ?? false) {
-      return _dawViewModel.mixedVocalTrack!.clips.firstWhere((c) => c.id == clipId);
+    if (_dawViewModel.mixedVocalTrack != null) {
+      for (final clip in _dawViewModel.mixedVocalTrack!.clips) {
+        if (clip.id == clipId) {
+          return clip;
+        }
+      }
     }
-    if (_dawViewModel.masteredSongTrack?.clips.any((c) => c.id == clipId) ?? false) {
-      return _dawViewModel.masteredSongTrack!.clips.firstWhere((c) => c.id == clipId);
+    if (_dawViewModel.masteredSongTrack != null) {
+      for (final clip in _dawViewModel.masteredSongTrack!.clips) {
+        if (clip.id == clipId) {
+          return clip;
+        }
+      }
     }
     return null;
   }
