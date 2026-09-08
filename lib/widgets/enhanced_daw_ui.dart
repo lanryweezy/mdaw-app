@@ -41,7 +41,10 @@ class EnhancedDawUI extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, DawViewModel viewModel) {
+  PreferredSizeWidget _buildAppBar(
+    BuildContext context,
+    DawViewModel viewModel,
+  ) {
     return AppBar(
       backgroundColor: Colors.grey[850],
       title: const Text(
@@ -100,10 +103,12 @@ class EnhancedDawUI extends StatelessWidget {
           _buildTransportButton(
             icon: Icons.mic,
             onPressed: () {
-              final emptyVocalTrack = viewModel.vocalTracks.firstWhere(
+              final trackIndex = viewModel.vocalTracks.indexWhere(
                 (track) => !track.hasAudio,
-                orElse: () => viewModel.vocalTracks.first,
               );
+              final emptyVocalTrack = trackIndex != -1
+                  ? viewModel.vocalTracks[trackIndex]
+                  : viewModel.vocalTracks.first;
               viewModel.toggleRecording(emptyVocalTrack);
             },
             tooltip: 'Record',
@@ -133,7 +138,10 @@ class EnhancedDawUI extends StatelessWidget {
     );
   }
 
-  Widget _buildMasterVolumeSlider(BuildContext context, DawViewModel viewModel) {
+  Widget _buildMasterVolumeSlider(
+    BuildContext context,
+    DawViewModel viewModel,
+  ) {
     return Row(
       children: [
         const Icon(Icons.volume_up, color: Colors.white),
@@ -159,7 +167,7 @@ class EnhancedDawUI extends StatelessWidget {
         _buildProcessingButton(
           label: 'Magic Mix Vocals',
           onPressed: () => _showProcessingConfirmation(
-            context, 
+            context,
             viewModel.magicMixVocals,
             'Apply advanced vocal effects and mixing?',
           ),
@@ -262,7 +270,10 @@ class EnhancedDawUI extends StatelessWidget {
                       icon: const Icon(Icons.expand, size: 16),
                       label: const Text('Toggle All'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         textStyle: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -272,7 +283,10 @@ class EnhancedDawUI extends StatelessWidget {
                       icon: const Icon(Icons.expand_less, size: 16),
                       label: const Text('Collapse All'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         textStyle: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -282,7 +296,10 @@ class EnhancedDawUI extends StatelessWidget {
                       icon: const Icon(Icons.expand_more, size: 16),
                       label: const Text('Expand All'),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
                         textStyle: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -295,14 +312,34 @@ class EnhancedDawUI extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  _buildTrackWidget('Beat Track', viewModel.beatTrack, Colors.blue, viewModel),
-                  ...viewModel.vocalTracks.map((track) => 
-                    _buildTrackWidget('Vocals', track, Colors.green, viewModel)
+                  _buildTrackWidget(
+                    'Beat Track',
+                    viewModel.beatTrack,
+                    Colors.blue,
+                    viewModel,
+                  ),
+                  ...viewModel.vocalTracks.map(
+                    (track) => _buildTrackWidget(
+                      'Vocals',
+                      track,
+                      Colors.green,
+                      viewModel,
+                    ),
                   ),
                   if (viewModel.mixedVocalTrack != null)
-                    _buildTrackWidget('Mixed Vocals', viewModel.mixedVocalTrack!, Colors.purple, viewModel),
+                    _buildTrackWidget(
+                      'Mixed Vocals',
+                      viewModel.mixedVocalTrack!,
+                      Colors.purple,
+                      viewModel,
+                    ),
                   if (viewModel.masteredSongTrack != null)
-                    _buildTrackWidget('Mastered Song', viewModel.masteredSongTrack!, Colors.orange, viewModel),
+                    _buildTrackWidget(
+                      'Mastered Song',
+                      viewModel.masteredSongTrack!,
+                      Colors.orange,
+                      viewModel,
+                    ),
                 ],
               ),
             ),
@@ -317,7 +354,12 @@ class EnhancedDawUI extends StatelessWidget {
     viewModel.setAllTracksCollapsed(collapsed);
   }
 
-  Widget _buildTrackWidget(String title, Track track, Color color, DawViewModel viewModel) {
+  Widget _buildTrackWidget(
+    String title,
+    Track track,
+    Color color,
+    DawViewModel viewModel,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: CollapsibleTrackWidget(
@@ -325,10 +367,16 @@ class EnhancedDawUI extends StatelessWidget {
         track: track,
         color: color,
         onImport: () => viewModel.importAudio(track),
-        onRecord: track.type == TrackType.beat ? () => viewModel.toggleRecording(track) : null,
+        onRecord: track.type == TrackType.beat
+            ? () => viewModel.toggleRecording(track)
+            : null,
         onMute: () => viewModel.toggleMute(track),
         onSolo: () => viewModel.toggleSolo(track),
-        onVolumeChanged: (value) => viewModel.setVolume(track, track.clips.isNotEmpty ? track.clips.first : null, value),
+        onVolumeChanged: (value) => viewModel.setVolume(
+          track,
+          track.clips.isNotEmpty ? track.clips.first : null,
+          value,
+        ),
       ),
     );
   }
@@ -376,7 +424,9 @@ class EnhancedDawUI extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Project'),
-        content: const Text('Are you sure you want to clear all tracks? This cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to clear all tracks? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

@@ -1,0 +1,3 @@
+## 2024-05-18 - Avoid Control Flow via Exceptions and Double Iterations
+**Learning:** Found multiple instances where `DawViewModel` and `TimelineViewModel` utilized `.firstWhere(orElse: throw)` or `try-catch` blocks for control flow, particularly on hot paths like UI transport controls and timeline dragging operations (`_findClipById`). I also observed double array iterations using `.any()` followed by `.firstWhere()`. Dart's exception handling creates noticeable overhead during rapid callback execution.
+**Action:** Replaced `.firstWhere` control flows and double iterations with a single `.indexWhere()` check. This turns O(N) operations into more efficient, exception-free array indices verifications.
