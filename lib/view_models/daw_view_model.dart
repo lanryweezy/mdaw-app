@@ -354,15 +354,17 @@ class DawViewModel extends ChangeNotifier {
     notifyListeners();
   }
   
+  // ⚡ BOLT OPTIMIZATION: Avoid try/catch for effect lookup
+  // Performance impact: Removes exception-handling overhead during rapid effect state checks
   // Helper method to get effect state
   AudioEffect? getEffect(String effectName) {
-    try {
-      return _effects.values.firstWhere(
-        (e) => e.name.toLowerCase() == effectName.toLowerCase(),
-      );
-    } catch (e) {
-      return null;
+    final lowerCaseName = effectName.toLowerCase();
+    for (final effect in _effects.values) {
+      if (effect.name.toLowerCase() == lowerCaseName) {
+        return effect;
+      }
     }
+    return null;
   }
   
   // Helper method to update effect parameters
