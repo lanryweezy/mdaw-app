@@ -38,7 +38,8 @@ class DawViewModel extends ChangeNotifier {
   Track? selectedTrack;
 
   final recorder.AudioRecorder _audioRecorder = recorder.AudioRecorder();
-  final EnhancedAudioProcessingService _audioProcessingService = EnhancedAudioProcessingService();
+  final EnhancedAudioProcessingService _audioProcessingService =
+      EnhancedAudioProcessingService();
   final AiAudioService _aiAudioService = AiAudioService();
   late final AIAudioBrain _aiAudioBrain;
 
@@ -61,23 +62,23 @@ class DawViewModel extends ChangeNotifier {
   String? _currentOperation;
   double? _processingProgress;
   double masterVolume = 1.0;
-  
+
   // Timing system
   final TimingSystem _timingSystem = TimingSystem();
-  
+
   // Automation system
   final AutomationSystem automationSystem = AutomationSystem();
-  
+
   // Effects management
   final Map<String, AudioEffect> _effects = {};
-  
+
   // Automation data
   final Map<String, List<Map<String, dynamic>>> _automationData = {};
   bool _isRecordingAutomation = false;
   final Set<String> _automatedParameters = {};
   final Map<String, dynamic> _currentAutomationValues = {};
   bool _isPlayingAutomation = false;
-  
+
   // Getters for processing state
   bool get isProcessing => _isProcessing;
   String? get currentOperation => _currentOperation;
@@ -94,13 +95,15 @@ class DawViewModel extends ChangeNotifier {
   void _init() {
     beatTrack = Track(id: 'beat', name: 'Beat', type: TrackType.beat);
     for (int i = 0; i < 7; i++) {
-      vocalTracks.add(Track(
-        id: 'vocal_${i + 1}', 
-        name: 'Vocal ${i + 1}', 
-        type: TrackType.vocal
-      ));
+      vocalTracks.add(
+        Track(
+          id: 'vocal_${i + 1}',
+          name: 'Vocal ${i + 1}',
+          type: TrackType.vocal,
+        ),
+      );
     }
-    
+
     // Initialize common effects
     _effects['eq'] = AudioEffect(name: 'EQ', id: 'eq');
     _effects['compressor'] = AudioEffect(name: 'Compressor', id: 'compressor');
@@ -111,11 +114,13 @@ class DawViewModel extends ChangeNotifier {
 
   void addVocalTrack() {
     final newTrackNumber = vocalTracks.length + 1;
-    vocalTracks.add(Track(
-      id: 'vocal_$newTrackNumber', 
-      name: 'Vocal $newTrackNumber', 
-      type: TrackType.vocal
-    ));
+    vocalTracks.add(
+      Track(
+        id: 'vocal_$newTrackNumber',
+        name: 'Vocal $newTrackNumber',
+        type: TrackType.vocal,
+      ),
+    );
     notifyListeners();
   }
 
@@ -126,10 +131,12 @@ class DawViewModel extends ChangeNotifier {
 
   // Helper to get all active clips for playback
   List<AudioClip> get _allActiveClips {
-    final allTracks = [beatTrack, ...vocalTracks, mixedVocalTrack, masteredSongTrack]
-        .where((t) => t != null)
-        .cast<Track>()
-        .toList();
+    final allTracks = [
+      beatTrack,
+      ...vocalTracks,
+      mixedVocalTrack,
+      masteredSongTrack,
+    ].where((t) => t != null).cast<Track>().toList();
     final anySolo = allTracks.any((t) => t.soloed);
 
     List<AudioClip> activeClips = [];
@@ -145,8 +152,9 @@ class DawViewModel extends ChangeNotifier {
 
   void _onPlayerStateChanged(PlayerState state, String clipId) {
     if (state == PlayerState.stopped) {
-      bool allCompleted = _allActiveClips.every((clip) =>
-          clip.controller.playerState == PlayerState.stopped);
+      bool allCompleted = _allActiveClips.every(
+        (clip) => clip.controller.playerState == PlayerState.stopped,
+      );
       if (allCompleted) {
         _isPlaying = false;
         notifyListeners();
@@ -155,21 +163,28 @@ class DawViewModel extends ChangeNotifier {
   }
 
   Future<void> importAudio(Track targetTrack) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.audio);
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.audio,
+    );
 
     if (result != null && result.files.single.path != null) {
       final path = result.files.single.path!;
       final clipId = DateTime.now().millisecondsSinceEpoch.toString();
       final controller = PlayerController();
 
-      final waveform = await controller.extractWaveformData(path: path, noOfSamples: 100);
+      final waveform = await controller.extractWaveformData(
+        path: path,
+        noOfSamples: 100,
+      );
 
       await controller.preparePlayer(
         path: path,
         shouldExtractWaveform: true,
         noOfSamples: 100,
       );
-      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+      controller.onPlayerStateChanged.listen(
+        (state) => _onPlayerStateChanged(state, clipId),
+      );
 
       final newClip = AudioClip(
         id: clipId,
@@ -192,10 +207,17 @@ class DawViewModel extends ChangeNotifier {
       final path = await _audioRecorder.stop();
       if (path != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(path);
-        final waveform = await controller.extractWaveformData(path: path, noOfSamples: 100);
+        final controller = await AudioResourceManager().getOrCreateController(
+          path,
+        );
+        final waveform = await controller.extractWaveformData(
+          path: path,
+          noOfSamples: 100,
+        );
 
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -213,7 +235,8 @@ class DawViewModel extends ChangeNotifier {
       _isRecording = false;
     } else {
       final dir = await getApplicationDocumentsDirectory();
-      final path = '${dir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+      final path =
+          '${dir.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
       await _audioRecorder.start(const recorder.RecordConfig(), path: path);
       _isRecording = true;
     }
@@ -251,7 +274,7 @@ class DawViewModel extends ChangeNotifier {
     }
     _isPlaying = false;
     _currentPlaybackPosition = Duration.zero; // Reset to start
-    
+
     // Stop automation recording/playback if active
     if (_isRecordingAutomation) {
       stopAutomationRecording();
@@ -259,7 +282,7 @@ class DawViewModel extends ChangeNotifier {
     if (_isPlayingAutomation) {
       stopAutomationPlayback();
     }
-    
+
     notifyListeners();
   }
 
@@ -306,20 +329,25 @@ class DawViewModel extends ChangeNotifier {
 
   void toggleEffect(String effectName, bool isEnabled) {
     // Find effect by name (case insensitive)
-    final effect = _effects.values.firstWhere(
-      (e) => e.name.toLowerCase() == effectName.toLowerCase(),
-      orElse: () {
-        // If effect doesn't exist, create it
-        final id = effectName.toLowerCase().replaceAll(' ', '_');
-        final newEffect = AudioEffect(name: effectName, id: id, isEnabled: isEnabled);
-        _effects[id] = newEffect;
-        return newEffect;
-      },
-    );
-    
+    final targetName = effectName.toLowerCase();
+    AudioEffect? effect;
+    for (final e in _effects.values) {
+      if (e.name.toLowerCase() == targetName) {
+        effect = e;
+        break;
+      }
+    }
+
+    if (effect == null) {
+      // If effect doesn't exist, create it
+      final id = effectName.toLowerCase().replaceAll(' ', '_');
+      effect = AudioEffect(name: effectName, id: id, isEnabled: isEnabled);
+      _effects[id] = effect;
+    }
+
     effect.isEnabled = isEnabled;
     print('Toggling effect ${effect.name}: $isEnabled');
-    
+
     // In a full implementation, this would apply the effect to the audio
     // For now, we just update the state
     notifyListeners();
@@ -327,55 +355,74 @@ class DawViewModel extends ChangeNotifier {
 
   void openEffectSettings(String effectName) {
     // Find effect by name (case insensitive)
-    final effect = _effects.values.firstWhere(
-      (e) => e.name.toLowerCase() == effectName.toLowerCase(),
-      orElse: () => throw Exception('Effect not found: $effectName'),
-    );
-    
+    final targetName = effectName.toLowerCase();
+    AudioEffect? effect;
+    for (final e in _effects.values) {
+      if (e.name.toLowerCase() == targetName) {
+        effect = e;
+        break;
+      }
+    }
+
+    if (effect == null) {
+      throw Exception('Effect not found: $effectName');
+    }
+
     print('Opening settings for effect ${effect.name}');
-    
+
     // In a full implementation, this would open a dialog with effect parameters
     // For now, we just print the current parameters
     print('Current parameters: ${effect.parameters}');
-    
+
     // Store the effect that is currently having its settings opened
     _currentEffectSettings = effect;
-    
+
     notifyListeners();
   }
-  
+
   // Add a field to track which effect settings are being shown
   AudioEffect? _currentEffectSettings;
   AudioEffect? get currentEffectSettings => _currentEffectSettings;
-  
+
   // Method to close effect settings
   void closeEffectSettings() {
     _currentEffectSettings = null;
     notifyListeners();
   }
-  
+
   // Helper method to get effect state
   AudioEffect? getEffect(String effectName) {
-    try {
-      return _effects.values.firstWhere(
-        (e) => e.name.toLowerCase() == effectName.toLowerCase(),
-      );
-    } catch (e) {
-      return null;
+    final targetName = effectName.toLowerCase();
+    for (final e in _effects.values) {
+      if (e.name.toLowerCase() == targetName) {
+        return e;
+      }
     }
+    return null;
   }
-  
+
   // Helper method to update effect parameters
-  void updateEffectParameters(String effectName, Map<String, dynamic> parameters) {
-    final effect = _effects.values.firstWhere(
-      (e) => e.name.toLowerCase() == effectName.toLowerCase(),
-      orElse: () => throw Exception('Effect not found: $effectName'),
-    );
-    
+  void updateEffectParameters(
+    String effectName,
+    Map<String, dynamic> parameters,
+  ) {
+    final targetName = effectName.toLowerCase();
+    AudioEffect? effect;
+    for (final e in _effects.values) {
+      if (e.name.toLowerCase() == targetName) {
+        effect = e;
+        break;
+      }
+    }
+
+    if (effect == null) {
+      throw Exception('Effect not found: $effectName');
+    }
+
     effect.parameters.addAll(parameters);
     notifyListeners();
   }
-  
+
   void toggleMute(Track track) {
     track.muted = !track.muted;
     if (_isPlaying) {
@@ -414,31 +461,32 @@ class DawViewModel extends ChangeNotifier {
 
   void toggleAllTracksCollapsed() {
     // Check if any track is currently expanded
-    bool anyExpanded = beatTrack.collapsed == false ||
+    bool anyExpanded =
+        beatTrack.collapsed == false ||
         vocalTracks.any((track) => track.collapsed == false) ||
         (mixedVocalTrack != null && mixedVocalTrack!.collapsed == false) ||
         (masteredSongTrack != null && masteredSongTrack!.collapsed == false);
-    
+
     // Collapse all if any are expanded, otherwise expand all
     setAllTracksCollapsed(anyExpanded);
   }
 
-void setMasterVolume(double value) {
-  masterVolume = value.clamp(0.0, 1.0);
-  
-  // Apply master volume to all active clips if playing
-  if (_isPlaying) {
-    for (var clip in _allActiveClips) {
-      // Calculate final volume as clip volume * master volume
-      final finalVolume = clip.volume * masterVolume;
-      clip.controller.setVolume(finalVolume);
-    }
-  }
-  
-  notifyListeners();
-}
+  void setMasterVolume(double value) {
+    masterVolume = value.clamp(0.0, 1.0);
 
-void toggleSolo(Track track) {
+    // Apply master volume to all active clips if playing
+    if (_isPlaying) {
+      for (var clip in _allActiveClips) {
+        // Calculate final volume as clip volume * master volume
+        final finalVolume = clip.volume * masterVolume;
+        clip.controller.setVolume(finalVolume);
+      }
+    }
+
+    notifyListeners();
+  }
+
+  void toggleSolo(Track track) {
     track.soloed = !track.soloed;
 
     if (track.soloed) {
@@ -461,7 +509,10 @@ void toggleSolo(Track track) {
 
   Future<void> magicMixVocals() async {
     print('Magic Mix Vocals triggered!');
-    final vocalInputPaths = vocalTracks.where((t) => t.hasAudio).expand((t) => t.clips.map((c) => c.path)).toList();
+    final vocalInputPaths = vocalTracks
+        .where((t) => t.hasAudio)
+        .expand((t) => t.clips.map((c) => c.path))
+        .toList();
 
     if (vocalInputPaths.isEmpty) {
       print('No vocal tracks to mix.');
@@ -469,14 +520,19 @@ void toggleSolo(Track track) {
     }
 
     _startProcessing('Mixing Vocals...');
-    
+
     try {
-      final mixedVocalPath = await _audioProcessingService.applyAdvancedVocalEffects(vocalInputPaths);
+      final mixedVocalPath = await _audioProcessingService
+          .applyAdvancedVocalEffects(vocalInputPaths);
 
       if (mixedVocalPath != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(mixedVocalPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final controller = await AudioResourceManager().getOrCreateController(
+          mixedVocalPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -488,10 +544,10 @@ void toggleSolo(Track track) {
         );
 
         mixedVocalTrack = Track(
-          id: 'mixed_vocals', 
-          name: 'Mixed Vocals', 
+          id: 'mixed_vocals',
+          name: 'Mixed Vocals',
           type: TrackType.mixed,
-          clips: [newClip]
+          clips: [newClip],
         );
         notifyListeners();
       }
@@ -506,33 +562,35 @@ void toggleSolo(Track track) {
   void clearProject() {
     // Stop all playback
     stop();
-    
+
     // Dispose all audio resources using the resource manager
     AudioResourceManager().disposeAllControllers();
     AudioResourceManager().clearCache();
     AudioResourceManager().clearMetadataCache();
-    
+
     // Clear beat track
     beatTrack.clips.clear();
-    
+
     // Clear vocal tracks
     for (var track in vocalTracks) {
       track.clips.clear();
       track.muted = false;
       track.soloed = false;
     }
-    
+
     // Clear mixed and mastered tracks
     mixedVocalTrack = null;
     masteredSongTrack = null;
-    
+
     notifyListeners();
   }
 
   Future<void> importAudioFromPath(Track track, String path) async {
     try {
       final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-      final controller = await AudioResourceManager().getOrCreateController(path);
+      final controller = await AudioResourceManager().getOrCreateController(
+        path,
+      );
 
       final newClip = AudioClip(
         id: clipId,
@@ -574,14 +632,14 @@ void toggleSolo(Track track) {
   void dispose() {
     // Stop all playback first
     stop();
-    
+
     // Dispose all audio resources using the resource manager
     AudioResourceManager().disposeAllControllers();
     AudioResourceManager().clearCache();
-    
+
     // Dispose the audio recorder
     _audioRecorder.dispose();
-    
+
     super.dispose();
   }
 
@@ -590,24 +648,26 @@ void toggleSolo(Track track) {
       print('No parameters selected for automation');
       return;
     }
-    
-    print('Starting automation recording for parameters: $_automatedParameters');
-    
+
+    print(
+      'Starting automation recording for parameters: $_automatedParameters',
+    );
+
     // Clear any existing automation data for the current parameters
     for (final param in _automatedParameters) {
       _automationData[param] = [];
     }
-    
+
     _isRecordingAutomation = true;
     notifyListeners();
   }
-  
+
   void stopAutomationRecording() {
     print('Stopping automation recording');
     _isRecordingAutomation = false;
     notifyListeners();
   }
-  
+
   // Method to record automation data point
   void recordAutomationDataPoint(String parameter, dynamic value) {
     if (_isRecordingAutomation && _automatedParameters.contains(parameter)) {
@@ -615,30 +675,33 @@ void toggleSolo(Track track) {
         'time': _currentPlaybackPosition.inMilliseconds,
         'value': value,
       });
-      print('Recorded automation data point for $parameter: $value at ${_currentPlaybackPosition.inMilliseconds}ms');
+      print(
+        'Recorded automation data point for $parameter: $value at ${_currentPlaybackPosition.inMilliseconds}ms',
+      );
     }
   }
-  
+
   // Method to update current automation values (called during playback)
   void updateAutomationValue(String parameter, dynamic value) {
     _currentAutomationValues[parameter] = value;
     // In a full implementation, this would apply the value to the corresponding parameter
     print('Updated automation value for $parameter: $value');
   }
-  
+
   // Getters for automation state
   bool get isRecordingAutomation => _isRecordingAutomation;
   Set<String> get automatedParameters => Set.unmodifiable(_automatedParameters);
-  Map<String, dynamic> get currentAutomationValues => Map.unmodifiable(_currentAutomationValues);
-  
+  Map<String, dynamic> get currentAutomationValues =>
+      Map.unmodifiable(_currentAutomationValues);
+
   // Method to get recorded automation data for a parameter
   List<Map<String, dynamic>> getAutomationData(String parameter) {
     return _automationData[parameter] ?? [];
   }
-  
+
   void selectAutomationParameter(String parameterName, bool isSelected) {
     print('Selecting automation parameter $parameterName: $isSelected');
-    
+
     if (isSelected) {
       _automatedParameters.add(parameterName);
     } else {
@@ -646,52 +709,52 @@ void toggleSolo(Track track) {
       // Also remove any recorded data for this parameter
       _automationData.remove(parameterName);
     }
-    
+
     notifyListeners();
   }
-  
+
   void playAutomation() {
     if (!_isPlaying) {
       print('Cannot play automation when not playing audio');
       return;
     }
-    
+
     if (_automatedParameters.isEmpty) {
       print('No parameters selected for automation playback');
       return;
     }
-    
+
     print('Playing automation for parameters: $_automatedParameters');
-    
+
     // In a full implementation, this would start playing back the recorded automation data
     // and update the corresponding parameters in real-time during playback
     // For now, we'll just simulate this by setting a flag
     _isPlayingAutomation = true;
     notifyListeners();
   }
-  
+
   void stopAutomationPlayback() {
     print('Stopping automation playback');
     _isPlayingAutomation = false;
     notifyListeners();
   }
-  
+
   // Add getter for automation playback state (field already defined on line 60)
   bool get isPlayingAutomation => _isPlayingAutomation;
-  
+
   // Method to get interpolated automation value at a specific time
   dynamic getAutomationValueAtTime(String parameter, Duration time) {
     final dataPoints = _automationData[parameter];
     if (dataPoints == null || dataPoints.isEmpty) {
       return null;
     }
-    
+
     final timeMs = time.inMilliseconds;
-    
+
     // Find the data points before and after the current time
     Map<String, dynamic>? beforePoint;
     Map<String, dynamic>? afterPoint;
-    
+
     for (final point in dataPoints) {
       final pointTime = point['time'] as int;
       if (pointTime <= timeMs) {
@@ -701,42 +764,47 @@ void toggleSolo(Track track) {
         break;
       }
     }
-    
+
     // If we only have one point or we're before the first point, return that value
     if (beforePoint == null || afterPoint == null) {
       return beforePoint?['value'] ?? afterPoint?['value'];
     }
-    
+
     // Interpolate between the two points
     final beforeTime = beforePoint['time'] as int;
     final afterTime = afterPoint['time'] as int;
     final beforeValue = beforePoint['value'];
     final afterValue = afterPoint['value'];
-    
+
     // Linear interpolation
     final ratio = (timeMs - beforeTime) / (afterTime - beforeTime);
-    
+
     // Handle different value types
     if (beforeValue is double && afterValue is double) {
       return beforeValue + (afterValue - beforeValue) * ratio;
     } else if (beforeValue is int && afterValue is int) {
       return (beforeValue + (afterValue - beforeValue) * ratio).round();
     }
-    
+
     // For other types, just return the before value
     return beforeValue;
   }
 
   // Method to cancel processing
 
-  Future<void> _processTargetVocalTrack(String operationName, Future<String?> Function(String) processor) async {
+  Future<void> _processTargetVocalTrack(
+    String operationName,
+    Future<String?> Function(String) processor,
+  ) async {
     _startProcessing(operationName);
     try {
       Track? targetTrack = selectedTrack;
       if (targetTrack == null || !targetTrack.hasAudio) {
         targetTrack = vocalTracks.firstWhere(
           (track) => track.hasAudio,
-          orElse: () => throw Exception('No vocal tracks found with audio. Please select a track or record audio.'),
+          orElse: () => throw Exception(
+            'No vocal tracks found with audio. Please select a track or record audio.',
+          ),
         );
       }
 
@@ -749,8 +817,12 @@ void toggleSolo(Track track) {
 
       if (processedPath != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(processedPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final controller = await AudioResourceManager().getOrCreateController(
+          processedPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -776,11 +848,17 @@ void toggleSolo(Track track) {
   Future<String?> applyVocalMixing(List<String> paths, dynamic preset) async {
     _startProcessing('Mixing Vocals...');
     try {
-      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(paths);
+      final mixedPath = await _audioProcessingService.applyAdvancedVocalEffects(
+        paths,
+      );
       if (mixedPath != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(mixedPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final controller = await AudioResourceManager().getOrCreateController(
+          mixedPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -795,7 +873,7 @@ void toggleSolo(Track track) {
           id: 'mixed_vocals',
           name: 'Mixed Vocals',
           type: TrackType.mixed,
-          clips: [newClip]
+          clips: [newClip],
         );
         notifyListeners();
       }
@@ -811,15 +889,27 @@ void toggleSolo(Track track) {
   Future<void> applyMastering(dynamic preset) async {
     _startProcessing('Mastering song...');
     try {
-      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty) return;
-      final vocalPath = vocalTracks.firstWhere((t) => t.hasAudio).clips.first.path;
+      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty)
+        return;
+      final vocalPath = vocalTracks
+          .firstWhere((t) => t.hasAudio)
+          .clips
+          .first
+          .path;
       final beatPath = beatTrack.clips.first.path;
-      final masteredPath = await _audioProcessingService.masterSongAdvanced(vocalPath, beatPath);
+      final masteredPath = await _audioProcessingService.masterSongAdvanced(
+        vocalPath,
+        beatPath,
+      );
 
       if (masteredPath != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(masteredPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final controller = await AudioResourceManager().getOrCreateController(
+          masteredPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -834,7 +924,7 @@ void toggleSolo(Track track) {
           id: 'mastered_song',
           name: 'Mastered Song',
           type: TrackType.mastered,
-          clips: [newClip]
+          clips: [newClip],
         );
         notifyListeners();
       }
@@ -843,39 +933,62 @@ void toggleSolo(Track track) {
     } finally {
       _finishProcessing();
     }
-
   }
 
   Future<void> applyVocalDoubling() async {
-    await _processTargetVocalTrack('Vocal Doubling', _audioProcessingService.vocalDoubler);
+    await _processTargetVocalTrack(
+      'Vocal Doubling',
+      _audioProcessingService.vocalDoubler,
+    );
   }
 
   Future<void> applyHarmonizer() async {
-    await _processTargetVocalTrack('Harmonizing', (p) => _audioProcessingService.harmonizer(p)); // simple harmony
+    await _processTargetVocalTrack(
+      'Harmonizing',
+      (p) => _audioProcessingService.harmonizer(p),
+    ); // simple harmony
   }
 
   Future<void> applyDeReverb() async {
-    await _processTargetVocalTrack('De-Reverb', _audioProcessingService.deReverb);
+    await _processTargetVocalTrack(
+      'De-Reverb',
+      _audioProcessingService.deReverb,
+    );
   }
 
   Future<void> applyRapProcessing() async {
-    await _processTargetVocalTrack('Rap Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack(
+      'Rap Processing',
+      _audioProcessingService.rapProcessing,
+    );
   }
 
   Future<void> applyTrapProcessing() async {
-    await _processTargetVocalTrack('Trap Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack(
+      'Trap Processing',
+      _audioProcessingService.rapProcessing,
+    );
   }
 
   Future<void> applyAfrobeatProcessing() async {
-    await _processTargetVocalTrack('Afrobeat Processing', _audioProcessingService.rapProcessing);
+    await _processTargetVocalTrack(
+      'Afrobeat Processing',
+      _audioProcessingService.rapProcessing,
+    );
   }
 
   Future<void> applyDrillProcessing() async {
-    await _processTargetVocalTrack('Drill Processing', _audioProcessingService.drillProcessing);
+    await _processTargetVocalTrack(
+      'Drill Processing',
+      _audioProcessingService.drillProcessing,
+    );
   }
 
   Future<void> applyPitchCorrection() async {
-    await _processTargetVocalTrack('Pitch Correction', _audioProcessingService.pitchCorrection);
+    await _processTargetVocalTrack(
+      'Pitch Correction',
+      _audioProcessingService.pitchCorrection,
+    );
   }
 
   Future<void> applyStudioMode(Track track, String intent) async {
@@ -896,8 +1009,12 @@ void toggleSolo(Track track) {
       );
 
       final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-      final controller = await AudioResourceManager().getOrCreateController(processedPath);
-      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+      final controller = await AudioResourceManager().getOrCreateController(
+        processedPath,
+      );
+      controller.onPlayerStateChanged.listen(
+        (state) => _onPlayerStateChanged(state, clipId),
+      );
 
       final newClip = AudioClip(
         id: clipId,
@@ -921,7 +1038,8 @@ void toggleSolo(Track track) {
   Future<void> separateStems() async {
     _startProcessing('Separating Stems with AI...');
     try {
-      if (beatTrack.clips.isEmpty) throw Exception('No beat track to separate.');
+      if (beatTrack.clips.isEmpty)
+        throw Exception('No beat track to separate.');
       final inputPath = beatTrack.clips.first.path;
       final separated = await _aiAudioService.separateStems(inputPath);
 
@@ -929,8 +1047,12 @@ void toggleSolo(Track track) {
       final instrumentalPath = separated['instrumental'];
       if (instrumentalPath != null) {
         final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-        final controller = await AudioResourceManager().getOrCreateController(instrumentalPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final controller = await AudioResourceManager().getOrCreateController(
+          instrumentalPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -947,10 +1069,18 @@ void toggleSolo(Track track) {
       // Move vocals to a vocal track
       final vocalsPath = separated['vocals'];
       if (vocalsPath != null) {
-        final targetVocalTrack = vocalTracks.firstWhere((t) => !t.hasAudio, orElse: () => vocalTracks.last);
-        final clipId = DateTime.now().millisecondsSinceEpoch.toString() + "_vocals";
-        final controller = await AudioResourceManager().getOrCreateController(vocalsPath);
-        controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+        final targetVocalTrack = vocalTracks.firstWhere(
+          (t) => !t.hasAudio,
+          orElse: () => vocalTracks.last,
+        );
+        final clipId =
+            DateTime.now().millisecondsSinceEpoch.toString() + "_vocals";
+        final controller = await AudioResourceManager().getOrCreateController(
+          vocalsPath,
+        );
+        controller.onPlayerStateChanged.listen(
+          (state) => _onPlayerStateChanged(state, clipId),
+        );
 
         final newClip = AudioClip(
           id: clipId,
@@ -976,8 +1106,12 @@ void toggleSolo(Track track) {
     try {
       final generatedPath = await _aiAudioService.generateBeat(prompt);
       final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-      final controller = await AudioResourceManager().getOrCreateController(generatedPath);
-      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+      final controller = await AudioResourceManager().getOrCreateController(
+        generatedPath,
+      );
+      controller.onPlayerStateChanged.listen(
+        (state) => _onPlayerStateChanged(state, clipId),
+      );
 
       final newClip = AudioClip(
         id: clipId,
@@ -998,9 +1132,11 @@ void toggleSolo(Track track) {
     }
   }
 
-
   Future<void> autoTuneVocals({String key = 'C Major'}) async {
-    await _processTargetVocalTrack('Auto-Tuning Vocals', (p) => _aiAudioService.autoTuneVocals(p, key: key));
+    await _processTargetVocalTrack(
+      'Auto-Tuning Vocals',
+      (p) => _aiAudioService.autoTuneVocals(p, key: key),
+    );
   }
 
   Future<void> smartEqVocals() async {
@@ -1014,15 +1150,20 @@ void toggleSolo(Track track) {
         );
       }
 
-      if (beatTrack.clips.isEmpty) throw Exception('No beat track to analyze against.');
+      if (beatTrack.clips.isEmpty)
+        throw Exception('No beat track to analyze against.');
 
       final vocalPath = targetTrack.clips.first.path;
       final beatPath = beatTrack.clips.first.path;
       final eqPath = await _aiAudioService.smartEqVocals(vocalPath, beatPath);
 
       final clipId = DateTime.now().millisecondsSinceEpoch.toString();
-      final controller = await AudioResourceManager().getOrCreateController(eqPath);
-      controller.onPlayerStateChanged.listen((state) => _onPlayerStateChanged(state, clipId));
+      final controller = await AudioResourceManager().getOrCreateController(
+        eqPath,
+      );
+      controller.onPlayerStateChanged.listen(
+        (state) => _onPlayerStateChanged(state, clipId),
+      );
 
       final newClip = AudioClip(
         id: clipId,
