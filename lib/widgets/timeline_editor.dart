@@ -28,7 +28,11 @@ class TimelineEditor extends StatelessWidget {
                   width: 120,
                   child: Consumer<DawViewModel>(
                     builder: (context, dawViewModel, child) {
-                      return _buildTrackList(context, dawViewModel, context.watch<TimelineViewModel>());
+                      return _buildTrackList(
+                        context,
+                        dawViewModel,
+                        context.watch<TimelineViewModel>(),
+                      );
                     },
                   ),
                 ),
@@ -40,7 +44,11 @@ class TimelineEditor extends StatelessWidget {
                         boundaryMargin: const EdgeInsets.all(double.infinity),
                         minScale: 0.1,
                         maxScale: 5.0,
-                        child: _buildTimelineView(context, dawViewModel, timelineViewModel),
+                        child: _buildTimelineView(
+                          context,
+                          dawViewModel,
+                          timelineViewModel,
+                        ),
                       );
                     },
                   ),
@@ -58,14 +66,15 @@ class TimelineEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineHeader(BuildContext context, TimelineViewModel timelineViewModel) {
+  Widget _buildTimelineHeader(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
     return Container(
       height: 48,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[700]!, width: 1)),
       ),
       child: Row(
         children: [
@@ -79,69 +88,97 @@ class TimelineEditor extends StatelessWidget {
             ),
           ),
           // Timeline ruler
-          Expanded(
-            child: _buildTimelineRuler(context, timelineViewModel),
+          Expanded(child: _buildTimelineRuler(context, timelineViewModel)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimelineRuler(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
+    return SizedBox(
+      height: 24,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          RepaintBoundary(
+            child: CustomPaint(
+              painter: TimelineRulerPainter(
+                pixelsPerSecond: timelineViewModel.pixelsPerSecond,
+                totalDuration: timelineViewModel.totalDuration,
+              ),
+            ),
+          ),
+          RepaintBoundary(
+            child: CustomPaint(
+              painter: TimelinePlayheadPainter(
+                pixelsPerSecond: timelineViewModel.pixelsPerSecond,
+                currentPosition: timelineViewModel.currentPosition,
+              ),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTimelineRuler(BuildContext context, TimelineViewModel timelineViewModel) {
-    return SizedBox(
-      height: 24,
-      child: RepaintBoundary(
-        child: CustomPaint(
-        painter: TimelineRulerPainter(
-          pixelsPerSecond: timelineViewModel.pixelsPerSecond,
-          currentPosition: timelineViewModel.currentPosition,
-          isPlaying: timelineViewModel.isPlaying,
-          totalDuration: timelineViewModel.totalDuration,
-        ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTrackList(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
+  Widget _buildTrackList(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+  ) {
     return Container(
       width: 200,
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          right: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
+        border: Border(right: BorderSide(color: Colors.grey[700]!, width: 1)),
       ),
-      child: ListView.builder(primary: false,
+      child: ListView.builder(
+        primary: false,
         itemCount: dawViewModel.vocalTracks.length + 1,
         itemBuilder: (context, index) {
           if (index == 0) {
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 'Beat');
+            return _buildTrackHeader(
+              context,
+              dawViewModel,
+              timelineViewModel,
+              dawViewModel.beatTrack,
+              'Beat',
+            );
           } else {
             final track = dawViewModel.vocalTracks[index - 1];
-            return _buildTrackHeader(context, dawViewModel, timelineViewModel, track, track.name);
+            return _buildTrackHeader(
+              context,
+              dawViewModel,
+              timelineViewModel,
+              track,
+              track.name,
+            );
           }
         },
       ),
     );
   }
 
-  Widget _buildTrackHeader(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel, Track track, String displayName) {
+  Widget _buildTrackHeader(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+    Track track,
+    String displayName,
+  ) {
     return Container(
       constraints: BoxConstraints(minHeight: timelineViewModel.trackHeight),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: Colors.grey[800]!, width: 1),
-        ),
+        border: Border(bottom: BorderSide(color: Colors.grey[800]!, width: 1)),
         gradient: track.collapsed
             ? LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [
-                  Colors.grey[850]!,
-                  Colors.grey[900]!,
-                ],
+                colors: [Colors.grey[850]!, Colors.grey[900]!],
               )
             : null,
       ),
@@ -176,7 +213,10 @@ class TimelineEditor extends StatelessWidget {
               ),
               if (track.collapsed && track.clips.isNotEmpty)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.grey[700],
                     borderRadius: BorderRadius.circular(8),
@@ -225,79 +265,139 @@ class TimelineEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineView(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
-    final contentWidth = timelineViewModel.durationToPixels(timelineViewModel.totalDuration);
+  Widget _buildTimelineView(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+  ) {
+    final contentWidth = timelineViewModel.durationToPixels(
+      timelineViewModel.totalDuration,
+    );
 
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-      ),
-      child: SingleChildScrollView(primary: false,
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            width: contentWidth,
-            child: Stack(
-              children: [
-                _buildGridBackground(context, timelineViewModel),
-                _buildTracks(context, dawViewModel, timelineViewModel),
-                _buildPlayhead(context, timelineViewModel),
-                Positioned.fill(child: _buildTimelineGestureDetector(context, timelineViewModel)),
-              ],
-            ),
+      decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface),
+      child: SingleChildScrollView(
+        primary: false,
+        scrollDirection: Axis.horizontal,
+        child: SizedBox(
+          width: contentWidth,
+          child: Stack(
+            children: [
+              _buildGridBackground(context, timelineViewModel),
+              _buildTracks(context, dawViewModel, timelineViewModel),
+              _buildPlayhead(context, timelineViewModel),
+              Positioned.fill(
+                child: _buildTimelineGestureDetector(
+                  context,
+                  timelineViewModel,
+                ),
+              ),
+            ],
           ),
-      ),
-    );
-  }
-  Widget _buildGridBackground(BuildContext context, TimelineViewModel timelineViewModel) {
-    return RepaintBoundary(
-      child: CustomPaint(
-        size: Size(timelineViewModel.durationToPixels(timelineViewModel.totalDuration), double.infinity),
-        painter: GridPainter(
-          gridSize: timelineViewModel.gridSize,
-          pixelsPerSecond: timelineViewModel.pixelsPerSecond,
-          trackHeight: timelineViewModel.trackHeight,
         ),
       ),
     );
   }
 
-  Widget _buildTracks(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel) {
+  Widget _buildGridBackground(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
+    return Positioned.fill(
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: GridPainter(
+            gridSize: timelineViewModel.gridSize,
+            pixelsPerSecond: timelineViewModel.pixelsPerSecond,
+            trackHeight: timelineViewModel.trackHeight,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTracks(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+  ) {
     return ListView.builder(
+      primary: false,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
       itemCount: dawViewModel.vocalTracks.length + 1,
       itemBuilder: (context, index) {
         if (index == 0) {
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.beatTrack, 0);
+          return _buildTrackLane(
+            context,
+            dawViewModel,
+            timelineViewModel,
+            dawViewModel.beatTrack,
+            0,
+          );
         } else {
-          return _buildTrackLane(context, dawViewModel, timelineViewModel, dawViewModel.vocalTracks[index - 1], index);
+          return _buildTrackLane(
+            context,
+            dawViewModel,
+            timelineViewModel,
+            dawViewModel.vocalTracks[index - 1],
+            index,
+          );
         }
       },
     );
   }
 
-  Widget _buildTrackLane(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel, Track track, int trackIndex) {
+  Widget _buildTrackLane(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+    Track track,
+    int trackIndex,
+  ) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      height: track.collapsed ? timelineViewModel.trackHeight / 2 : timelineViewModel.trackHeight,
+      height: track.collapsed
+          ? timelineViewModel.trackHeight / 2
+          : timelineViewModel.trackHeight,
       curve: Curves.easeInOut,
       child: Stack(
         children: track.collapsed
-            ? [_buildCollapsedTrackView(context, timelineViewModel, track, trackIndex)]
-            : track.clips.map((clip) => _buildClip(context, dawViewModel, timelineViewModel, clip, trackIndex)).toList(),
+            ? [
+                _buildCollapsedTrackView(
+                  context,
+                  timelineViewModel,
+                  track,
+                  trackIndex,
+                ),
+              ]
+            : track.clips
+                  .map(
+                    (clip) => _buildClip(
+                      context,
+                      dawViewModel,
+                      timelineViewModel,
+                      clip,
+                      trackIndex,
+                    ),
+                  )
+                  .toList(),
       ),
     );
   }
 
-  Widget _buildCollapsedTrackView(BuildContext context, TimelineViewModel timelineViewModel, Track track, int trackIndex) {
+  Widget _buildCollapsedTrackView(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+    Track track,
+    int trackIndex,
+  ) {
     return Container(
       margin: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-
         color: Colors.grey[800]!.withAlpha(127),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: Colors.grey[700]!,
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey[700]!, width: 1),
       ),
       child: Row(
         children: [
@@ -335,10 +435,7 @@ class TimelineEditor extends StatelessWidget {
               ),
               child: Text(
                 '${track.clips.length} clip${track.clips.length > 1 ? 's' : ''}',
-                style: TextStyle(
-                  color: Colors.grey[300],
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Colors.grey[300], fontSize: 10),
               ),
             ),
           if (track.muted)
@@ -365,8 +462,16 @@ class TimelineEditor extends StatelessWidget {
     }
   }
 
-  Widget _buildClip(BuildContext context, DawViewModel dawViewModel, TimelineViewModel timelineViewModel, AudioClip clip, int trackIndex) {
-    final clipWidth = timelineViewModel.durationToPixels(clip.endTime - clip.startTime);
+  Widget _buildClip(
+    BuildContext context,
+    DawViewModel dawViewModel,
+    TimelineViewModel timelineViewModel,
+    AudioClip clip,
+    int trackIndex,
+  ) {
+    final clipWidth = timelineViewModel.durationToPixels(
+      clip.endTime - clip.startTime,
+    );
     final clipX = timelineViewModel.durationToPixels(clip.startTime);
     final isSelected = timelineViewModel.selectedClipId == clip.id;
 
@@ -397,17 +502,28 @@ class TimelineEditor extends StatelessWidget {
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
               colors: isSelected
-                  ? [Theme.of(context).colorScheme.primary.withAlpha(229), Theme.of(context).colorScheme.primary.withAlpha(153)]
-                  : [Theme.of(context).colorScheme.secondary.withAlpha(178), Theme.of(context).colorScheme.secondary.withAlpha(102)],            ),
+                  ? [
+                      Theme.of(context).colorScheme.primary.withAlpha(229),
+                      Theme.of(context).colorScheme.primary.withAlpha(153),
+                    ]
+                  : [
+                      Theme.of(context).colorScheme.secondary.withAlpha(178),
+                      Theme.of(context).colorScheme.secondary.withAlpha(102),
+                    ],
+            ),
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
-              color: isSelected ? Theme.of(context).colorScheme.primary : Colors.grey[600]!,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Colors.grey[600]!,
               width: isSelected ? 2 : 1,
             ),
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: Theme.of(context).colorScheme.primary.withAlpha(102),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withAlpha(102),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -432,7 +548,10 @@ class TimelineEditor extends StatelessWidget {
                 top: 4,
                 right: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.centerLeft,
@@ -449,7 +568,9 @@ class TimelineEditor extends StatelessWidget {
                     style: TextStyle(
                       color: isSelected ? Colors.white : Colors.grey[300],
                       fontSize: 11,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -465,30 +586,48 @@ class TimelineEditor extends StatelessWidget {
                     onPanUpdate: (details) {
                       if (timelineViewModel.selectedTool == TimelineTool.trim) {
                         final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                        final newStartTime = timelineViewModel.snapDurationToGrid(clip.startTime + deltaDuration);
-                        if (newStartTime < clip.endTime && newStartTime >= Duration.zero) {
-                          timelineViewModel.trimClip(clip.id, newStartTime, clip.endTime);
+                        final deltaDuration = timelineViewModel
+                            .pixelsToDuration(deltaX);
+                        final newStartTime = timelineViewModel
+                            .snapDurationToGrid(clip.startTime + deltaDuration);
+                        if (newStartTime < clip.endTime &&
+                            newStartTime >= Duration.zero) {
+                          timelineViewModel.trimClip(
+                            clip.id,
+                            newStartTime,
+                            clip.endTime,
+                          );
                         }
                       } else {
                         final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                        final newFadeInDuration = clip.fadeInDuration + deltaDuration;
-                        if (newFadeInDuration.inMilliseconds >= 0 && newFadeInDuration < clip.duration) {
-                          timelineViewModel.setFadeIn(clip.id, newFadeInDuration);
+                        final deltaDuration = timelineViewModel
+                            .pixelsToDuration(deltaX);
+                        final newFadeInDuration =
+                            clip.fadeInDuration + deltaDuration;
+                        if (newFadeInDuration.inMilliseconds >= 0 &&
+                            newFadeInDuration < clip.duration) {
+                          timelineViewModel.setFadeIn(
+                            clip.id,
+                            newFadeInDuration,
+                          );
                         }
                       }
                     },
                     child: Container(
                       width: 12,
                       decoration: BoxDecoration(
-                        color: timelineViewModel.selectedTool == TimelineTool.trim
+                        color:
+                            timelineViewModel.selectedTool == TimelineTool.trim
                             ? Colors.yellow.withAlpha(100)
                             : Colors.blue.withAlpha(100),
-                        borderRadius: const BorderRadius.horizontal(left: Radius.circular(6)),
+                        borderRadius: const BorderRadius.horizontal(
+                          left: Radius.circular(6),
+                        ),
                       ),
                       child: Icon(
-                        timelineViewModel.selectedTool == TimelineTool.trim ? Icons.arrow_left : Icons.chevron_left,
+                        timelineViewModel.selectedTool == TimelineTool.trim
+                            ? Icons.arrow_left
+                            : Icons.chevron_left,
                         color: Colors.white,
                         size: 16,
                       ),
@@ -503,30 +642,48 @@ class TimelineEditor extends StatelessWidget {
                     onPanUpdate: (details) {
                       if (timelineViewModel.selectedTool == TimelineTool.trim) {
                         final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                        final newEndTime = timelineViewModel.snapDurationToGrid(clip.endTime + deltaDuration);
+                        final deltaDuration = timelineViewModel
+                            .pixelsToDuration(deltaX);
+                        final newEndTime = timelineViewModel.snapDurationToGrid(
+                          clip.endTime + deltaDuration,
+                        );
                         if (newEndTime > clip.startTime) {
-                          timelineViewModel.trimClip(clip.id, clip.startTime, newEndTime);
+                          timelineViewModel.trimClip(
+                            clip.id,
+                            clip.startTime,
+                            newEndTime,
+                          );
                         }
                       } else {
                         final deltaX = -details.delta.dx;
-                        final deltaDuration = timelineViewModel.pixelsToDuration(deltaX);
-                        final newFadeOutDuration = clip.fadeOutDuration + deltaDuration;
-                        if (newFadeOutDuration.inMilliseconds >= 0 && newFadeOutDuration < clip.duration) {
-                          timelineViewModel.setFadeOut(clip.id, newFadeOutDuration);
+                        final deltaDuration = timelineViewModel
+                            .pixelsToDuration(deltaX);
+                        final newFadeOutDuration =
+                            clip.fadeOutDuration + deltaDuration;
+                        if (newFadeOutDuration.inMilliseconds >= 0 &&
+                            newFadeOutDuration < clip.duration) {
+                          timelineViewModel.setFadeOut(
+                            clip.id,
+                            newFadeOutDuration,
+                          );
                         }
                       }
                     },
                     child: Container(
                       width: 12,
                       decoration: BoxDecoration(
-                        color: timelineViewModel.selectedTool == TimelineTool.trim
+                        color:
+                            timelineViewModel.selectedTool == TimelineTool.trim
                             ? Colors.yellow.withAlpha(100)
                             : Colors.blue.withAlpha(100),
-                        borderRadius: const BorderRadius.horizontal(right: Radius.circular(6)),
+                        borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(6),
+                        ),
                       ),
                       child: Icon(
-                        timelineViewModel.selectedTool == TimelineTool.trim ? Icons.arrow_right : Icons.chevron_right,
+                        timelineViewModel.selectedTool == TimelineTool.trim
+                            ? Icons.arrow_right
+                            : Icons.chevron_right,
                         color: Colors.white,
                         size: 16,
                       ),
@@ -541,8 +698,13 @@ class TimelineEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayhead(BuildContext context, TimelineViewModel timelineViewModel) {
-    final playheadX = timelineViewModel.durationToPixels(timelineViewModel.currentPosition);
+  Widget _buildPlayhead(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
+    final playheadX = timelineViewModel.durationToPixels(
+      timelineViewModel.currentPosition,
+    );
 
     return Positioned(
       left: playheadX,
@@ -564,25 +726,37 @@ class TimelineEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineGestureDetector(BuildContext context, TimelineViewModel timelineViewModel) {
+  Widget _buildTimelineGestureDetector(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
     return GestureDetector(
       onTapDown: (details) {
         final localPosition = details.localPosition;
-        final newPosition = timelineViewModel.pixelsToDuration(localPosition.dx);
+        final newPosition = timelineViewModel.pixelsToDuration(
+          localPosition.dx,
+        );
 
         if (timelineViewModel.selectedTool == TimelineTool.split) {
-          final trackIndex = (localPosition.dy / timelineViewModel.trackHeight).floor();
-          final dawViewModel = Provider.of<DawViewModel>(context, listen: false);
+          final trackIndex = (localPosition.dy / timelineViewModel.trackHeight)
+              .floor();
+          final dawViewModel = Provider.of<DawViewModel>(
+            context,
+            listen: false,
+          );
           final tracks = [
             dawViewModel.beatTrack,
             ...dawViewModel.vocalTracks,
-            if (dawViewModel.mixedVocalTrack != null) dawViewModel.mixedVocalTrack!,
-            if (dawViewModel.masteredSongTrack != null) dawViewModel.masteredSongTrack!,
+            if (dawViewModel.mixedVocalTrack != null)
+              dawViewModel.mixedVocalTrack!,
+            if (dawViewModel.masteredSongTrack != null)
+              dawViewModel.masteredSongTrack!,
           ];
           if (trackIndex < tracks.length) {
             final track = tracks[trackIndex];
             for (final clip in track.clips) {
-              if (newPosition >= clip.startTime && newPosition <= clip.endTime) {
+              if (newPosition >= clip.startTime &&
+                  newPosition <= clip.endTime) {
                 timelineViewModel.splitClip(clip.id, newPosition);
                 break;
               }
@@ -600,33 +774,42 @@ class TimelineEditor extends StatelessWidget {
     );
   }
 
-  Widget _buildTimelineControls(BuildContext context, TimelineViewModel timelineViewModel) {
+  Widget _buildTimelineControls(
+    BuildContext context,
+    TimelineViewModel timelineViewModel,
+  ) {
     return Container(
       constraints: const BoxConstraints(minHeight: 50),
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[700]!, width: 1)),
       ),
-      child: SingleChildScrollView(primary: false,
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
+      child: SingleChildScrollView(
+        primary: false,
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             IconButton(
               icon: const Icon(Icons.zoom_out, size: 18),
-              onPressed: () => timelineViewModel.setZoomLevel(timelineViewModel.zoomLevel - 0.1),
+              onPressed: () => timelineViewModel.setZoomLevel(
+                timelineViewModel.zoomLevel - 0.1,
+              ),
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
               tooltip: 'Zoom out',
             ),
-            Text('${(timelineViewModel.zoomLevel * 100).round()}%', style: const TextStyle(fontSize: 12)),
+            Text(
+              '${(timelineViewModel.zoomLevel * 100).round()}%',
+              style: const TextStyle(fontSize: 12),
+            ),
             IconButton(
               icon: const Icon(Icons.zoom_in, size: 18),
-              onPressed: () => timelineViewModel.setZoomLevel(timelineViewModel.zoomLevel + 0.1),
+              onPressed: () => timelineViewModel.setZoomLevel(
+                timelineViewModel.zoomLevel + 0.1,
+              ),
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               padding: EdgeInsets.zero,
               visualDensity: VisualDensity.compact,
@@ -636,7 +819,9 @@ class TimelineEditor extends StatelessWidget {
             IconButton(
               icon: Icon(
                 timelineViewModel.snapToGrid ? Icons.grid_on : Icons.grid_off,
-                color: timelineViewModel.snapToGrid ? Theme.of(context).colorScheme.primary : null,
+                color: timelineViewModel.snapToGrid
+                    ? Theme.of(context).colorScheme.primary
+                    : null,
               ),
               onPressed: () => timelineViewModel.toggleSnapToGrid(),
               tooltip: 'Snap to Grid',
@@ -658,10 +843,7 @@ class TimelineEditor extends StatelessWidget {
                   value: Duration(milliseconds: 1000),
                   child: Text('1/2'),
                 ),
-                DropdownMenuItem(
-                  value: Duration(seconds: 1),
-                  child: Text('1'),
-                ),
+                DropdownMenuItem(value: Duration(seconds: 1), child: Text('1')),
               ],
               onChanged: (value) {
                 if (value != null) {
@@ -697,8 +879,8 @@ class TimelineEditor extends StatelessWidget {
                 Tooltip(message: 'Trim tool', child: Icon(Icons.straighten)),
               ],
             ),
-            ],
-          ),
+          ],
+        ),
       ),
     );
   }
@@ -706,14 +888,10 @@ class TimelineEditor extends StatelessWidget {
 
 class TimelineRulerPainter extends CustomPainter {
   final double pixelsPerSecond;
-  final Duration currentPosition;
-  final bool isPlaying;
   final Duration totalDuration;
 
   TimelineRulerPainter({
     required this.pixelsPerSecond,
-    required this.currentPosition,
-    required this.isPlaying,
     required this.totalDuration,
   });
 
@@ -723,9 +901,7 @@ class TimelineRulerPainter extends CustomPainter {
       ..color = Colors.grey[600]!
       ..strokeWidth = 1;
 
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
+    final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
     final bgPaint = Paint()
       ..color = Colors.grey[900]!
@@ -758,7 +934,8 @@ class TimelineRulerPainter extends CustomPainter {
       final seconds = (x / pixelsPerSecond).round();
       final minutes = seconds ~/ 60;
       final remainingSeconds = seconds % 60;
-      final timeText = '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+      final timeText =
+          '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
 
       textPainter.text = TextSpan(
         text: timeText,
@@ -775,8 +952,28 @@ class TimelineRulerPainter extends CustomPainter {
         Offset(x - textPainter.width / 2, size.height - 45),
       );
     }
+  }
 
-    final playheadX = (currentPosition.inMilliseconds / 1000.0) * pixelsPerSecond;
+  @override
+  bool shouldRepaint(covariant TimelineRulerPainter oldDelegate) {
+    return oldDelegate.pixelsPerSecond != pixelsPerSecond ||
+        oldDelegate.totalDuration != totalDuration;
+  }
+}
+
+class TimelinePlayheadPainter extends CustomPainter {
+  final double pixelsPerSecond;
+  final Duration currentPosition;
+
+  TimelinePlayheadPainter({
+    required this.pixelsPerSecond,
+    required this.currentPosition,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final playheadX =
+        (currentPosition.inMilliseconds / 1000.0) * pixelsPerSecond;
     final playheadPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topCenter,
@@ -812,7 +1009,10 @@ class TimelineRulerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant TimelinePlayheadPainter oldDelegate) {
+    return oldDelegate.currentPosition != currentPosition ||
+        oldDelegate.pixelsPerSecond != pixelsPerSecond;
+  }
 }
 
 class WaveformPainter extends CustomPainter {
@@ -886,7 +1086,8 @@ class GridPainter extends CustomPainter {
       ..color = Colors.grey[800]!
       ..strokeWidth = 0.5;
 
-    final double gridWidth = (gridSize.inMilliseconds / 1000.0) * pixelsPerSecond;
+    final double gridWidth =
+        (gridSize.inMilliseconds / 1000.0) * pixelsPerSecond;
 
     for (double x = 0; x < size.width; x += gridWidth) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
@@ -898,5 +1099,9 @@ class GridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant GridPainter oldDelegate) {
+    return oldDelegate.gridSize != gridSize ||
+        oldDelegate.pixelsPerSecond != pixelsPerSecond ||
+        oldDelegate.trackHeight != trackHeight;
+  }
 }
