@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:studio_wiz/view_models/daw_view_model.dart';
 import 'package:studio_wiz/widgets/track_widget.dart';
@@ -56,9 +55,9 @@ class _DawScreenState extends State<DawScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Export failed: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
       }
     } finally {
       setState(() => _isExporting = false);
@@ -75,16 +74,19 @@ class _DawScreenState extends State<DawScreen> {
             title: const Text('ProStudio DAW'),
             centerTitle: true,
             actions: [
-              if (viewModel.masteredSongTrack != null && viewModel.masteredSongTrack!.hasAudio)
+              if (viewModel.masteredSongTrack != null &&
+                  viewModel.masteredSongTrack!.hasAudio)
                 IconButton(
-                  icon: _isExporting 
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.download),
-                  onPressed: _isExporting ? null : () => _exportTrack(viewModel.masteredSongTrack!),
+                  icon: _isExporting
+                      ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.download),
+                  onPressed: _isExporting
+                      ? null
+                      : () => _exportTrack(viewModel.masteredSongTrack!),
                   tooltip: 'Export Final Song',
                 ),
               PopupMenuButton(
@@ -132,7 +134,9 @@ class _DawScreenState extends State<DawScreen> {
                 onSolo: () => viewModel.toggleSolo(viewModel.beatTrack),
                 onVolumeChanged: (volume) => viewModel.setVolume(
                   viewModel.beatTrack,
-                  viewModel.beatTrack.clips.isNotEmpty ? viewModel.beatTrack.clips.first : null, // Pass first clip for volume
+                  viewModel.beatTrack.clips.isNotEmpty
+                      ? viewModel.beatTrack.clips.first
+                      : null, // Pass first clip for volume
                   volume,
                 ),
               ),
@@ -141,9 +145,14 @@ class _DawScreenState extends State<DawScreen> {
               // Vocal Tracks
               Expanded(
                 child: ListView.builder(
-                  itemCount: viewModel.vocalTracks.length + // Base vocal tracks
-                      (viewModel.mixedVocalTrack != null ? 1 : 0) + // Mixed vocal track
-                      (viewModel.masteredSongTrack != null ? 1 : 0), // Mastered song track
+                  itemCount:
+                      viewModel.vocalTracks.length + // Base vocal tracks
+                      (viewModel.mixedVocalTrack != null
+                          ? 1
+                          : 0) + // Mixed vocal track
+                      (viewModel.masteredSongTrack != null
+                          ? 1
+                          : 0), // Mastered song track
                   itemBuilder: (context, index) {
                     if (index < viewModel.vocalTracks.length) {
                       final vocalTrack = viewModel.vocalTracks[index];
@@ -157,11 +166,14 @@ class _DawScreenState extends State<DawScreen> {
                         onSolo: () => viewModel.toggleSolo(vocalTrack),
                         onVolumeChanged: (volume) => viewModel.setVolume(
                           vocalTrack,
-                          vocalTrack.clips.isNotEmpty ? vocalTrack.clips.first : null, // Pass first clip for volume
+                          vocalTrack.clips.isNotEmpty
+                              ? vocalTrack.clips.first
+                              : null, // Pass first clip for volume
                           volume,
                         ),
                       );
-                    } else if (index == viewModel.vocalTracks.length && viewModel.mixedVocalTrack != null) {
+                    } else if (index == viewModel.vocalTracks.length &&
+                        viewModel.mixedVocalTrack != null) {
                       // Mixed Vocal Track
                       return TrackWidget(
                         title: viewModel.mixedVocalTrack!.name,
@@ -169,14 +181,22 @@ class _DawScreenState extends State<DawScreen> {
                         color: Colors.purple,
                         onImport: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Mixed Vocal Track cannot be imported directly.')),
+                            const SnackBar(
+                              content: Text(
+                                'Mixed Vocal Track cannot be imported directly.',
+                              ),
+                            ),
                           );
                         },
-                        onMute: () => viewModel.toggleMute(viewModel.mixedVocalTrack!),
-                        onSolo: () => viewModel.toggleSolo(viewModel.mixedVocalTrack!),
+                        onMute: () =>
+                            viewModel.toggleMute(viewModel.mixedVocalTrack!),
+                        onSolo: () =>
+                            viewModel.toggleSolo(viewModel.mixedVocalTrack!),
                         onVolumeChanged: (volume) => viewModel.setVolume(
                           viewModel.mixedVocalTrack!,
-                          viewModel.mixedVocalTrack!.clips.isNotEmpty ? viewModel.mixedVocalTrack!.clips.first : null,
+                          viewModel.mixedVocalTrack!.clips.isNotEmpty
+                              ? viewModel.mixedVocalTrack!.clips.first
+                              : null,
                           volume,
                         ),
                       );
@@ -188,14 +208,22 @@ class _DawScreenState extends State<DawScreen> {
                         color: Colors.orange,
                         onImport: () {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Mastered Song Track cannot be imported directly.')),
+                            const SnackBar(
+                              content: Text(
+                                'Mastered Song Track cannot be imported directly.',
+                              ),
+                            ),
                           );
                         },
-                        onMute: () => viewModel.toggleMute(viewModel.masteredSongTrack!),
-                        onSolo: () => viewModel.toggleSolo(viewModel.masteredSongTrack!),
+                        onMute: () =>
+                            viewModel.toggleMute(viewModel.masteredSongTrack!),
+                        onSolo: () =>
+                            viewModel.toggleSolo(viewModel.masteredSongTrack!),
                         onVolumeChanged: (volume) => viewModel.setVolume(
                           viewModel.masteredSongTrack!,
-                          viewModel.masteredSongTrack!.clips.isNotEmpty ? viewModel.masteredSongTrack!.clips.first : null,
+                          viewModel.masteredSongTrack!.clips.isNotEmpty
+                              ? viewModel.masteredSongTrack!.clips.first
+                              : null,
                           volume,
                         ),
                       );
@@ -233,10 +261,15 @@ class _DawScreenState extends State<DawScreen> {
                     ElevatedButton.icon(
                       onPressed: () => viewModel.magicMixVocals(),
                       icon: const Icon(Icons.auto_awesome, size: 28),
-                      label: const Text('Magic Mix Vocals', style: TextStyle(fontSize: 16)),
+                      label: const Text(
+                        'Magic Mix Vocals',
+                        style: TextStyle(fontSize: 16),
+                      ),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
-                        backgroundColor: Theme.of(context).colorScheme.secondary,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.secondary,
                         foregroundColor: Colors.white,
                       ),
                     ),
@@ -244,7 +277,10 @@ class _DawScreenState extends State<DawScreen> {
                     ElevatedButton.icon(
                       onPressed: () => viewModel.aiMasterSong(),
                       icon: const Icon(Icons.star, size: 28),
-                      label: const Text('AI Master Song', style: TextStyle(fontSize: 16)),
+                      label: const Text(
+                        'AI Master Song',
+                        style: TextStyle(fontSize: 16),
+                      ),
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size(double.infinity, 50),
                         backgroundColor: Theme.of(context).colorScheme.tertiary,
@@ -267,15 +303,21 @@ class _DawScreenState extends State<DawScreen> {
                       icon: const Icon(Icons.stop, size: 32),
                       onPressed: viewModel.stop,
                       color: Colors.white,
+                      tooltip: 'Stop',
                     ),
                     // Play/Pause Button
                     IconButton(
                       icon: Icon(
-                        viewModel.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                        viewModel.isPlaying
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled,
                         size: 48,
                       ),
-                      onPressed: viewModel.isPlaying ? viewModel.pause : viewModel.play,
+                      onPressed: viewModel.isPlaying
+                          ? viewModel.pause
+                          : viewModel.play,
                       color: Colors.white,
+                      tooltip: viewModel.isPlaying ? 'Pause' : 'Play',
                     ),
                     // Record Button (Global, for first available vocal track)
                     IconButton(
@@ -284,13 +326,21 @@ class _DawScreenState extends State<DawScreen> {
                         size: 32,
                       ),
                       onPressed: () {
-                        final emptyVocalTrack = viewModel.vocalTracks.firstWhere(
-                          (track) => !track.hasAudio,
-                          orElse: () => viewModel.vocalTracks.first, // Fallback to first track if all full
-                        );
+                        final emptyVocalTrack = viewModel.vocalTracks
+                            .firstWhere(
+                              (track) => !track.hasAudio,
+                              orElse: () => viewModel
+                                  .vocalTracks
+                                  .first, // Fallback to first track if all full
+                            );
                         viewModel.toggleRecording(emptyVocalTrack);
                       },
-                      color: viewModel.isRecording ? Colors.redAccent : Colors.white,
+                      color: viewModel.isRecording
+                          ? Colors.redAccent
+                          : Colors.white,
+                      tooltip: viewModel.isRecording
+                          ? 'Stop Recording'
+                          : 'Record',
                     ),
                   ],
                 ),
@@ -310,7 +360,9 @@ class _DawScreenState extends State<DawScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Clear Project'),
-        content: const Text('Are you sure you want to clear the current project? This action cannot be undone.'),
+        content: const Text(
+          'Are you sure you want to clear the current project? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -320,9 +372,9 @@ class _DawScreenState extends State<DawScreen> {
             onPressed: () {
               viewModel.clearProject();
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Project cleared')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Project cleared')));
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             child: const Text('Clear'),
@@ -360,35 +412,45 @@ class _DawScreenState extends State<DawScreen> {
         final track = viewModel.vocalTracks[i];
         if (track.hasAudio) {
           final sourceFile = File(track.clips.first.path);
-          final targetFile = File('${exportDir.path}/vocal_${i + 1}_$timestamp.wav');
+          final targetFile = File(
+            '${exportDir.path}/vocal_${i + 1}_$timestamp.wav',
+          );
           await sourceFile.copy(targetFile.path);
           exportedCount++;
         }
       }
 
       // Export mixed vocals
-      if (viewModel.mixedVocalTrack != null && viewModel.mixedVocalTrack!.hasAudio) {
+      if (viewModel.mixedVocalTrack != null &&
+          viewModel.mixedVocalTrack!.hasAudio) {
         final sourceFile = File(viewModel.mixedVocalTrack!.clips.first.path);
-        final targetFile = File('${exportDir.path}/mixed_vocals_$timestamp.wav');
+        final targetFile = File(
+          '${exportDir.path}/mixed_vocals_$timestamp.wav',
+        );
         await sourceFile.copy(targetFile.path);
         exportedCount++;
       }
 
       // Export mastered song
-      if (viewModel.masteredSongTrack != null && viewModel.masteredSongTrack!.hasAudio) {
+      if (viewModel.masteredSongTrack != null &&
+          viewModel.masteredSongTrack!.hasAudio) {
         final sourceFile = File(viewModel.masteredSongTrack!.clips.first.path);
-        final targetFile = File('${exportDir.path}/mastered_song_$timestamp.wav');
+        final targetFile = File(
+          '${exportDir.path}/mastered_song_$timestamp.wav',
+        );
         await sourceFile.copy(targetFile.path);
         exportedCount++;
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$exportedCount tracks exported to ${exportDir.path}')),
+        SnackBar(
+          content: Text('$exportedCount tracks exported to ${exportDir.path}'),
+        ),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Export failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Export failed: $e')));
     } finally {
       setState(() => _isExporting = false);
     }
