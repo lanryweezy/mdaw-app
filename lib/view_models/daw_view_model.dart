@@ -889,13 +889,13 @@ class DawViewModel extends ChangeNotifier {
   Future<void> applyMastering(dynamic preset) async {
     _startProcessing('Mastering song...');
     try {
-      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty)
-        return;
-      final vocalPath = vocalTracks
-          .firstWhere((t) => t.hasAudio)
-          .clips
-          .first
-          .path;
+      if (beatTrack.clips.isEmpty) return;
+
+      // Bolt ⚡: Replace double iteration (.any followed by .firstWhere) with a single .indexWhere
+      final firstAudioVocalTrackIndex = vocalTracks.indexWhere((t) => t.hasAudio);
+      if (firstAudioVocalTrackIndex == -1) return;
+
+      final vocalPath = vocalTracks[firstAudioVocalTrackIndex].clips.first.path;
       final beatPath = beatTrack.clips.first.path;
       final masteredPath = await _audioProcessingService.masterSongAdvanced(
         vocalPath,
