@@ -20,10 +20,11 @@ class EnhancedDawScreen extends StatefulWidget {
   State<EnhancedDawScreen> createState() => _EnhancedDawScreenState();
 }
 
-class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProviderStateMixin {
+class _EnhancedDawScreenState extends State<EnhancedDawScreen>
+    with TickerProviderStateMixin {
   late TabController _tabController;
   late TimelineViewModel _timelineViewModel;
-  
+
   // AI Processing state
   VocalMixPreset _selectedVocalPreset = VocalMixPreset.pop;
   MasteringPreset _selectedMasteringPreset = MasteringPreset.loudAndClear;
@@ -60,15 +61,13 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape =
+        MediaQuery.of(context).orientation == Orientation.landscape;
 
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider.value(value: _timelineViewModel),
-      ],
+      providers: [ChangeNotifierProvider.value(value: _timelineViewModel)],
       child: Scaffold(
         appBar: isLandscape
             ? null
@@ -81,9 +80,21 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   tabAlignment: TabAlignment.center,
                   indicatorSize: TabBarIndicatorSize.label,
                   tabs: const [
-                    Tab(icon: Icon(Icons.timeline, size: 20), text: 'Timeline', height: 48),
-                    Tab(icon: Icon(Icons.equalizer, size: 20), text: 'Mix', height: 48),
-                    Tab(icon: Icon(Icons.auto_awesome, size: 20), text: 'AI Tools', height: 48),
+                    Tab(
+                      icon: Icon(Icons.timeline, size: 20),
+                      text: 'Timeline',
+                      height: 48,
+                    ),
+                    Tab(
+                      icon: Icon(Icons.equalizer, size: 20),
+                      text: 'Mix',
+                      height: 48,
+                    ),
+                    Tab(
+                      icon: Icon(Icons.auto_awesome, size: 20),
+                      text: 'AI Tools',
+                      height: 48,
+                    ),
                   ],
                 ),
                 actions: [
@@ -100,9 +111,13 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   IconButton(
                     icon: const Icon(Icons.audio_file, size: 20),
                     onPressed: () {
-                      context.read<DawViewModel>().importAudio(context.read<DawViewModel>().beatTrack);
+                      context.read<DawViewModel>().importAudio(
+                        context.read<DawViewModel>().beatTrack,
+                      );
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Importing audio to beat track...')),
+                        const SnackBar(
+                          content: Text('Importing audio to beat track...'),
+                        ),
                       );
                     },
                     tooltip: 'Import Audio',
@@ -114,18 +129,26 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                         children: [
                           IconButton(
                             icon: const Icon(Icons.undo, size: 20),
-                            onPressed: timelineVM.canUndo ? timelineVM.undo : null,
+                            onPressed: timelineVM.canUndo
+                                ? timelineVM.undo
+                                : null,
                             tooltip: 'Undo',
                           ),
                           IconButton(
                             icon: const Icon(Icons.redo, size: 20),
-                            onPressed: timelineVM.canRedo ? timelineVM.redo : null,
+                            onPressed: timelineVM.canRedo
+                                ? timelineVM.redo
+                                : null,
                             tooltip: 'Redo',
                           ),
                           IconButton(
                             icon: Icon(
-                              timelineVM.metronomeEnabled ? Icons.music_note : Icons.music_off,
-                              color: timelineVM.metronomeEnabled ? Colors.red : null,
+                              timelineVM.metronomeEnabled
+                                  ? Icons.music_note
+                                  : Icons.music_off,
+                              color: timelineVM.metronomeEnabled
+                                  ? Colors.red
+                                  : null,
                               size: 20,
                             ),
                             onPressed: timelineVM.toggleMetronome,
@@ -148,9 +171,21 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   labelColor: const Color(0xFF00D4FF),
                   unselectedLabelColor: Colors.grey[600],
                   tabs: const [
-                    Tab(icon: Icon(Icons.timeline, size: 18), text: 'Timeline', height: 48),
-                    Tab(icon: Icon(Icons.equalizer, size: 18), text: 'Mix', height: 48),
-                    Tab(icon: Icon(Icons.auto_awesome, size: 18), text: 'AI Tools', height: 48),
+                    Tab(
+                      icon: Icon(Icons.timeline, size: 18),
+                      text: 'Timeline',
+                      height: 48,
+                    ),
+                    Tab(
+                      icon: Icon(Icons.equalizer, size: 18),
+                      text: 'Mix',
+                      height: 48,
+                    ),
+                    Tab(
+                      icon: Icon(Icons.auto_awesome, size: 18),
+                      text: 'AI Tools',
+                      height: 48,
+                    ),
                   ],
                 ),
               ),
@@ -195,8 +230,6 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     );
   }
 
-  
-
   Widget _buildTimelineTab() {
     return const Column(
       children: [
@@ -213,11 +246,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-          mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const AdvancedControlsPanel(),
-        ],
+        children: [const AdvancedControlsPanel()],
       ),
     );
   }
@@ -226,7 +257,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
-          mainAxisSize: MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildVocalMixSection(),
@@ -249,9 +280,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
           children: [
             Text(
               'AI Vocal Mixing',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text('Choose a vocal mixing preset:'),
@@ -288,15 +319,21 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
               child: Consumer<DawViewModel>(
                 builder: (context, viewModel, child) {
                   return ElevatedButton.icon(
-                    onPressed: viewModel.isProcessing ? null : _applyVocalMixing,
-                    icon: viewModel.isProcessing 
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.auto_awesome),
-                    label: Text(viewModel.isProcessing ? 'Processing...' : 'Apply AI Vocal Mix'),
+                    onPressed: viewModel.isProcessing
+                        ? null
+                        : _applyVocalMixing,
+                    icon: viewModel.isProcessing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.auto_awesome),
+                    label: Text(
+                      viewModel.isProcessing
+                          ? 'Processing...'
+                          : 'Apply AI Vocal Mix',
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.secondary,
                       foregroundColor: Colors.white,
@@ -321,9 +358,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
           children: [
             Text(
               'AI Mastering',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             const Text('Choose a mastering preset:'),
@@ -361,14 +398,18 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                 builder: (context, viewModel, child) {
                   return ElevatedButton.icon(
                     onPressed: viewModel.isProcessing ? null : _applyMastering,
-                    icon: viewModel.isProcessing 
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.star),
-                    label: Text(viewModel.isProcessing ? 'Processing...' : 'Apply AI Mastering'),
+                    icon: viewModel.isProcessing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.star),
+                    label: Text(
+                      viewModel.isProcessing
+                          ? 'Processing...'
+                          : 'Apply AI Mastering',
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.tertiary,
                       foregroundColor: Colors.white,
@@ -393,14 +434,15 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
           children: [
             Text(
               'Advanced AI Tools',
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             AIToolButton(
               title: 'Vocal Doubling',
-              description: 'Create artificial vocal doubles for a thicker sound',
+              description:
+                  'Create artificial vocal doubles for a thicker sound',
               icon: Icons.people,
               onPressed: () => _applyVocalDoubling(),
             ),
@@ -431,15 +473,12 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
     );
   }
 
-
   Widget _buildTransportControls() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
-        border: Border(
-          top: BorderSide(color: Colors.grey[700]!, width: 1),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[700]!, width: 1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
@@ -478,6 +517,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   // Stop
                   _buildTransportButton(
                     icon: Icons.stop,
+                    tooltip: 'Stop',
                     onPressed: () {
                       Provider.of<DawViewModel>(context, listen: false).stop();
                     },
@@ -486,7 +526,10 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                   Consumer<DawViewModel>(
                     builder: (context, dawVM, child) {
                       return _buildTransportButton(
-                        icon: dawVM.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_filled,
+                        icon: dawVM.isPlaying
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled,
+                        tooltip: dawVM.isPlaying ? 'Pause' : 'Play',
                         isPrimary: true,
                         onPressed: dawVM.isPlaying ? dawVM.pause : dawVM.play,
                       );
@@ -497,6 +540,9 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
                     builder: (context, dawVM, child) {
                       return _buildTransportButton(
                         icon: dawVM.isRecording ? Icons.stop_circle : Icons.mic,
+                        tooltip: dawVM.isRecording
+                            ? 'Stop Recording'
+                            : 'Record',
                         color: dawVM.isRecording ? Colors.red : null,
                         onPressed: () {
                           final emptyVocalTrack = dawVM.vocalTracks.firstWhere(
@@ -520,34 +566,50 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
   Widget _buildTransportButton({
     required IconData icon,
     required VoidCallback onPressed,
+    required String tooltip,
     bool isPrimary = false,
     Color? color,
   }) {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Calculate responsive sizes based on available space
-        final maxWidth = constraints.maxWidth > 0 ? constraints.maxWidth : 300.0;
-        
+        final maxWidth = constraints.maxWidth > 0
+            ? constraints.maxWidth
+            : 300.0;
+
         // Set minimum and maximum sizes with safe fallbacks
-        final double primarySize = math.min(math.max(maxWidth * 0.3, 48.0), 56.0); // Max size adjusted to fit
-        final double secondarySize = math.min(math.max(maxWidth * 0.25, 40.0), 56.0); // Max size adjusted to fit
-        
+        final double primarySize = math.min(
+          math.max(maxWidth * 0.3, 48.0),
+          56.0,
+        ); // Max size adjusted to fit
+        final double secondarySize = math.min(
+          math.max(maxWidth * 0.25, 40.0),
+          56.0,
+        ); // Max size adjusted to fit
+
         final double size = isPrimary ? primarySize : secondarySize;
         final double iconSize = size * 0.6;
-        
+
         return Container(
           width: size,
           height: size,
           decoration: BoxDecoration(
-            color: color ?? (isPrimary ? Theme.of(context).colorScheme.primary : Colors.grey[800]),
+            color:
+                color ??
+                (isPrimary
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[800]),
             borderRadius: BorderRadius.circular(size / 2),
-            boxShadow: isPrimary ? [
-              BoxShadow(
-                color: (color ?? Theme.of(context).colorScheme.primary).withAlpha(76),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ] : null,
+            boxShadow: isPrimary
+                ? [
+                    BoxShadow(
+                      color: (color ?? Theme.of(context).colorScheme.primary)
+                          .withAlpha(76),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: IconButton(
             icon: Icon(
@@ -557,6 +619,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
             ),
             onPressed: onPressed,
             padding: EdgeInsets.zero,
+            tooltip: tooltip,
           ),
         );
       },
@@ -630,19 +693,26 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen> with TickerProvid
 
     if (vocalPaths.isEmpty) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No vocal tracks to mix')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('No vocal tracks to mix')));
       }
       return;
     }
 
-    final mixedPath = await dawVM.applyVocalMixing(vocalPaths, _selectedVocalPreset);
+    final mixedPath = await dawVM.applyVocalMixing(
+      vocalPaths,
+      _selectedVocalPreset,
+    );
 
     if (mixedPath != null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Vocal mixing applied with ${_getPresetDisplayName(_selectedVocalPreset)} preset!')),
+          SnackBar(
+            content: Text(
+              'Vocal mixing applied with ${_getPresetDisplayName(_selectedVocalPreset)} preset!',
+            ),
+          ),
         );
       }
     }

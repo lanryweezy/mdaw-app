@@ -7,3 +7,6 @@
 ## 2024-10-27 - Missing Tooltips in MixerConsole
 **Learning:** Discovered missing tooltips on `IconButton` standard elements in `MixerConsole` controls (specifically Mute and Solo), degrading screen reader accessibility and discoverability for icon-only buttons.
 **Action:** When adding or reviewing `IconButton` widgets in complex, icon-heavy UI like DAW tracks or mixer components, consistently verify that the `tooltip` property is defined with dynamic state-aware text (e.g. 'Unmute' vs 'Mute').
+## 2024-11-20 - Missing Tooltips in Custom Button Builders
+**Learning:** Custom builder functions for UI elements (like `_buildTransportButton` in DAW screen) often forget to pass down standard accessibility properties like `tooltip` to the inner standard widgets (`IconButton`). This causes the resulting UI to be inaccessible to screen readers and lacking hover states for mouse users.
+**Action:** When creating custom widget builder methods for buttons, explicitly require a `tooltip` parameter and ensure it is passed down to the underlying `IconButton` or `Tooltip` widget.
