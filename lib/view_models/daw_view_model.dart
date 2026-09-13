@@ -800,12 +800,14 @@ class DawViewModel extends ChangeNotifier {
     try {
       Track? targetTrack = selectedTrack;
       if (targetTrack == null || !targetTrack.hasAudio) {
-        targetTrack = vocalTracks.firstWhere(
-          (track) => track.hasAudio,
-          orElse: () => throw Exception(
+        // ⚡ Bolt: Replaced firstWhere (which throws exception for control flow) with indexWhere for performance
+        final trackIndex = vocalTracks.indexWhere((track) => track.hasAudio);
+        if (trackIndex == -1) {
+          throw Exception(
             'No vocal tracks found with audio. Please select a track or record audio.',
-          ),
-        );
+          );
+        }
+        targetTrack = vocalTracks[trackIndex];
       }
 
       if (targetTrack.clips.isEmpty) {
@@ -889,13 +891,11 @@ class DawViewModel extends ChangeNotifier {
   Future<void> applyMastering(dynamic preset) async {
     _startProcessing('Mastering song...');
     try {
-      if (!vocalTracks.any((t) => t.hasAudio) || beatTrack.clips.isEmpty)
-        return;
-      final vocalPath = vocalTracks
-          .firstWhere((t) => t.hasAudio)
-          .clips
-          .first
-          .path;
+      // ⚡ Bolt: Avoided double iteration (.any followed by .firstWhere) by using a single indexWhere
+      final vocalIndex = vocalTracks.indexWhere((t) => t.hasAudio);
+      if (vocalIndex == -1 || beatTrack.clips.isEmpty) return;
+
+      final vocalPath = vocalTracks[vocalIndex].clips.first.path;
       final beatPath = beatTrack.clips.first.path;
       final masteredPath = await _audioProcessingService.masterSongAdvanced(
         vocalPath,
@@ -1069,10 +1069,11 @@ class DawViewModel extends ChangeNotifier {
       // Move vocals to a vocal track
       final vocalsPath = separated['vocals'];
       if (vocalsPath != null) {
-        final targetVocalTrack = vocalTracks.firstWhere(
-          (t) => !t.hasAudio,
-          orElse: () => vocalTracks.last,
-        );
+        // ⚡ Bolt: Replaced firstWhere with indexWhere for performance
+        final emptyIndex = vocalTracks.indexWhere((t) => !t.hasAudio);
+        final targetVocalTrack = emptyIndex != -1
+            ? vocalTracks[emptyIndex]
+            : vocalTracks.last;
         final clipId =
             DateTime.now().millisecondsSinceEpoch.toString() + "_vocals";
         final controller = await AudioResourceManager().getOrCreateController(
@@ -1144,10 +1145,12 @@ class DawViewModel extends ChangeNotifier {
     try {
       Track? targetTrack = selectedTrack;
       if (targetTrack == null || !targetTrack.hasAudio) {
-        targetTrack = vocalTracks.firstWhere(
-          (track) => track.hasAudio,
-          orElse: () => throw Exception('No vocal tracks found with audio.'),
-        );
+        // ⚡ Bolt: Replaced firstWhere (which throws exception for control flow) with indexWhere for performance
+        final trackIndex = vocalTracks.indexWhere((track) => track.hasAudio);
+        if (trackIndex == -1) {
+          throw Exception('No vocal tracks found with audio.');
+        }
+        targetTrack = vocalTracks[trackIndex];
       }
 
       if (beatTrack.clips.isEmpty)
