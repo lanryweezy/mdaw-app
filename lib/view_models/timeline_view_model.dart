@@ -469,20 +469,20 @@ class TimelineViewModel extends ChangeNotifier {
       final startTime = Duration(milliseconds: action.data['startTime'] as int);
       final endTime = Duration(milliseconds: action.data['endTime'] as int);
 
+      // ⚡ Bolt: Replaced try-catch with indexWhere for performance
       Track? targetTrack;
       if (trackId == _dawViewModel.beatTrack.id) {
         targetTrack = _dawViewModel.beatTrack;
       } else {
-        try {
-          targetTrack = _dawViewModel.vocalTracks.firstWhere(
-            (track) => track.id == trackId,
-          );
-        } catch (e) {
-          if (_dawViewModel.mixedVocalTrack?.id == trackId) {
-            targetTrack = _dawViewModel.mixedVocalTrack;
-          } else if (_dawViewModel.masteredSongTrack?.id == trackId) {
-            targetTrack = _dawViewModel.masteredSongTrack;
-          }
+        final trackIndex = _dawViewModel.vocalTracks.indexWhere(
+          (track) => track.id == trackId,
+        );
+        if (trackIndex != -1) {
+          targetTrack = _dawViewModel.vocalTracks[trackIndex];
+        } else if (_dawViewModel.mixedVocalTrack?.id == trackId) {
+          targetTrack = _dawViewModel.mixedVocalTrack;
+        } else if (_dawViewModel.masteredSongTrack?.id == trackId) {
+          targetTrack = _dawViewModel.masteredSongTrack;
         }
       }
 
@@ -561,10 +561,11 @@ class TimelineViewModel extends ChangeNotifier {
     final snappedEndTime = snapDurationToGrid(newEndTime);
 
     for (final track in _dawViewModel.vocalTracks) {
-      final clip = track.clips.firstWhere(
-        (c) => c.id == clipId,
-        orElse: () => throw Exception('Clip not found'),
-      );
+      // ⚡ Bolt: Replaced firstWhere (which can throw) with indexWhere for performance
+      final clipIndex = track.clips.indexWhere((c) => c.id == clipId);
+      if (clipIndex == -1) continue;
+
+      final clip = track.clips[clipIndex];
 
       final oldStartTime = clip.startTime;
       final oldEndTime = clip.endTime;
