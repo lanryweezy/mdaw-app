@@ -176,10 +176,13 @@ class _ProjectScreenState extends State<ProjectScreen> {
       // Load vocal tracks
       if (projectData['vocalTracks'] != null) {
         for (final trackData in projectData['vocalTracks']) {
-          final track = viewModel.vocalTracks.firstWhere(
+          // ⚡ Bolt: Replaced firstWhere with indexWhere for performance
+          final int index = viewModel.vocalTracks.indexWhere(
             (t) => t.id == trackData['id'],
-            orElse: () => viewModel.vocalTracks.first,
           );
+          final track = index >= 0
+              ? viewModel.vocalTracks[index]
+              : viewModel.vocalTracks.first;
 
           track.muted = trackData['isMuted'] ?? false;
           track.soloed = trackData['isSolo'] ?? false;

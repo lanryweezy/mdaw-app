@@ -73,7 +73,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     });
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     // Update animation controller based on current track state
     if (widget.track.collapsed && _animationController.value > 0.0) {
@@ -81,9 +81,9 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     } else if (!widget.track.collapsed && _animationController.value < 1.0) {
       _animationController.forward();
     }
-    
+
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: widget.track.collapsed ? 2 : 4,
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
@@ -91,7 +91,9 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: widget.track.soloed ? widget.color.withAlpha(178) : Colors.grey[700]!,
+          color: widget.track.soloed
+              ? widget.color.withAlpha(178)
+              : Colors.grey[700]!,
           width: widget.track.soloed ? 2 : 1,
         ),
       ),
@@ -120,17 +122,15 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: isSelected ? widget.color.withAlpha(76) : widget.color.withAlpha(25),
+          color: isSelected
+              ? widget.color.withAlpha(76)
+              : widget.color.withAlpha(25),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
           border: isSelected ? Border.all(color: widget.color, width: 2) : null,
         ),
         child: Row(
           children: [
-            Icon(
-              _getTrackIcon(),
-              color: widget.color,
-              size: 24,
-            ),
+            Icon(_getTrackIcon(), color: widget.color, size: 24),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
@@ -145,22 +145,24 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
             _buildTrackStatusChip(),
             // Add a visual indicator for collapsed state
             if (widget.track.collapsed)
-              const Icon(
-                Icons.expand,
-                color: Colors.grey,
-                size: 16,
-              ),
+              const Icon(Icons.expand, color: Colors.grey, size: 16),
             IconButton(
               icon: AnimatedRotation(
                 turns: widget.track.collapsed ? 0.5 : 0.0,
                 duration: const Duration(milliseconds: 200),
                 child: Icon(
-                  widget.track.collapsed ? Icons.expand_more : Icons.expand_less,
-                  color: widget.track.collapsed ? Colors.grey[400] : Colors.white,
+                  widget.track.collapsed
+                      ? Icons.expand_more
+                      : Icons.expand_less,
+                  color: widget.track.collapsed
+                      ? Colors.grey[400]
+                      : Colors.white,
                 ),
               ),
               onPressed: _toggleCollapse,
-              tooltip: widget.track.collapsed ? 'Expand track' : 'Collapse track',
+              tooltip: widget.track.collapsed
+                  ? 'Expand track'
+                  : 'Collapse track',
             ),
           ],
         ),
@@ -203,11 +205,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
         child: Center(
           child: Column(
             children: [
-              Icon(
-                Icons.audio_file,
-                size: 48,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.audio_file, size: 48, color: Colors.grey[600]),
               const SizedBox(height: 8),
               Text(
                 'No audio loaded',
@@ -222,7 +220,9 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     return Container(
       padding: const EdgeInsets.all(12),
       child: Column(
-        children: widget.track.clips.map((clip) => _buildClipWidget(clip)).toList(),
+        children: widget.track.clips
+            .map((clip) => _buildClipWidget(clip))
+            .toList(),
       ),
     );
   }
@@ -279,17 +279,20 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
       children: [
         IconButton(
           icon: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.startPlayer(), // Use startPlayer instead of resume
+          onPressed: () => clip.controller
+              .startPlayer(), // Use startPlayer instead of resume
           tooltip: 'Play',
         ),
         IconButton(
           icon: const Icon(Icons.pause, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.pausePlayer(), // Use pausePlayer instead of pause
+          onPressed: () =>
+              clip.controller.pausePlayer(), // Use pausePlayer instead of pause
           tooltip: 'Pause',
         ),
         IconButton(
           icon: const Icon(Icons.stop, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.stopPlayer(), // Use stopPlayer instead of stop
+          onPressed: () =>
+              clip.controller.stopPlayer(), // Use stopPlayer instead of stop
           tooltip: 'Stop',
         ),
       ],
@@ -359,7 +362,9 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
       child: Column(
         children: [
           Slider(
-            value: widget.track.clips.isNotEmpty ? widget.track.clips.first.volume : 1.0,
+            value: widget.track.clips.isNotEmpty
+                ? widget.track.clips.first.volume
+                : 1.0,
             min: 0.0,
             max: 1.0,
             activeColor: widget.color,
@@ -409,7 +414,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return '$hours:${twoDigits(minutes)}:${twoDigits(seconds)}';
     } else {

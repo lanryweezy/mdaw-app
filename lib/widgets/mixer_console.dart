@@ -77,17 +77,15 @@ class MixerConsole extends StatelessWidget {
             children: [
               IconButton(
                 icon: Icon(track.muted ? Icons.volume_off : Icons.volume_up),
-                tooltip: track.muted ? 'Unmute track' : 'Mute track',
+                tooltip: track.muted ? 'Unmute' : 'Mute',
                 onPressed: () => viewModel.toggleMute(track),
                 color: track.muted ? Colors.red : null,
-                tooltip: track.muted ? 'Unmute' : 'Mute',
               ),
               IconButton(
                 icon: Icon(track.soloed ? Icons.star : Icons.star_border),
-                tooltip: track.soloed ? 'Unsolo track' : 'Solo track',
+                tooltip: track.soloed ? 'Unsolo' : 'Solo',
                 onPressed: () => viewModel.toggleSolo(track),
                 color: track.soloed ? Colors.yellow : null,
-                tooltip: track.soloed ? 'Unsolo' : 'Solo',
               ),
             ],
           ),

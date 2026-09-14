@@ -33,11 +33,7 @@ class AppDrawer extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Icon(
-                      Icons.music_note,
-                      size: 48,
-                      color: Colors.white,
-                    ),
+                    const Icon(Icons.music_note, size: 48, color: Colors.white),
                     const SizedBox(height: 8),
                     const Text(
                       AppConstants.appTitle,
@@ -60,7 +56,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
           ),
-          
+
           // Menu Items
           Expanded(
             child: ListView(
@@ -74,7 +70,9 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
                     );
                   },
                 ),
@@ -86,7 +84,9 @@ class AppDrawer extends StatelessWidget {
                     Navigator.pop(context);
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HelpScreen()),
+                      MaterialPageRoute(
+                        builder: (context) => const HelpScreen(),
+                      ),
                     );
                   },
                 ),
@@ -107,7 +107,9 @@ class AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text(AppConstants.rateAppComingSoon)),
+                      const SnackBar(
+                        content: Text(AppConstants.rateAppComingSoon),
+                      ),
                     );
                   },
                 ),
@@ -118,14 +120,16 @@ class AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text(AppConstants.shareAppComingSoon)),
+                      const SnackBar(
+                        content: Text(AppConstants.shareAppComingSoon),
+                      ),
                     );
                   },
                 ),
               ],
             ),
           ),
-          
+
           // Footer
           Container(
             padding: const EdgeInsets.all(16),
@@ -135,18 +139,12 @@ class AppDrawer extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   AppConstants.version,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   AppConstants.copyright,
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontSize: 12,
-                  ),
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),
@@ -165,10 +163,7 @@ class AppDrawer extends StatelessWidget {
     return ListTile(
       leading: CircleAvatar(
         backgroundColor: const Color(0xFF00D4FF).withAlpha(51),
-        child: Icon(
-          icon,
-          color: const Color(0xFF00D4FF),
-        ),
+        child: Icon(icon, color: const Color(0xFF00D4FF)),
       ),
       title: Text(
         title,
@@ -179,10 +174,7 @@ class AppDrawer extends StatelessWidget {
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          color: Colors.grey[400],
-          fontSize: 12,
-        ),
+        style: TextStyle(color: Colors.grey[400], fontSize: 12),
       ),
       onTap: onTap,
       hoverColor: Colors.grey[800],
@@ -200,9 +192,7 @@ class AppDrawer extends StatelessWidget {
         color: Color(0xFF00D4FF),
       ),
       children: [
-        const Text(
-          AppConstants.aboutDialogDescription,
-        ),
+        const Text(AppConstants.aboutDialogDescription),
         const SizedBox(height: 16),
         const Text(
           AppConstants.featuresTitle,

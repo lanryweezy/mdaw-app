@@ -4,7 +4,9 @@ import 'package:studio_wiz/main.dart' as app;
 
 void main() {
   group('ProStudio DAW Integration Tests', () {
-    testWidgets('App should start without crashing', (WidgetTester tester) async {
+    testWidgets('App should start without crashing', (
+      WidgetTester tester,
+    ) async {
       // Start the app
       app.main();
       await tester.pumpAndSettle();
@@ -21,7 +23,9 @@ void main() {
       expect(find.byType(MaterialApp), findsOneWidget);
     });
 
-    testWidgets('Should handle orientation changes', (WidgetTester tester) async {
+    testWidgets('Should handle orientation changes', (
+      WidgetTester tester,
+    ) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -34,7 +38,9 @@ void main() {
       expect(find.byType(MaterialApp), findsOneWidget);
     });
 
-    testWidgets('Should handle different screen sizes', (WidgetTester tester) async {
+    testWidgets('Should handle different screen sizes', (
+      WidgetTester tester,
+    ) async {
       app.main();
       await tester.pumpAndSettle();
 

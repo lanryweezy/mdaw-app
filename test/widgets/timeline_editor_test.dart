@@ -36,11 +36,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -54,11 +50,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -67,18 +59,16 @@ void main() {
       expect(find.text('120'), findsOneWidget); // Default BPM
     });
 
-    testWidgets('should display time signature controls', (WidgetTester tester) async {
+    testWidgets('should display time signature controls', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -87,18 +77,16 @@ void main() {
       expect(find.text('4'), findsWidgets); // Numerator and denominator
     });
 
-    testWidgets('should display snap to grid toggle', (WidgetTester tester) async {
+    testWidgets('should display snap to grid toggle', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -113,11 +101,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -142,11 +126,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -181,11 +161,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -210,11 +186,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -229,11 +201,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -262,11 +230,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 
@@ -278,18 +242,16 @@ void main() {
       expect(find.byType(TimelineEditor), findsOneWidget);
     });
 
-    testWidgets('should respond to timeline view model changes', (WidgetTester tester) async {
+    testWidgets('should respond to timeline view model changes', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: Scaffold(
-              body: TimelineEditor(),
-            ),
-          ),
+          child: const MaterialApp(home: Scaffold(body: TimelineEditor())),
         ),
       );
 

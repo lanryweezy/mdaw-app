@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// Types of automation parameters that can be automated
-enum AutomationParameterType {
-  volume,
-  pan,
-  mute,
-  solo,
-  effect,
-  tempo,
-  pitch,
-}
+enum AutomationParameterType { volume, pan, mute, solo, effect, tempo, pitch }
 
 /// Represents a point in an automation curve
 class AutomationPoint {
@@ -24,11 +16,7 @@ class AutomationPoint {
   });
 
   /// Create a copy with new values
-  AutomationPoint copyWith({
-    Duration? time,
-    double? value,
-    Curve? curve,
-  }) {
+  AutomationPoint copyWith({Duration? time, double? value, Curve? curve}) {
     return AutomationPoint(
       time: time ?? this.time,
       value: value ?? this.value,
@@ -103,18 +91,21 @@ class AutomationLane {
 
     // If we're before the first point, return its value
     if (beforePoint == null) return points.first.value;
-    
+
     // If we're after the last point, return its value
     if (afterPoint == null) return points.last.value;
 
     // Interpolate between the two points
-    final timeDiff = afterPoint.time.inMilliseconds - beforePoint.time.inMilliseconds;
+    final timeDiff =
+        afterPoint.time.inMilliseconds - beforePoint.time.inMilliseconds;
     if (timeDiff == 0) return beforePoint.value;
 
-    final ratio = (time.inMilliseconds - beforePoint.time.inMilliseconds) / timeDiff;
+    final ratio =
+        (time.inMilliseconds - beforePoint.time.inMilliseconds) / timeDiff;
     final curvedRatio = beforePoint.curve.transform(ratio);
-    
-    return beforePoint.value + (afterPoint.value - beforePoint.value) * curvedRatio;
+
+    return beforePoint.value +
+        (afterPoint.value - beforePoint.value) * curvedRatio;
   }
 
   /// Sort points by time
@@ -150,8 +141,7 @@ class AutomationLane {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is AutomationLane &&
-        other.id == id;
+    return other is AutomationLane && other.id == id;
   }
 
   @override
@@ -165,8 +155,7 @@ class AutomationSystem {
   bool _isPlaying = false;
   Duration _currentTime = Duration.zero;
 
-  AutomationSystem({List<AutomationLane>? lanes})
-      : lanes = lanes ?? [];
+  AutomationSystem({List<AutomationLane>? lanes}) : lanes = lanes ?? [];
 
   /// Start recording automation
   void startRecording() {
@@ -207,26 +196,25 @@ class AutomationSystem {
 
     // Find or create the automation lane
     final laneId = '${parameterType.name}_$targetId';
-    AutomationLane? lane = lanes.firstWhere(
-      (l) => l.id == laneId,
-      orElse: () => _createAutomationLane(
+
+    // ⚡ Bolt: Replaced firstWhere and contains checks with a single indexWhere for performance
+    AutomationLane lane;
+    final int existingIndex = lanes.indexWhere((l) => l.id == laneId);
+
+    if (existingIndex >= 0) {
+      lane = lanes[existingIndex];
+    } else {
+      lane = _createAutomationLane(
         id: laneId,
         name: parameterId,
         parameterType: parameterType,
         targetId: targetId,
-      ),
-    );
-
-    // If this is a new lane, add it to the list
-    if (!lanes.contains(lane)) {
+      );
       lanes.add(lane);
     }
 
     // Add the point
-    lane.addPoint(AutomationPoint(
-      time: _currentTime,
-      value: value,
-    ));
+    lane.addPoint(AutomationPoint(time: _currentTime, value: value));
   }
 
   /// Create a new automation lane
@@ -283,7 +271,6 @@ class AutomationSystem {
         final value = lane.getValueAtTime(_currentTime);
         // In a real implementation, this would update the actual parameter
         // For now, we'll just print the value
-
       }
     }
   }

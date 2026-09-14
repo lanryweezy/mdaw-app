@@ -13,22 +13,22 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   late SharedPreferences _prefs;
   bool _isLoading = true;
-  
+
   // Audio Settings
   double _masterVolume = 1.0;
   int _bitDepth = 16;
   String _audioQuality = 'High (48kHz)';
-  
+
   // Export Settings
   String _defaultExportFormat = 'WAV';
   int _exportBitrate = 320;
   bool _normalizeAudio = true;
-  
+
   // UI Settings
   bool _darkMode = true;
   double _waveformHeight = 70.0;
   bool _showWaveforms = true;
-  
+
   // Advanced Settings
   bool _enableLowLatency = false;
   int _bufferSize = 1024;
@@ -74,9 +74,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -109,7 +107,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildDropdownSetting(
             'Audio Quality',
             _audioQuality,
-            ['Low (22kHz)', 'Medium (44.1kHz)', 'High (48kHz)', 'Professional (96kHz)'],
+            [
+              'Low (22kHz)',
+              'Medium (44.1kHz)',
+              'High (48kHz)',
+              'Professional (96kHz)',
+            ],
             (value) {
               setState(() => _audioQuality = value);
               _saveSetting('audio_quality', value);
@@ -125,7 +128,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _saveSetting('bit_depth', bitDepth);
             },
           ),
-          
+
           const SizedBox(height: 24),
           _buildSectionHeader('Export Settings'),
           _buildDropdownSetting(
@@ -159,7 +162,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             subtitle: 'Automatically adjust volume levels',
           ),
-          
+
           const SizedBox(height: 24),
           _buildSectionHeader('Interface Settings'),
           _buildSwitchSetting(
@@ -192,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             subtitle: 'Display audio waveforms in tracks',
           ),
-          
+
           const SizedBox(height: 24),
           _buildSectionHeader('Advanced Settings'),
           _buildSwitchSetting(
@@ -223,11 +226,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             subtitle: 'Sync projects to cloud (Premium feature)',
           ),
-          
+
           const SizedBox(height: 24),
           _buildSectionHeader('About'),
           _buildInfoCard(),
-          
+
           const SizedBox(height: 32),
         ],
       ),
@@ -266,7 +269,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.w500),
+                ),
                 Text(format(value), style: TextStyle(color: Colors.grey[600])),
               ],
             ),
@@ -300,10 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: value,
               onChanged: (newValue) => onChanged(newValue!),
               items: options.map((option) {
-                return DropdownMenuItem(
-                  value: option,
-                  child: Text(option),
-                );
+                return DropdownMenuItem(value: option, child: Text(option));
               }).toList(),
             ),
           ],
@@ -321,7 +324,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Card(
       child: SwitchListTile(
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.w500)),
-        subtitle: subtitle != null ? Text(subtitle, style: TextStyle(color: Colors.grey[600])) : null,
+        subtitle: subtitle != null
+            ? Text(subtitle, style: TextStyle(color: Colors.grey[600]))
+            : null,
         value: value,
         onChanged: onChanged,
       ),
@@ -340,10 +345,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Version 1.0.0',
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            Text('Version 1.0.0', style: TextStyle(color: Colors.grey[600])),
             const SizedBox(height: 8),
             Text(
               'Professional Digital Audio Workstation for mobile devices. Create, mix, and master your music with AI-powered tools.',
@@ -382,7 +384,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Reset Settings'),
-        content: const Text('Are you sure you want to reset all settings to their default values?'),
+        content: const Text(
+          'Are you sure you want to reset all settings to their default values?',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -413,10 +417,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Attempt to open the app's store page
       // Note: In a real app, you would use your actual app ID
       final Uri appStoreUri;
-      
+
       if (Platform.isAndroid) {
         // For Android, use Google Play Store
-        appStoreUri = Uri.parse('https://play.google.com/store/apps/details?id=com.example.mdaw');
+        appStoreUri = Uri.parse(
+          'https://play.google.com/store/apps/details?id=com.example.mdaw',
+        );
       } else if (Platform.isIOS) {
         // For iOS, use App Store
         appStoreUri = Uri.parse('https://apps.apple.com/app/idYOUR_APP_ID');
@@ -424,7 +430,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         // For other platforms, use a generic feedback page
         appStoreUri = Uri.parse('https://example.com');
       }
-      
+
       if (await canLaunchUrl(appStoreUri)) {
         await launchUrl(appStoreUri);
       } else {
@@ -440,7 +446,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SnackBar(content: Text('Error opening app store')),
         );
       }
-
     }
   }
 
@@ -452,10 +457,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         path: 'feedback@prostudio.app',
         queryParameters: {
           'subject': 'ProStudio DAW Feedback',
-          'body': 'Please share your feedback, suggestions, or report any issues:\n\n\n\nApp Version: 1.0.0\nPlatform: ${Platform.operatingSystem}\n',
+          'body':
+              'Please share your feedback, suggestions, or report any issues:\n\n\n\nApp Version: 1.0.0\nPlatform: ${Platform.operatingSystem}\n',
         },
       );
-      
+
       if (await canLaunchUrl(emailUri)) {
         await launchUrl(emailUri);
       } else {
@@ -477,7 +483,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SnackBar(content: Text('Error opening feedback form')),
         );
       }
-
     }
   }
 }

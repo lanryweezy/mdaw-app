@@ -545,10 +545,13 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen>
                             : 'Record',
                         color: dawVM.isRecording ? Colors.red : null,
                         onPressed: () {
-                          final emptyVocalTrack = dawVM.vocalTracks.firstWhere(
+                          // ⚡ Bolt: Replaced firstWhere with indexWhere for performance during UI callbacks
+                          final index = dawVM.vocalTracks.indexWhere(
                             (track) => !track.hasAudio,
-                            orElse: () => dawVM.vocalTracks.first,
                           );
+                          final emptyVocalTrack = index >= 0
+                              ? dawVM.vocalTracks[index]
+                              : dawVM.vocalTracks.first;
                           dawVM.toggleRecording(emptyVocalTrack);
                         },
                       );
