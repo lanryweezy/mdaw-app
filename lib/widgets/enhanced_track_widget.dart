@@ -54,11 +54,7 @@ class EnhancedTrackWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(
-            _getTrackIcon(),
-            color: color,
-            size: 24,
-          ),
+          Icon(_getTrackIcon(), color: color, size: 24),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -111,11 +107,7 @@ class EnhancedTrackWidget extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              Icon(
-                Icons.audio_file,
-                size: 48,
-                color: Colors.grey[600],
-              ),
+              Icon(Icons.audio_file, size: 48, color: Colors.grey[600]),
               const SizedBox(height: 8),
               Text(
                 'No audio loaded',
@@ -132,7 +124,14 @@ class EnhancedTrackWidget extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(12),
           child: Column(
-            children: track.clips.map((clip) => _buildClipWidget(clip, viewModel.selectedTrack?.id == track.id)).toList(),
+            children: track.clips
+                .map(
+                  (clip) => _buildClipWidget(
+                    clip,
+                    viewModel.selectedTrack?.id == track.id,
+                  ),
+                )
+                .toList(),
           ),
         );
       },
@@ -151,39 +150,39 @@ class EnhancedTrackWidget extends StatelessWidget {
           border: Border.all(color: Colors.grey[700]!),
         ),
         child: Row(
-        children: [
-          Container(
-            width: 4,
-            height: 40,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(2),
+          children: [
+            Container(
+              width: 4,
+              height: 40,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  clip.path.split('/').last,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    clip.path.split('/').last,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  _formatDuration(clip.endTime),
-                  style: TextStyle(color: Colors.grey[400], fontSize: 12),
-                ),
-              ],
+                  Text(
+                    _formatDuration(clip.endTime),
+                    style: TextStyle(color: Colors.grey[400], fontSize: 12),
+                  ),
+                ],
+              ),
             ),
-          ),
-          _buildClipActions(clip),
-        ],
+            _buildClipActions(clip),
+          ],
         ),
       ),
     );
@@ -194,17 +193,20 @@ class EnhancedTrackWidget extends StatelessWidget {
       children: [
         IconButton(
           icon: const Icon(Icons.play_arrow, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.startPlayer(), // Use startPlayer instead of resume
+          onPressed: () => clip.controller
+              .startPlayer(), // Use startPlayer instead of resume
           tooltip: 'Play',
         ),
         IconButton(
           icon: const Icon(Icons.pause, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.pausePlayer(), // Use pausePlayer instead of pause
+          onPressed: () =>
+              clip.controller.pausePlayer(), // Use pausePlayer instead of pause
           tooltip: 'Pause',
         ),
         IconButton(
           icon: const Icon(Icons.stop, color: Colors.white, size: 20),
-          onPressed: () => clip.controller.stopPlayer(), // Use stopPlayer instead of stop
+          onPressed: () =>
+              clip.controller.stopPlayer(), // Use stopPlayer instead of stop
           tooltip: 'Stop',
         ),
       ],
@@ -225,13 +227,17 @@ class EnhancedTrackWidget extends StatelessWidget {
             icon: track.muted ? Icons.volume_off : Icons.volume_up,
             label: 'Mute',
             isActive: track.muted,
-            onPressed: () => viewModel.toggleMute(track), // Pass track object instead of track.id
+            onPressed: () => viewModel.toggleMute(
+              track,
+            ), // Pass track object instead of track.id
           ),
           _buildControlButton(
             icon: track.soloed ? Icons.star : Icons.star_border,
             label: 'Solo',
             isActive: track.soloed,
-            onPressed: () => viewModel.toggleSolo(track), // Pass track object instead of track.id
+            onPressed: () => viewModel.toggleSolo(
+              track,
+            ), // Pass track object instead of track.id
           ),
           _buildVolumeSlider(context, viewModel),
           _buildAddAudioButton(context, viewModel),
@@ -349,7 +355,7 @@ class EnhancedTrackWidget extends StatelessWidget {
     final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60);
     final seconds = duration.inSeconds.remainder(60);
-    
+
     if (hours > 0) {
       return '$hours:${twoDigits(minutes)}:${twoDigits(seconds)}';
     } else {

@@ -12,7 +12,9 @@ void main() {
 
     setUp(() {
       dawViewModel = DawViewModel();
-      timelineViewModel = TimelineViewModel(dawViewModel); // Pass DawViewModel to constructor
+      timelineViewModel = TimelineViewModel(
+        dawViewModel,
+      ); // Pass DawViewModel to constructor
     });
 
     tearDown(() {
@@ -20,38 +22,38 @@ void main() {
       timelineViewModel.dispose();
     });
 
-    testWidgets('should render enhanced DAW screen', (WidgetTester tester) async {
+    testWidgets('should render enhanced DAW screen', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
       expect(find.byType(EnhancedDawScreen), findsOneWidget);
     });
 
-    testWidgets('should display tab bar with correct tabs', (WidgetTester tester) async {
+    testWidgets('should display tab bar with correct tabs', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
       // Check for tab bar
       expect(find.byType(TabBar), findsOneWidget);
-      
+
       // Check for tab labels
       expect(find.text('Timeline'), findsOneWidget);
       expect(find.text('Mix'), findsOneWidget);
@@ -65,9 +67,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -89,16 +89,16 @@ void main() {
       expect(find.text('AI Tools'), findsOneWidget);
     });
 
-    testWidgets('should display transport controls', (WidgetTester tester) async {
+    testWidgets('should display transport controls', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -115,9 +115,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -138,16 +136,16 @@ void main() {
       expect(find.byIcon(Icons.pause_circle_filled), findsOneWidget);
     });
 
-    testWidgets('should display undo/redo buttons', (WidgetTester tester) async {
+    testWidgets('should display undo/redo buttons', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -163,9 +161,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -188,9 +184,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -204,16 +198,16 @@ void main() {
       expect(find.byIcon(Icons.remove), findsOneWidget);
     });
 
-    testWidgets('should display time signature controls', (WidgetTester tester) async {
+    testWidgets('should display time signature controls', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -226,16 +220,16 @@ void main() {
       expect(find.byType(DropdownButton<int>), findsNWidgets(2));
     });
 
-    testWidgets('should display professional editing controls', (WidgetTester tester) async {
+    testWidgets('should display professional editing controls', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -250,7 +244,9 @@ void main() {
       expect(find.text('Duplicate'), findsOneWidget);
     });
 
-    testWidgets('should handle landscape orientation', (WidgetTester tester) async {
+    testWidgets('should handle landscape orientation', (
+      WidgetTester tester,
+    ) async {
       // Set landscape orientation
       tester.view.physicalSize = const Size(800, 400);
       tester.view.devicePixelRatio = 1.0;
@@ -261,9 +257,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -271,16 +265,16 @@ void main() {
       expect(find.byType(EnhancedDawScreen), findsOneWidget);
     });
 
-    testWidgets('should display AI tools tab content', (WidgetTester tester) async {
+    testWidgets('should display AI tools tab content', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         MultiProvider(
           providers: [
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 
@@ -300,9 +294,7 @@ void main() {
             ChangeNotifierProvider.value(value: dawViewModel),
             ChangeNotifierProvider.value(value: timelineViewModel),
           ],
-          child: const MaterialApp(
-            home: EnhancedDawScreen(),
-          ),
+          child: const MaterialApp(home: EnhancedDawScreen()),
         ),
       );
 

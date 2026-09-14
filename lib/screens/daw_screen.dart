@@ -326,13 +326,13 @@ class _DawScreenState extends State<DawScreen> {
                         size: 32,
                       ),
                       onPressed: () {
-                        final emptyVocalTrack = viewModel.vocalTracks
-                            .firstWhere(
-                              (track) => !track.hasAudio,
-                              orElse: () => viewModel
-                                  .vocalTracks
-                                  .first, // Fallback to first track if all full
-                            );
+                        // ⚡ Bolt: Replaced firstWhere with indexWhere for performance during UI callbacks
+                        final index = viewModel.vocalTracks.indexWhere(
+                          (track) => !track.hasAudio,
+                        );
+                        final emptyVocalTrack = index >= 0
+                            ? viewModel.vocalTracks[index]
+                            : viewModel.vocalTracks.first;
                         viewModel.toggleRecording(emptyVocalTrack);
                       },
                       color: viewModel.isRecording
