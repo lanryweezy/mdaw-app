@@ -46,7 +46,6 @@ class TempoControls extends StatelessWidget {
                             minHeight: 32,
                           ),
                           padding: EdgeInsets.zero,
-                          tooltip: 'Decrease BPM',
                         ),
                         Container(
                           width: 50,
@@ -79,7 +78,6 @@ class TempoControls extends StatelessWidget {
                             minHeight: 32,
                           ),
                           padding: EdgeInsets.zero,
-                          tooltip: 'Increase BPM',
                         ),
                       ],
                     ),

@@ -10,3 +10,6 @@
 ## 2024-11-20 - Missing Tooltips in Custom Button Builders
 **Learning:** Custom builder functions for UI elements (like `_buildTransportButton` in DAW screen) often forget to pass down standard accessibility properties like `tooltip` to the inner standard widgets (`IconButton`). This causes the resulting UI to be inaccessible to screen readers and lacking hover states for mouse users.
 **Action:** When creating custom widget builder methods for buttons, explicitly require a `tooltip` parameter and ensure it is passed down to the underlying `IconButton` or `Tooltip` widget.
+## 2025-01-22 - Semantic Wrappers for Custom Gestures
+**Learning:** Flutter's custom interactive elements built with `GestureDetector` do not inherently possess accessibility roles (like buttons) or readable labels for screen readers, unlike standard buttons. Duplicate `tooltip` parameters on `IconButton` cause compilation errors.
+**Action:** When implementing custom buttons or draggable handles using `GestureDetector`, always wrap them in a `Semantics` widget with `button: true` (if it's a button) and a descriptive `label`. Ensure standard widgets like `IconButton` only have a single `tooltip` property to provide a clean accessible name.
