@@ -36,7 +36,6 @@ class TempoControls extends StatelessWidget {
                       children: [
                         IconButton(
                           icon: const Icon(Icons.remove, size: 18),
-                          tooltip: 'Decrease BPM',
                           onPressed: () {
                             final currentBpm = timelineViewModel.bpm;
                             timelineViewModel.setBpm(currentBpm - 1);
@@ -69,7 +68,6 @@ class TempoControls extends StatelessWidget {
                         ),
                         IconButton(
                           icon: const Icon(Icons.add, size: 18),
-                          tooltip: 'Increase BPM',
                           onPressed: () {
                             final currentBpm = timelineViewModel.bpm;
                             timelineViewModel.setBpm(currentBpm + 1);
