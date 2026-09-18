@@ -46,7 +46,6 @@ class TempoControls extends StatelessWidget {
                             minHeight: 32,
                           ),
                           padding: EdgeInsets.zero,
-                          tooltip: 'Decrease BPM',
                         ),
                         Container(
                           width: 50,
@@ -79,7 +78,6 @@ class TempoControls extends StatelessWidget {
                             minHeight: 32,
                           ),
                           padding: EdgeInsets.zero,
-                          tooltip: 'Increase BPM',
                         ),
                       ],
                     ),
@@ -230,6 +228,7 @@ class TempoControls extends StatelessWidget {
       child: IconButton(
         onPressed: onPressed,
         icon: Icon(icon, size: 20),
+        tooltip: tooltip,
         style: IconButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
           foregroundColor: Theme.of(context).colorScheme.primary,

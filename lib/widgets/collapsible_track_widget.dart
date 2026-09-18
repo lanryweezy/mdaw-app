@@ -341,6 +341,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
             size: 24,
           ),
           onPressed: onPressed,
+          tooltip: label,
         ),
         Text(
           label,
