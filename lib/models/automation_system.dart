@@ -88,30 +88,39 @@ class AutomationLane {
     if (points.isEmpty) return (minValue + maxValue) / 2;
     if (points.length == 1) return points.first.value;
 
-    // Find the two points that bracket the time
-    AutomationPoint? beforePoint;
-    AutomationPoint? afterPoint;
+    // Fast path bounds checks
+    if (time <= points.first.time) return points.first.value;
+    if (time >= points.last.time) return points.last.value;
 
-    for (final point in points) {
-      if (point.time <= time) {
-        beforePoint = point;
+    // ⚡ Bolt: Replaced O(N) linear search with O(log N) binary search
+    // This is called continuously during playback, so fast lookup is critical
+    int low = 0;
+    int high = points.length - 1;
+    final timeMs = time.inMilliseconds;
+
+    while (low <= high) {
+      int mid = low + ((high - low) >> 1);
+      final midTimeMs = points[mid].time.inMilliseconds;
+
+      if (midTimeMs == timeMs) {
+        return points[mid].value;
+      } else if (midTimeMs < timeMs) {
+        low = mid + 1;
       } else {
-        afterPoint = point;
-        break;
+        high = mid - 1;
       }
     }
 
-    // If we're before the first point, return its value
-    if (beforePoint == null) return points.first.value;
-    
-    // If we're after the last point, return its value
-    if (afterPoint == null) return points.last.value;
+    // At this point, high is the index of the point just before 'time',
+    // and low is the index of the point just after 'time'
+    final beforePoint = points[high];
+    final afterPoint = points[low];
 
     // Interpolate between the two points
     final timeDiff = afterPoint.time.inMilliseconds - beforePoint.time.inMilliseconds;
     if (timeDiff == 0) return beforePoint.value;
 
-    final ratio = (time.inMilliseconds - beforePoint.time.inMilliseconds) / timeDiff;
+    final ratio = (timeMs - beforePoint.time.inMilliseconds) / timeDiff;
     final curvedRatio = beforePoint.curve.transform(ratio);
     
     return beforePoint.value + (afterPoint.value - beforePoint.value) * curvedRatio;
