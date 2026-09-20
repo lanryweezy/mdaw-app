@@ -129,6 +129,7 @@ class EnhancedDawUI extends StatelessWidget {
       child: IconButton(
         icon: Icon(icon, color: color ?? Colors.white, size: 32),
         onPressed: onPressed,
+        tooltip: tooltip,
       ),
     );
   }

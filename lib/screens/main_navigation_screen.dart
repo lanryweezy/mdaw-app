@@ -59,14 +59,18 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               Container(
                 height: 24,
                 child: Center(
-                  child: GestureDetector(
-                    onTap: () => setState(() => _isNavigationVisible = false),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[600],
-                        borderRadius: BorderRadius.circular(2),
+                  child: Semantics(
+                    button: true,
+                    label: "Toggle Navigation",
+                    child: GestureDetector(
+                      onTap: () => setState(() => _isNavigationVisible = false),
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[600],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                   ),

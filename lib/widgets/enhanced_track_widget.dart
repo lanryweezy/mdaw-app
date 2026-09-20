@@ -226,12 +226,14 @@ class EnhancedTrackWidget extends StatelessWidget {
             label: 'Mute',
             isActive: track.muted,
             onPressed: () => viewModel.toggleMute(track), // Pass track object instead of track.id
+            tooltip: track.muted ? 'Unmute' : 'Mute',
           ),
           _buildControlButton(
             icon: track.soloed ? Icons.star : Icons.star_border,
             label: 'Solo',
             isActive: track.soloed,
             onPressed: () => viewModel.toggleSolo(track), // Pass track object instead of track.id
+            tooltip: track.soloed ? 'Unsolo' : 'Solo',
           ),
           _buildVolumeSlider(context, viewModel),
           _buildAddAudioButton(context, viewModel),
@@ -245,6 +247,7 @@ class EnhancedTrackWidget extends StatelessWidget {
     required String label,
     required bool isActive,
     required VoidCallback onPressed,
+    required String tooltip,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -256,6 +259,7 @@ class EnhancedTrackWidget extends StatelessWidget {
             size: 24,
           ),
           onPressed: onPressed,
+          tooltip: tooltip,
         ),
         Text(
           label,
