@@ -61,6 +61,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                 child: Center(
                   child: Semantics(
                     button: true,
+                    label: 'Collapse navigation',
                     label: "Toggle Navigation",
                     child: GestureDetector(
                       onTap: () => setState(() => _isNavigationVisible = false),
