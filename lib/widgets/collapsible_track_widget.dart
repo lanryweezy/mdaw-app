@@ -315,12 +315,14 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
             label: 'Mute',
             isActive: widget.track.muted,
             onPressed: widget.onMute,
+            tooltip: widget.track.muted ? 'Unmute' : 'Mute',
           ),
           _buildControlButton(
             icon: widget.track.soloed ? Icons.star : Icons.star_border,
             label: 'Solo',
             isActive: widget.track.soloed,
             onPressed: widget.onSolo,
+            tooltip: widget.track.soloed ? 'Unsolo' : 'Solo',
           ),
           _buildVolumeSlider(context),
           _buildAddAudioButton(context),
@@ -334,6 +336,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     required String label,
     required bool isActive,
     required VoidCallback onPressed,
+    required String tooltip,
   }) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -345,6 +348,7 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
             size: 24,
           ),
           onPressed: onPressed,
+          tooltip: tooltip,
         ),
         Text(
           label,

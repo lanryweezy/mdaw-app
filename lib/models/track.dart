@@ -4,12 +4,16 @@ import 'audio_clip.dart';
 enum TrackType {
   /// Beat track for rhythm elements
   beat,
+
   /// Vocal track for voice recordings
   vocal,
+
   /// Mixed track for combined audio
   mixed,
+
   /// Mastered track for final output
   mastered,
+
   /// Processed track for effects-applied audio
   processed,
 }
@@ -19,20 +23,28 @@ enum TrackType {
 class Track {
   /// Unique identifier for the track
   final String id;
+
   /// Name of the track
   String name;
+
   /// Type of the track
   final TrackType type;
+
   /// Volume level (0.0 to 1.0)
   double volume;
+
   /// Pan position (-1.0 left to 1.0 right)
   double pan;
+
   /// Whether the track is muted
   bool muted;
+
   /// Whether the track is soloed
   bool soloed;
+
   /// Whether the track is collapsed
   bool collapsed;
+
   /// List of audio clips in this track
   List<AudioClip> clips;
 
@@ -67,7 +79,7 @@ class Track {
   /// Total duration of all clips in this track
   Duration get duration {
     if (clips.isEmpty) return Duration.zero;
-    
+
     Duration maxEnd = Duration.zero;
     for (final clip in clips) {
       final clipEnd = clip.startTime + clip.duration;
@@ -97,7 +109,9 @@ class Track {
   /// Get clip by ID
   /// Returns null if not found
   AudioClip? getClip(String clipId) {
-    return clips.firstWhere((clip) => clip.id == clipId);
+    // ⚡ Bolt: Replaced firstWhere (which throws exception if not found) with indexWhere to prevent costly stack trace generation and fix null return contract
+    final index = clips.indexWhere((clip) => clip.id == clipId);
+    return index != -1 ? clips[index] : null;
   }
 
   /// Creates a copy of this track with optional overrides
@@ -128,16 +142,29 @@ class Track {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is Track &&
-        other.id == id &&
-        other.name == name &&
-        other.type == type &&
-        other.volume == volume &&
-        other.pan == pan &&
-        other.muted == muted &&
-        other.soloed == soloed &&
-        other.collapsed == collapsed &&
-        other.clips == clips;
+    if (other is! Track) return false;
+
+    // Evaluate O(1) properties first for performance
+    if (other.id != id ||
+        other.name != name ||
+        other.type != type ||
+        other.volume != volume ||
+        other.pan != pan ||
+        other.muted != muted ||
+        other.soloed != soloed ||
+        other.collapsed != collapsed) {
+      return false;
+    }
+
+    // Check if the clips lists have the same elements (O(N) operation)
+    if (clips.length != other.clips.length) return false;
+    for (int i = 0; i < clips.length; i++) {
+      if (clips[i] != other.clips[i]) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @override
@@ -151,7 +178,7 @@ class Track {
       muted,
       soloed,
       collapsed,
-      clips,
+      Object.hashAll(clips),
     );
   }
 
