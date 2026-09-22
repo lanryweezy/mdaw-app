@@ -582,54 +582,62 @@ class TimelineEditor extends StatelessWidget {
                   left: 0,
                   top: 0,
                   bottom: 0,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      if (timelineViewModel.selectedTool == TimelineTool.trim) {
-                        final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel
-                            .pixelsToDuration(deltaX);
-                        final newStartTime = timelineViewModel
-                            .snapDurationToGrid(clip.startTime + deltaDuration);
-                        if (newStartTime < clip.endTime &&
-                            newStartTime >= Duration.zero) {
-                          timelineViewModel.trimClip(
-                            clip.id,
-                            newStartTime,
-                            clip.endTime,
-                          );
+                  child: Semantics(
+                    button: true,
+                    label: 'Trim start handle',
+                    child: GestureDetector(
+                      onPanUpdate: (details) {
+                        if (timelineViewModel.selectedTool ==
+                            TimelineTool.trim) {
+                          final deltaX = details.delta.dx;
+                          final deltaDuration = timelineViewModel
+                              .pixelsToDuration(deltaX);
+                          final newStartTime = timelineViewModel
+                              .snapDurationToGrid(
+                                clip.startTime + deltaDuration,
+                              );
+                          if (newStartTime < clip.endTime &&
+                              newStartTime >= Duration.zero) {
+                            timelineViewModel.trimClip(
+                              clip.id,
+                              newStartTime,
+                              clip.endTime,
+                            );
+                          }
+                        } else {
+                          final deltaX = details.delta.dx;
+                          final deltaDuration = timelineViewModel
+                              .pixelsToDuration(deltaX);
+                          final newFadeInDuration =
+                              clip.fadeInDuration + deltaDuration;
+                          if (newFadeInDuration.inMilliseconds >= 0 &&
+                              newFadeInDuration < clip.duration) {
+                            timelineViewModel.setFadeIn(
+                              clip.id,
+                              newFadeInDuration,
+                            );
+                          }
                         }
-                      } else {
-                        final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel
-                            .pixelsToDuration(deltaX);
-                        final newFadeInDuration =
-                            clip.fadeInDuration + deltaDuration;
-                        if (newFadeInDuration.inMilliseconds >= 0 &&
-                            newFadeInDuration < clip.duration) {
-                          timelineViewModel.setFadeIn(
-                            clip.id,
-                            newFadeInDuration,
-                          );
-                        }
-                      }
-                    },
-                    child: Container(
-                      width: 12,
-                      decoration: BoxDecoration(
-                        color:
-                            timelineViewModel.selectedTool == TimelineTool.trim
-                            ? Colors.yellow.withAlpha(100)
-                            : Colors.blue.withAlpha(100),
-                        borderRadius: const BorderRadius.horizontal(
-                          left: Radius.circular(6),
+                      },
+                      child: Container(
+                        width: 12,
+                        decoration: BoxDecoration(
+                          color:
+                              timelineViewModel.selectedTool ==
+                                  TimelineTool.trim
+                              ? Colors.yellow.withAlpha(100)
+                              : Colors.blue.withAlpha(100),
+                          borderRadius: const BorderRadius.horizontal(
+                            left: Radius.circular(6),
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        timelineViewModel.selectedTool == TimelineTool.trim
-                            ? Icons.arrow_left
-                            : Icons.chevron_left,
-                        color: Colors.white,
-                        size: 16,
+                        child: Icon(
+                          timelineViewModel.selectedTool == TimelineTool.trim
+                              ? Icons.arrow_left
+                              : Icons.chevron_left,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -638,54 +646,59 @@ class TimelineEditor extends StatelessWidget {
                   right: 0,
                   top: 0,
                   bottom: 0,
-                  child: GestureDetector(
-                    onPanUpdate: (details) {
-                      if (timelineViewModel.selectedTool == TimelineTool.trim) {
-                        final deltaX = details.delta.dx;
-                        final deltaDuration = timelineViewModel
-                            .pixelsToDuration(deltaX);
-                        final newEndTime = timelineViewModel.snapDurationToGrid(
-                          clip.endTime + deltaDuration,
-                        );
-                        if (newEndTime > clip.startTime) {
-                          timelineViewModel.trimClip(
-                            clip.id,
-                            clip.startTime,
-                            newEndTime,
-                          );
+                  child: Semantics(
+                    button: true,
+                    label: 'Trim end handle',
+                    child: GestureDetector(
+                      onPanUpdate: (details) {
+                        if (timelineViewModel.selectedTool ==
+                            TimelineTool.trim) {
+                          final deltaX = details.delta.dx;
+                          final deltaDuration = timelineViewModel
+                              .pixelsToDuration(deltaX);
+                          final newEndTime = timelineViewModel
+                              .snapDurationToGrid(clip.endTime + deltaDuration);
+                          if (newEndTime > clip.startTime) {
+                            timelineViewModel.trimClip(
+                              clip.id,
+                              clip.startTime,
+                              newEndTime,
+                            );
+                          }
+                        } else {
+                          final deltaX = -details.delta.dx;
+                          final deltaDuration = timelineViewModel
+                              .pixelsToDuration(deltaX);
+                          final newFadeOutDuration =
+                              clip.fadeOutDuration + deltaDuration;
+                          if (newFadeOutDuration.inMilliseconds >= 0 &&
+                              newFadeOutDuration < clip.duration) {
+                            timelineViewModel.setFadeOut(
+                              clip.id,
+                              newFadeOutDuration,
+                            );
+                          }
                         }
-                      } else {
-                        final deltaX = -details.delta.dx;
-                        final deltaDuration = timelineViewModel
-                            .pixelsToDuration(deltaX);
-                        final newFadeOutDuration =
-                            clip.fadeOutDuration + deltaDuration;
-                        if (newFadeOutDuration.inMilliseconds >= 0 &&
-                            newFadeOutDuration < clip.duration) {
-                          timelineViewModel.setFadeOut(
-                            clip.id,
-                            newFadeOutDuration,
-                          );
-                        }
-                      }
-                    },
-                    child: Container(
-                      width: 12,
-                      decoration: BoxDecoration(
-                        color:
-                            timelineViewModel.selectedTool == TimelineTool.trim
-                            ? Colors.yellow.withAlpha(100)
-                            : Colors.blue.withAlpha(100),
-                        borderRadius: const BorderRadius.horizontal(
-                          right: Radius.circular(6),
+                      },
+                      child: Container(
+                        width: 12,
+                        decoration: BoxDecoration(
+                          color:
+                              timelineViewModel.selectedTool ==
+                                  TimelineTool.trim
+                              ? Colors.yellow.withAlpha(100)
+                              : Colors.blue.withAlpha(100),
+                          borderRadius: const BorderRadius.horizontal(
+                            right: Radius.circular(6),
+                          ),
                         ),
-                      ),
-                      child: Icon(
-                        timelineViewModel.selectedTool == TimelineTool.trim
-                            ? Icons.arrow_right
-                            : Icons.chevron_right,
-                        color: Colors.white,
-                        size: 16,
+                        child: Icon(
+                          timelineViewModel.selectedTool == TimelineTool.trim
+                              ? Icons.arrow_right
+                              : Icons.chevron_right,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
@@ -730,46 +743,50 @@ class TimelineEditor extends StatelessWidget {
     BuildContext context,
     TimelineViewModel timelineViewModel,
   ) {
-    return GestureDetector(
-      onTapDown: (details) {
-        final localPosition = details.localPosition;
-        final newPosition = timelineViewModel.pixelsToDuration(
-          localPosition.dx,
-        );
-
-        if (timelineViewModel.selectedTool == TimelineTool.split) {
-          final trackIndex = (localPosition.dy / timelineViewModel.trackHeight)
-              .floor();
-          final dawViewModel = Provider.of<DawViewModel>(
-            context,
-            listen: false,
+    return Semantics(
+      button: true,
+      label: 'Timeline track interaction area',
+      child: GestureDetector(
+        onTapDown: (details) {
+          final localPosition = details.localPosition;
+          final newPosition = timelineViewModel.pixelsToDuration(
+            localPosition.dx,
           );
-          final tracks = [
-            dawViewModel.beatTrack,
-            ...dawViewModel.vocalTracks,
-            if (dawViewModel.mixedVocalTrack != null)
-              dawViewModel.mixedVocalTrack!,
-            if (dawViewModel.masteredSongTrack != null)
-              dawViewModel.masteredSongTrack!,
-          ];
-          if (trackIndex < tracks.length) {
-            final track = tracks[trackIndex];
-            for (final clip in track.clips) {
-              if (newPosition >= clip.startTime &&
-                  newPosition <= clip.endTime) {
-                timelineViewModel.splitClip(clip.id, newPosition);
-                break;
+
+          if (timelineViewModel.selectedTool == TimelineTool.split) {
+            final trackIndex =
+                (localPosition.dy / timelineViewModel.trackHeight).floor();
+            final dawViewModel = Provider.of<DawViewModel>(
+              context,
+              listen: false,
+            );
+            final tracks = [
+              dawViewModel.beatTrack,
+              ...dawViewModel.vocalTracks,
+              if (dawViewModel.mixedVocalTrack != null)
+                dawViewModel.mixedVocalTrack!,
+              if (dawViewModel.masteredSongTrack != null)
+                dawViewModel.masteredSongTrack!,
+            ];
+            if (trackIndex < tracks.length) {
+              final track = tracks[trackIndex];
+              for (final clip in track.clips) {
+                if (newPosition >= clip.startTime &&
+                    newPosition <= clip.endTime) {
+                  timelineViewModel.splitClip(clip.id, newPosition);
+                  break;
+                }
               }
             }
+          } else {
+            timelineViewModel.seekTo(newPosition);
+            timelineViewModel.selectClip(null);
           }
-        } else {
-          timelineViewModel.seekTo(newPosition);
-          timelineViewModel.selectClip(null);
-        }
-      },
-      child: Container(
-        // Fills via Positioned.fill from parent Stack
-        color: Colors.transparent,
+        },
+        child: Container(
+          // Fills via Positioned.fill from parent Stack
+          color: Colors.transparent,
+        ),
       ),
     );
   }
