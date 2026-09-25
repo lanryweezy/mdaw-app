@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:studio_wiz/models/track.dart';
 import 'package:studio_wiz/models/audio_clip.dart';
@@ -43,7 +42,10 @@ class TrackWidget extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 Row(
                   children: [
@@ -51,15 +53,22 @@ class TrackWidget extends StatelessWidget {
                       onPressed: onImport,
                       icon: const Icon(Icons.folder_open, size: 18),
                       label: const Text('Import'),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800], foregroundColor: Colors.white),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[800],
+                        foregroundColor: Colors.white,
+                      ),
                     ),
-                    if (onRecord != null) ...[ // Only show record button if onRecord is provided
+                    if (onRecord != null) ...[
+                      // Only show record button if onRecord is provided
                       const SizedBox(width: 8),
                       ElevatedButton.icon(
                         onPressed: onRecord,
                         icon: const Icon(Icons.mic, size: 18),
                         label: const Text('Record'),
-                        style: ElevatedButton.styleFrom(backgroundColor: Colors.red[700], foregroundColor: Colors.white),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red[700],
+                          foregroundColor: Colors.white,
+                        ),
                       ),
                     ],
                   ],
@@ -91,7 +100,10 @@ class TrackWidget extends StatelessWidget {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Center(
-                  child: Text('No audio clips', style: TextStyle(color: Colors.grey[600])),
+                  child: Text(
+                    'No audio clips',
+                    style: TextStyle(color: Colors.grey[600]),
+                  ),
                 ),
               ),
             const SizedBox(height: 12),
@@ -102,9 +114,15 @@ class TrackWidget extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onMute,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: track.muted ? Colors.white : Colors.grey[400],
-                    backgroundColor: track.muted ? Colors.redAccent.withAlpha(178) : Colors.transparent,
-                    side: BorderSide(color: track.muted ? Colors.redAccent : Colors.grey),
+                    foregroundColor: track.muted
+                        ? Colors.white
+                        : Colors.grey[400],
+                    backgroundColor: track.muted
+                        ? Colors.redAccent.withAlpha(178)
+                        : Colors.transparent,
+                    side: BorderSide(
+                      color: track.muted ? Colors.redAccent : Colors.grey,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
                   child: const Text('M'),
@@ -113,9 +131,15 @@ class TrackWidget extends StatelessWidget {
                 OutlinedButton(
                   onPressed: onSolo,
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: track.soloed ? Colors.black : Colors.grey[400],
-                    backgroundColor: track.soloed ? Colors.yellow.withAlpha(204) : Colors.transparent,
-                    side: BorderSide(color: track.soloed ? Colors.yellow : Colors.grey),
+                    foregroundColor: track.soloed
+                        ? Colors.black
+                        : Colors.grey[400],
+                    backgroundColor: track.soloed
+                        ? Colors.yellow.withAlpha(204)
+                        : Colors.transparent,
+                    side: BorderSide(
+                      color: track.soloed ? Colors.yellow : Colors.grey,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                   ),
                   child: const Text('S'),
@@ -124,7 +148,9 @@ class TrackWidget extends StatelessWidget {
                 const Icon(Icons.volume_down),
                 Expanded(
                   child: Slider(
-                    value: track.clips.isNotEmpty ? track.clips.first.volume : 1.0, // Use first clip's volume for now
+                    value: track.clips.isNotEmpty
+                        ? track.clips.first.volume
+                        : 1.0, // Use first clip's volume for now
                     onChanged: onVolumeChanged,
                     min: 0.0,
                     max: 1.0,
