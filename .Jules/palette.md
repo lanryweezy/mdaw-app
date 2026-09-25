@@ -19,3 +19,6 @@
 ## 2026-09-22 - Timeline Interaction Accessibility
 **Learning:** Found that custom drag handles and interaction areas built directly with `GestureDetector` (like timeline trim handles and the main track background) were completely opaque to screen readers, preventing visually impaired users from interacting with or understanding the timeline.
 **Action:** When implementing custom interactive elements or drag handles using `GestureDetector`, ensure they are wrapped in a `Semantics` widget with appropriate properties (e.g., `button: true`) and a descriptive `label` to guarantee screen reader accessibility.
+## 2026-09-25 - Custom Interactive Widgets need Semantics
+**Learning:** Custom interactive widgets built directly with `GestureDetector` (like the audio clip boxes in Timeline Editor) do not inherently convey their interactivity to screen readers, unlike native Flutter buttons.
+**Action:** Always wrap custom `GestureDetector` UI components that act as buttons or interactive regions in a `Semantics(button: true)` widget with a descriptive `label`.
