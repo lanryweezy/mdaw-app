@@ -15,18 +15,23 @@ class AiAudioService {
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
     final vocalsPath = '${tempDir.path}/separated_vocals_$timestamp.wav';
-    final instrumentalPath = '${tempDir.path}/separated_instrumental_$timestamp.wav';
+    final instrumentalPath =
+        '${tempDir.path}/separated_instrumental_$timestamp.wav';
 
     // Simulate vocal extraction by keeping center channel (mid) and reducing side channels
     // using a bandpass and mid-side matrix in FFmpeg
-    final vocalCommand = '''
+    final vocalCommand =
+        '''
     -i "$inputPath" -af "pan=mono|c0=0.5*c0+0.5*c1,highpass=f=200,lowpass=f=3000" "$vocalsPath"
-    '''.replaceAll('\n', ' ');
+    '''
+            .replaceAll('\n', ' ');
 
     // Simulate instrumental by keeping side channels (subtracting mid)
-    final instrumentalCommand = '''
+    final instrumentalCommand =
+        '''
     -i "$inputPath" -af "pan=stereo|c0=c0-c1|c1=c1-c0" "$instrumentalPath"
-    '''.replaceAll('\n', ' ');
+    '''
+            .replaceAll('\n', ' ');
 
     final vocalSession = await FFmpegKit.execute(vocalCommand);
     final instSession = await FFmpegKit.execute(instrumentalCommand);
@@ -38,10 +43,7 @@ class AiAudioService {
       throw Exception('Failed to separate stems via FFmpeg phase extraction.');
     }
 
-    return {
-      'vocals': vocalsPath,
-      'instrumental': instrumentalPath,
-    };
+    return {'vocals': vocalsPath, 'instrumental': instrumentalPath};
   }
 
   /// Simulates a call to Suno or Google MusicFX API to generate a beat or instrumental.
@@ -56,12 +58,14 @@ class AiAudioService {
 
     // Use FFmpeg aevalsrc to generate a simple kick, snare, and hi-hat pattern (120 BPM)
     // This is a real audio generation technique.
-    final command = '''
+    final command =
+        '''
     -f lavfi -i "aevalsrc=sin(440*2*PI*t)*exp(-3*t):d=8"
     -f lavfi -i "aevalsrc=random(0)*exp(-10*t):d=8"
     -filter_complex "[0:a]volume=0.8[kick];[1:a]volume=0.3[hats];[kick][hats]amix=inputs=2:duration=first[out]"
     -map "[out]" -c:a pcm_s16le "$generatedPath"
-    '''.replaceAll('\n', ' ');
+    '''
+            .replaceAll('\n', ' ');
 
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
@@ -75,7 +79,11 @@ class AiAudioService {
 
   /// AI-powered vocal tuning (like Auto-Tune)
   /// Real implementation using FFmpeg's rubberband pitch correction / autotune equivalent
-  Future<String> autoTuneVocals(String inputPath, {String key = 'C Major', double retuneSpeed = 0.8}) async {
+  Future<String> autoTuneVocals(
+    String inputPath, {
+    String key = 'C Major',
+    double retuneSpeed = 0.8,
+  }) async {
     print('Applying Auto-Tune via FFmpeg rubberband filter...');
 
     final tempDir = await getTemporaryDirectory();
@@ -84,7 +92,8 @@ class AiAudioService {
 
     // FFmpeg's basic tuning approximation using asetrate, atempo, or rubberband if available.
     // We will use standard chorus/formant-preserving pitch shift as a vocal tuning baseline.
-    final command = '-i "$inputPath" -af "rubberband=pitch=1.05:formant=preserved" "$tunedPath"';
+    final command =
+        '-i "$inputPath" -af "rubberband=pitch=1.05:formant=preserved" "$tunedPath"';
 
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
@@ -93,11 +102,12 @@ class AiAudioService {
       return tunedPath;
     } else {
       // Fallback if rubberband is not compiled in FFmpeg
-      final fallbackCommand = '-i "$inputPath" -af "asetrate=44100*1.05,atempo=1/1.05" "$tunedPath"';
+      final fallbackCommand =
+          '-i "$inputPath" -af "asetrate=44100*1.05,atempo=1/1.05" "$tunedPath"';
       final fallbackSession = await FFmpegKit.execute(fallbackCommand);
       final fbRc = await fallbackSession.getReturnCode();
       if (fbRc?.isValueSuccess() == true) {
-         return tunedPath;
+        return tunedPath;
       }
       throw Exception('Failed to apply vocal tuning.');
     }
@@ -115,9 +125,11 @@ class AiAudioService {
     // We will apply a smart dynamic EQ to the vocal track to boost presence
     // and slight sidechain to the beat. For returning the modified *vocal*,
     // we just apply a pristine vocal EQ curve.
-    final command = '''
+    final command =
+        '''
     -i "$vocalPath" -af "equalizer=f=3000:t=q:w=1:g=3,equalizer=f=150:t=q:w=1:g=-2,compressor=threshold=-15dB:ratio=3:attack=5:release=50" "$eqPath"
-    '''.replaceAll('\n', ' ');
+    '''
+            .replaceAll('\n', ' ');
 
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
@@ -138,9 +150,6 @@ class AiAudioService {
 
     // Real BPM detection in a pure Dart/FFmpeg environment requires complex FFT parsing.
     // For this module, we simulate the parsed result of the analysis log.
-    return {
-      'bpm': 140.0,
-      'key': 'C Minor',
-    };
+    return {'bpm': 140.0, 'key': 'C Minor'};
   }
 }

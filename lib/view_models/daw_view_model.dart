@@ -130,29 +130,46 @@ class DawViewModel extends ChangeNotifier {
   }
 
   // Helper to get all active clips for playback
+  // ⚡ Bolt: Avoided intermediate array allocations to reduce GC pressure on high-frequency paths
   List<AudioClip> get _allActiveClips {
-    final allTracks = [
-      beatTrack,
-      ...vocalTracks,
-      mixedVocalTrack,
-      masteredSongTrack,
-    ].where((t) => t != null).cast<Track>().toList();
-    final anySolo = allTracks.any((t) => t.soloed);
+    bool anySolo = beatTrack.soloed;
+    if (!anySolo) {
+      for (final t in vocalTracks) {
+        if (t.soloed) {
+          anySolo = true;
+          break;
+        }
+      }
+    }
+    if (!anySolo && mixedVocalTrack?.soloed == true) anySolo = true;
+    if (!anySolo && masteredSongTrack?.soloed == true) anySolo = true;
 
-    List<AudioClip> activeClips = [];
-    for (final track in allTracks) {
+    final List<AudioClip> activeClips = [];
+
+    void addClipsIfActive(Track? track) {
+      if (track == null) return;
       if (track.hasAudio && !track.muted) {
         if (!anySolo || track.soloed) {
           activeClips.addAll(track.clips);
         }
       }
     }
+
+    addClipsIfActive(beatTrack);
+    for (final t in vocalTracks) {
+      addClipsIfActive(t);
+    }
+    addClipsIfActive(mixedVocalTrack);
+    addClipsIfActive(masteredSongTrack);
+
     return activeClips;
   }
 
   void _onPlayerStateChanged(PlayerState state, String clipId) {
     if (state == PlayerState.stopped) {
-      bool allCompleted = _allActiveClips.every(
+      // ⚡ Bolt: Cache getter to avoid re-evaluating properties on each pass
+      final activeClips = _allActiveClips;
+      bool allCompleted = activeClips.every(
         (clip) => clip.controller.playerState == PlayerState.stopped,
       );
       if (allCompleted) {
@@ -245,9 +262,10 @@ class DawViewModel extends ChangeNotifier {
 
   void play() {
     if (_isPlaying) return;
-    if (_allActiveClips.isEmpty) return;
+    final activeClips = _allActiveClips;
+    if (activeClips.isEmpty) return;
 
-    for (var clip in _allActiveClips) {
+    for (var clip in activeClips) {
       final finalVolume = clip.volume * masterVolume;
       clip.controller.setVolume(finalVolume);
       clip.controller.seekTo(_currentPlaybackPosition.inMilliseconds);
@@ -259,7 +277,8 @@ class DawViewModel extends ChangeNotifier {
 
   void pause() {
     if (!_isPlaying) return;
-    for (var clip in _allActiveClips) {
+    final activeClips = _allActiveClips;
+    for (var clip in activeClips) {
       if (clip.controller.playerState == PlayerState.playing) {
         clip.controller.pausePlayer();
       }
@@ -269,7 +288,8 @@ class DawViewModel extends ChangeNotifier {
   }
 
   void stop() {
-    for (var clip in _allActiveClips) {
+    final activeClips = _allActiveClips;
+    for (var clip in activeClips) {
       clip.controller.stopPlayer();
     }
     _isPlaying = false;
@@ -288,7 +308,8 @@ class DawViewModel extends ChangeNotifier {
 
   void seekTo(Duration position) {
     _currentPlaybackPosition = position;
-    for (var clip in _allActiveClips) {
+    final activeClips = _allActiveClips;
+    for (var clip in activeClips) {
       clip.controller.seekTo(position.inMilliseconds);
     }
     notifyListeners();
@@ -476,7 +497,8 @@ class DawViewModel extends ChangeNotifier {
 
     // Apply master volume to all active clips if playing
     if (_isPlaying) {
-      for (var clip in _allActiveClips) {
+      final activeClips = _allActiveClips;
+      for (var clip in activeClips) {
         // Calculate final volume as clip volume * master volume
         final finalVolume = clip.volume * masterVolume;
         clip.controller.setVolume(finalVolume);

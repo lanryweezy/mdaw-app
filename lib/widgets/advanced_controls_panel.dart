@@ -16,9 +16,9 @@ class AdvancedControlsPanel extends StatelessWidget {
       children: [
         Text(
           'Advanced Controls',
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
         ),
         const SizedBox(height: 16),
         _buildEffectSlot(context, 'eq', Icons.tune, false),
@@ -30,7 +30,12 @@ class AdvancedControlsPanel extends StatelessWidget {
     );
   }
 
-  Widget _buildEffectSlot(BuildContext context, String name, IconData icon, bool isActive) {
+  Widget _buildEffectSlot(
+    BuildContext context,
+    String name,
+    IconData icon,
+    bool isActive,
+  ) {
     final viewModel = Provider.of<DawViewModel>(context, listen: false);
     final effect = viewModel.getEffect(name);
     final bool isEffectActive = effect?.isEnabled ?? false;
@@ -39,7 +44,9 @@ class AdvancedControlsPanel extends StatelessWidget {
       title: Text(name),
       leading: Icon(
         icon,
-        color: isEffectActive ? Theme.of(context).colorScheme.primary : Colors.grey[400],
+        color: isEffectActive
+            ? Theme.of(context).colorScheme.primary
+            : Colors.grey[400],
       ),
       trailing: Switch(
         value: isEffectActive,
@@ -57,7 +64,7 @@ class AdvancedControlsPanel extends StatelessWidget {
                     _buildAutomationCurve(context, name),
                   ],
                 ),
-              )
+              ),
             ]
           : [],
     );
@@ -79,7 +86,10 @@ class AdvancedControlsPanel extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            Text('Automation: ${lane.name}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+            Text(
+              'Automation: ${lane.name}',
+              style: const TextStyle(fontSize: 12, color: Colors.grey),
+            ),
             const SizedBox(height: 8),
             Container(
               height: 60,
@@ -90,12 +100,15 @@ class AdvancedControlsPanel extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: CustomPaint(
-                painter: AutomationCurvePainter(lane: lane, totalDuration: totalDuration),
+                painter: AutomationCurvePainter(
+                  lane: lane,
+                  totalDuration: totalDuration,
+                ),
               ),
             ),
           ],
         );
-      }
+      },
     );
   }
 
