@@ -131,22 +131,41 @@ class DawViewModel extends ChangeNotifier {
 
   // Helper to get all active clips for playback
   List<AudioClip> get _allActiveClips {
-    final allTracks = [
-      beatTrack,
-      ...vocalTracks,
-      mixedVocalTrack,
-      masteredSongTrack,
-    ].where((t) => t != null).cast<Track>().toList();
-    final anySolo = allTracks.any((t) => t.soloed);
+    // ⚡ Bolt: Iterate tracks sequentially without creating intermediate lists (via spread, .where, .cast) to significantly reduce GC pressure in rapid playback polling
+    bool anySolo = false;
+
+    if (beatTrack.soloed) {
+      anySolo = true;
+    } else if (mixedVocalTrack?.soloed == true) {
+      anySolo = true;
+    } else if (masteredSongTrack?.soloed == true) {
+      anySolo = true;
+    } else {
+      for (int i = 0; i < vocalTracks.length; i++) {
+        if (vocalTracks[i].soloed) {
+          anySolo = true;
+          break;
+        }
+      }
+    }
 
     List<AudioClip> activeClips = [];
-    for (final track in allTracks) {
-      if (track.hasAudio && !track.muted) {
+
+    void addClipsIfActive(Track? track) {
+      if (track != null && track.hasAudio && !track.muted) {
         if (!anySolo || track.soloed) {
           activeClips.addAll(track.clips);
         }
       }
     }
+
+    addClipsIfActive(beatTrack);
+    for (int i = 0; i < vocalTracks.length; i++) {
+      addClipsIfActive(vocalTracks[i]);
+    }
+    addClipsIfActive(mixedVocalTrack);
+    addClipsIfActive(masteredSongTrack);
+
     return activeClips;
   }
 
@@ -245,9 +264,11 @@ class DawViewModel extends ChangeNotifier {
 
   void play() {
     if (_isPlaying) return;
-    if (_allActiveClips.isEmpty) return;
+    // ⚡ Bolt: Cache getter locally to avoid redundant list allocations
+    final activeClips = _allActiveClips;
+    if (activeClips.isEmpty) return;
 
-    for (var clip in _allActiveClips) {
+    for (var clip in activeClips) {
       final finalVolume = clip.volume * masterVolume;
       clip.controller.setVolume(finalVolume);
       clip.controller.seekTo(_currentPlaybackPosition.inMilliseconds);

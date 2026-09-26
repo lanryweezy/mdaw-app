@@ -14,11 +14,11 @@ class EnhancedAudioProcessingService {
   Future<Directory> _getTempDir() async {
     final tempDir = await getTemporaryDirectory();
     final audioTempDir = Directory('${tempDir.path}/$_tempDirName');
-    
+
     if (!await audioTempDir.exists()) {
       await audioTempDir.create(recursive: true);
     }
-    
+
     return audioTempDir;
   }
 
@@ -27,10 +27,11 @@ class EnhancedAudioProcessingService {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/doubled_vocal_$timestamp.wav';
-    
+
     try {
       // Create doubled effect with slight delay and pitch variation
-      final command = '''
+      final command =
+          '''
       -i "$inputPath" 
       -filter_complex "
         [0:a]asplit=2[a1][a2];
@@ -38,11 +39,12 @@ class EnhancedAudioProcessingService {
         [a2]apitch=1.02[a2_pitched];
         [a1_delayed][a2_pitched]amix=inputs=2:duration=longest:dropout_transition=2,alimiter=level_in=1:level_out=1:limit=-0.1:attack=5:release=50[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -60,10 +62,11 @@ class EnhancedAudioProcessingService {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/harmonized_$timestamp.wav';
-    
+
     try {
       // Create harmony with pitch-shifted layers
-      final command = '''
+      final command =
+          '''
       -i "$inputPath" 
       -filter_complex "
         [0:a]asplit=3[a1][a2][a3];
@@ -72,11 +75,12 @@ class EnhancedAudioProcessingService {
         [a3]apitch=1.498307[a3_fifth];  # Perfect fifth up
         [a1_up][a2_down][a3_fifth][0:a]amix=inputs=4:duration=longest:dropout_transition=2,alimiter=level_in=1:level_out=1:limit=-0.1:attack=5:release=50[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -94,19 +98,21 @@ class EnhancedAudioProcessingService {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/de_reverb_$timestamp.wav';
-    
+
     try {
       // Simple de-reverb using spectral subtraction
-      final command = '''
+      final command =
+          '''
       -i "$inputPath" 
       -filter_complex "
         [0:a]arnndn=m=model.rnnn[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -124,10 +130,11 @@ class EnhancedAudioProcessingService {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/drill_processed_$timestamp.wav';
-    
+
     try {
       // Drill-specific processing: heavy compression, low-end boost, aggressive EQ
-      final command = '''
+      final command =
+          '''
       -i "$inputPath" 
       -filter_complex "
         [0:a]
@@ -137,11 +144,12 @@ class EnhancedAudioProcessingService {
         [a3]acompressor=threshold=-12:ratio=7:attack=5:release=40:knee=2[a4];
         [a4]alimiter=level_in=1:level_out=1:limit=-0.1:attack=3:release=30[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -159,10 +167,11 @@ class EnhancedAudioProcessingService {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/rap_processed_$timestamp.wav';
-    
+
     try {
       // Rap-specific processing: compression, EQ, and presence boost
-      final command = '''
+      final command =
+          '''
       -i "$inputPath" 
       -filter_complex "
         [0:a]
@@ -172,11 +181,12 @@ class EnhancedAudioProcessingService {
         [a3]acompressor=threshold=-15:ratio=4:attack=5:release=50:knee=2[a4];
         [a4]alimiter=level_in=1:level_out=1:limit=-0.1:attack=3:release=30[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -208,16 +218,18 @@ class EnhancedAudioProcessingService {
     try {
       final session = await FFprobeKit.getMediaInformation(filePath);
       final information = session.getMediaInformation();
-      
+
       if (information == null) {
         throw Exception('Failed to get media information');
       }
-      
+
       return {
         'duration': information.getDuration() ?? 0,
         'bitrate': information.getBitrate() ?? 0,
         'sample_rate': information.getStreams()?.first.getSampleRate() ?? 0,
-        'channels': information.getStreams()?.first.getAllProperties()?['channels'] ?? 0,
+        'channels':
+            information.getStreams()?.first.getAllProperties()?['channels'] ??
+            0,
         'format': information.getFormat() ?? '',
         'codec': information.getStreams()?.first.getCodec() ?? '',
       };
@@ -227,7 +239,8 @@ class EnhancedAudioProcessingService {
   }
 
   /// Advanced vocal effects processing with multiple enhancement stages
-  Future<String?> applyAdvancedVocalEffects(List<String> inputPaths, {
+  Future<String?> applyAdvancedVocalEffects(
+    List<String> inputPaths, {
     Map<String, Duration> fadeInDurations = const {},
     Map<String, Duration> fadeOutDurations = const {},
     Map<String, dynamic> effects = const {},
@@ -323,49 +336,54 @@ class EnhancedAudioProcessingService {
   /// Build mix command for multiple audio files
   String _buildMixCommand(List<String> inputFiles, String outputPath) {
     final inputs = inputFiles.map((file) => '-i "$file"').join(' ');
-    
+
     // Create complex filter for mixing
     final mixFilter = StringBuffer();
     mixFilter.write('[0:a]');
-    
+
     for (int i = 1; i < inputFiles.length; i++) {
       mixFilter.write('[$i:a]');
     }
-    
-    mixFilter.write('amix=inputs=${inputFiles.length}:duration=longest:dropout_transition=2,volume=${1.0 / sqrt(inputFiles.length)}[a]');
-    
+
+    mixFilter.write(
+      'amix=inputs=${inputFiles.length}:duration=longest:dropout_transition=2,volume=${1.0 / sqrt(inputFiles.length)}[a]',
+    );
+
     return '$inputs -filter_complex "${mixFilter.toString()}" -map "[a]" -c:a pcm_s16le "$outputPath"';
   }
 
   /// Advanced song mastering with multi-band processing
   Future<String?> masterSongAdvanced(String vocalPath, String beatPath) async {
     if (vocalPath.isEmpty || beatPath.isEmpty) return null;
-    
+
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
-    
+
     try {
       // Step 1: Align and sync vocal and beat
       final alignedPath = '${tempDir.path}/aligned_$timestamp.wav';
-      final alignCommand = '''
+      final alignCommand =
+          '''
       -i "$beatPath" -i "$vocalPath"
       -filter_complex "
         [0:a]volume=1.0[a0];
         [1:a]volume=0.8[a1];
         [a0][a1]amix=inputs=2:duration=longest:dropout_transition=2[a]
       " -map "[a]" -c:a pcm_s16le "$alignedPath"
-      '''.replaceAll('\n', ' ');
+      '''
+              .replaceAll('\n', ' ');
 
       final alignSession = await FFmpegKit.execute(alignCommand);
       final alignReturnCode = await alignSession.getReturnCode();
-      
+
       if (alignReturnCode?.isValueSuccess() != true) {
         throw Exception('Failed to align vocal and beat');
       }
 
       // Step 2: Multi-band compression and EQ
       final processedPath = '${tempDir.path}/processed_$timestamp.wav';
-      final processCommand = '''
+      final processCommand =
+          '''
       -i "$alignedPath"
       -filter_complex "
         [0:a]
@@ -378,14 +396,16 @@ class EnhancedAudioProcessingService {
         acompressor=threshold=-18:ratio=4:attack=10:release=100:knee=3,
         alimiter=level_in=1:level_out=1:limit=-0.1:attack=5:release=50[a]
       " -map "[a]" -c:a pcm_s16le "$processedPath"
-      '''.replaceAll('\n', ' ');
+      '''
+              .replaceAll('\n', ' ');
 
       final processSession = await FFmpegKit.execute(processCommand);
       final processReturnCode = await processSession.getReturnCode();
 
       // Step 3: Stereo enhancement and final limiting
       final finalPath = '${tempDir.path}/mastered_$timestamp.wav';
-      final finalCommand = '''
+      final finalCommand =
+          '''
       -i "$processedPath"
       -filter_complex "
         [0:a]
@@ -393,7 +413,8 @@ class EnhancedAudioProcessingService {
         loudnorm=I=-14:TP=-1.0:LRA=11,
         alimiter=level_in=1:level_out=1:limit=-0.05:attack=3:release=30[a]
       " -map "[a]" -c:a pcm_s16le "$finalPath"
-      '''.replaceAll('\n', ' ');
+      '''
+              .replaceAll('\n', ' ');
 
       final finalSession = await FFmpegKit.execute(finalCommand);
       final finalReturnCode = await finalSession.getReturnCode();
@@ -413,32 +434,38 @@ class EnhancedAudioProcessingService {
   }
 
   /// Noise reduction for audio files
-  Future<String?> reduceNoise(String inputPath, {double noiseReduction = 0.5}) async {
+  Future<String?> reduceNoise(
+    String inputPath, {
+    double noiseReduction = 0.5,
+  }) async {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/noise_reduced_$timestamp.wav';
-    
+
     try {
       // First pass: analyze noise profile
       final noiseProfilePath = '${tempDir.path}/noise_profile_$timestamp.wav';
-      final analyzeCommand = '-i "$inputPath" -t 1 -c:a pcm_s16le "$noiseProfilePath"';
-      
+      final analyzeCommand =
+          '-i "$inputPath" -t 1 -c:a pcm_s16le "$noiseProfilePath"';
+
       await FFmpegKit.execute(analyzeCommand);
-      
+
       // Second pass: apply noise reduction
-      final reduceCommand = '''
+      final reduceCommand =
+          '''
       -i "$inputPath" -i "$noiseProfilePath"
       -filter_complex "
         [1:a]arnndn=m=cb.rnnn[a1];
         [0:a][a1]arnndn=m=cb.rnnn:nr=$noiseReduction[a]
       " -map "[a]" -c:a pcm_s16le "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(reduceCommand);
       final returnCode = await session.getReturnCode();
-      
+
       await _cleanTempFiles([noiseProfilePath]);
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -452,27 +479,34 @@ class EnhancedAudioProcessingService {
 
   /// Convert audio format with quality settings
   Future<String?> convertAudioFormat(
-    String inputPath, 
-    String outputFormat, 
-    {int bitrate = 320, int sampleRate = 44100}
-  ) async {
+    String inputPath,
+    String outputFormat, {
+    int bitrate = 320,
+    int sampleRate = 44100,
+  }) async {
     final tempDir = await _getTempDir();
     final timestamp = DateTime.now().millisecondsSinceEpoch;
     final outputPath = '${tempDir.path}/converted_$timestamp.$outputFormat';
-    
+
     try {
-      final command = '''
+      final command =
+          '''
       -i "$inputPath"
-      -c:a ${outputFormat == 'mp3' ? 'libmp3lame' : outputFormat == 'aac' ? 'aac' : 'pcm_s16le'}
+      -c:a ${outputFormat == 'mp3'
+                  ? 'libmp3lame'
+                  : outputFormat == 'aac'
+                  ? 'aac'
+                  : 'pcm_s16le'}
       -b:a ${bitrate}k
       -ar $sampleRate
       -ac 2
       "$outputPath"
-      '''.replaceAll('\n', ' ');
-      
+      '''
+              .replaceAll('\n', ' ');
+
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
-      
+
       if (returnCode?.isValueSuccess() == true) {
         return outputPath;
       } else {
@@ -491,7 +525,8 @@ class EnhancedAudioProcessingService {
 
     try {
       // Basic pitch correction using rubberband filter
-      final command = '-i "$inputPath" -af "rubberband=pitch=1.0" "$outputPath"';
+      final command =
+          '-i "$inputPath" -af "rubberband=pitch=1.0" "$outputPath"';
 
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();

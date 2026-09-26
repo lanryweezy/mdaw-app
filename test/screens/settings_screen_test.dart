@@ -5,21 +5,15 @@ import 'package:studio_wiz/screens/settings_screen.dart';
 void main() {
   group('SettingsScreen Widget Tests', () {
     testWidgets('should render settings screen', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       expect(find.byType(SettingsScreen), findsOneWidget);
     });
 
-    testWidgets('should display all setting sections', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display all setting sections', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       // Wait for the screen to load
       await tester.pump();
@@ -31,12 +25,10 @@ void main() {
       expect(find.text('Advanced Settings'), findsOneWidget);
     });
 
-    testWidgets('should display master volume slider', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display master volume slider', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -45,12 +37,10 @@ void main() {
       expect(find.byType(Slider), findsOneWidget);
     });
 
-    testWidgets('should display audio quality dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display audio quality dropdown', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -59,12 +49,10 @@ void main() {
       expect(find.byType(DropdownButton<String>), findsOneWidget);
     });
 
-    testWidgets('should display bit depth dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display bit depth dropdown', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -72,12 +60,10 @@ void main() {
       expect(find.text('Bit Depth'), findsOneWidget);
     });
 
-    testWidgets('should display export format dropdown', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display export format dropdown', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -85,12 +71,10 @@ void main() {
       expect(find.text('Default Export Format'), findsOneWidget);
     });
 
-    testWidgets('should display export bitrate slider', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display export bitrate slider', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -98,12 +82,10 @@ void main() {
       expect(find.text('Export Bitrate (kbps)'), findsOneWidget);
     });
 
-    testWidgets('should display normalize audio switch', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display normalize audio switch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -113,11 +95,7 @@ void main() {
     });
 
     testWidgets('should display dark mode switch', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -125,12 +103,10 @@ void main() {
       expect(find.text('Dark Mode'), findsOneWidget);
     });
 
-    testWidgets('should display waveform height slider', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display waveform height slider', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -138,12 +114,10 @@ void main() {
       expect(find.text('Waveform Height'), findsOneWidget);
     });
 
-    testWidgets('should display show waveforms switch', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display show waveforms switch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -151,12 +125,10 @@ void main() {
       expect(find.text('Show Waveforms'), findsOneWidget);
     });
 
-    testWidgets('should display low latency switch', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display low latency switch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -164,12 +136,10 @@ void main() {
       expect(find.text('Enable Low Latency'), findsOneWidget);
     });
 
-    testWidgets('should display buffer size slider', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display buffer size slider', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -177,12 +147,10 @@ void main() {
       expect(find.text('Buffer Size'), findsOneWidget);
     });
 
-    testWidgets('should display cloud sync switch', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display cloud sync switch', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -190,12 +158,10 @@ void main() {
       expect(find.text('Enable Cloud Sync'), findsOneWidget);
     });
 
-    testWidgets('should handle dropdown interactions', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should handle dropdown interactions', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -211,18 +177,16 @@ void main() {
       expect(find.text('Professional (96kHz)'), findsOneWidget);
     });
 
-    testWidgets('should handle slider interactions', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should handle slider interactions', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
       // Find master volume slider
       final slider = find.byType(Slider).first;
-      
+
       // Drag slider to change value
       await tester.drag(slider, const Offset(50, 0));
       await tester.pump();
@@ -231,18 +195,16 @@ void main() {
       expect(find.byType(Slider), findsOneWidget);
     });
 
-    testWidgets('should handle switch interactions', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should handle switch interactions', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
       // Find first switch
       final switchWidget = find.byType(Switch).first;
-      
+
       // Tap switch to toggle
       await tester.tap(switchWidget);
       await tester.pump();
@@ -251,12 +213,10 @@ void main() {
       expect(find.byType(Switch), findsWidgets);
     });
 
-    testWidgets('should display reset to defaults button', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+    testWidgets('should display reset to defaults button', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 
@@ -265,11 +225,7 @@ void main() {
     });
 
     testWidgets('should handle reset button tap', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          home: SettingsScreen(),
-        ),
-      );
+      await tester.pumpWidget(const MaterialApp(home: SettingsScreen()));
 
       await tester.pump();
 

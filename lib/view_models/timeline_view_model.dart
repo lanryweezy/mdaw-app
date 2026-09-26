@@ -668,19 +668,25 @@ class TimelineViewModel extends ChangeNotifier {
   void updateTotalDuration() {
     Duration maxDuration = const Duration(seconds: 60);
 
-    final allClips = [
-      ..._dawViewModel.beatTrack.clips,
-      ..._dawViewModel.vocalTracks.expand((track) => track.clips),
-      if (_dawViewModel.mixedVocalTrack != null)
-        ..._dawViewModel.mixedVocalTrack!.clips,
-      if (_dawViewModel.masteredSongTrack != null)
-        ..._dawViewModel.masteredSongTrack!.clips,
-    ];
-
-    for (final clip in allClips) {
-      if (clip.endTime > maxDuration) {
-        maxDuration = clip.endTime;
+    // ⚡ Bolt: Iterate sequentially through tracks without creating intermediate lists
+    // via spread and expand operators, significantly reducing GC spikes.
+    void updateMaxDuration(List<AudioClip> clips) {
+      for (final clip in clips) {
+        if (clip.endTime > maxDuration) {
+          maxDuration = clip.endTime;
+        }
       }
+    }
+
+    updateMaxDuration(_dawViewModel.beatTrack.clips);
+    for (int i = 0; i < _dawViewModel.vocalTracks.length; i++) {
+      updateMaxDuration(_dawViewModel.vocalTracks[i].clips);
+    }
+    if (_dawViewModel.mixedVocalTrack != null) {
+      updateMaxDuration(_dawViewModel.mixedVocalTrack!.clips);
+    }
+    if (_dawViewModel.masteredSongTrack != null) {
+      updateMaxDuration(_dawViewModel.masteredSongTrack!.clips);
     }
 
     if (maxDuration != _state.totalDuration) {

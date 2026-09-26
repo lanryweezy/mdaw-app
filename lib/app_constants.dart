@@ -15,7 +15,8 @@ class AppConstants {
   static const String version = 'Version 1.0.0';
   static const String copyright = '© 2025 Studio Wiz';
   static const String aboutDialogTitle = 'Studio Wiz';
-  static const String aboutDialogDescription = 'Professional Digital Audio Workstation. Create, mix, and master your music on any device.';
+  static const String aboutDialogDescription =
+      'Professional Digital Audio Workstation. Create, mix, and master your music on any device.';
   static const String featuresTitle = 'Features:';
   static const String feature1 = '• Multi-track recording';
   static const String feature2 = '• Real-time effects & processing';

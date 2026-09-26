@@ -1,4 +1,3 @@
-
 import 'package:ffmpeg_kit_flutter_new/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter_new/return_code.dart';
 import 'package:path_provider/path_provider.dart';
@@ -43,7 +42,8 @@ class AudioProcessingService {
     if (vocalInputPaths.isEmpty) return null;
 
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_mix_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_mix_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Construct input part of the FFmpeg command
     String inputs = '';
@@ -72,7 +72,8 @@ class AudioProcessingService {
     // Apply effects based on preset
     filterComplex += _getVocalEffectsChain(preset);
 
-    final command = '$inputs -filter_complex "$filterComplex" -map "[vocal_final]" -c:a aac -b:a 192k "$outputPath" ';
+    final command =
+        '$inputs -filter_complex "$filterComplex" -map "[vocal_final]" -c:a aac -b:a 192k "$outputPath" ';
 
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
@@ -83,7 +84,9 @@ class AudioProcessingService {
     } else if (ReturnCode.isCancel(returnCode)) {
       print('Vocal effects command cancelled');
     } else {
-      print('Vocal effects command failed with state ${await session.getState()} and return code ${returnCode}');
+      print(
+        'Vocal effects command failed with state ${await session.getState()} and return code ${returnCode}',
+      );
       final output = await session.getOutput();
       print('FFmpeg output: $output');
     }
@@ -92,17 +95,19 @@ class AudioProcessingService {
 
   // Masters the final song by mixing vocal mix and beat, then applying mastering effects.
   Future<String?> masterSong(
-    String vocalMixPath, 
+    String vocalMixPath,
     String beatPath, {
     MasteringPreset preset = MasteringPreset.loudAndClear,
   }) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/final_master_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/final_master_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Get mastering chain based on preset
     final masteringChain = _getMasteringChain(preset);
-    
-    final command = '-i "$vocalMixPath" -i "$beatPath" -filter_complex "[0:a][1:a]amix=inputs=2[mix];$masteringChain" -map "[out]" -c:a aac -b:a 256k "$outputPath" ';
+
+    final command =
+        '-i "$vocalMixPath" -i "$beatPath" -filter_complex "[0:a][1:a]amix=inputs=2[mix];$masteringChain" -map "[out]" -c:a aac -b:a 256k "$outputPath" ';
 
     print('FFmpeg Command: $command');
     final session = await FFmpegKit.execute(command);
@@ -114,7 +119,9 @@ class AudioProcessingService {
     } else if (ReturnCode.isCancel(returnCode)) {
       print('Mastering command cancelled');
     } else {
-      print('Mastering command failed with state ${await session.getState()} and return code ${returnCode}');
+      print(
+        'Mastering command failed with state ${await session.getState()} and return code ${returnCode}',
+      );
       final output = await session.getOutput();
       print('FFmpeg output: $output');
     }
@@ -317,10 +324,12 @@ class AudioProcessingService {
   // Advanced vocal processing methods
   Future<String?> applyVocalDoubling(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_doubled_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_doubled_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Create vocal doubling effect using pitch shifting and delay
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]apitch=shift=0.05[vocal1];' // Slight pitch shift
         '[0:a]apitch=shift=-0.05[vocal2];' // Opposite pitch shift
         '[0:a][vocal1][vocal2]amix=inputs=3:weights=1 0.3 0.3[vocal_doubled]" '
@@ -339,9 +348,13 @@ class AudioProcessingService {
     }
   }
 
-  Future<String?> applyHarmonizer(String vocalPath, List<double> pitchShifts) async {
+  Future<String?> applyHarmonizer(
+    String vocalPath,
+    List<double> pitchShifts,
+  ) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_harmonized_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_harmonized_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     String filterComplex = '';
     String mixInputs = '[0:a]';
@@ -355,7 +368,8 @@ class AudioProcessingService {
       mixWeights += ' 0.4'; // Lower volume for harmonies
     }
 
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"$filterComplex$mixInputs amix=inputs=${pitchShifts.length + 1}:weights=$mixWeights[harmonized]" '
         '-map "[harmonized]" -c:a aac -b:a 192k "$outputPath"';
 
@@ -374,10 +388,12 @@ class AudioProcessingService {
 
   Future<String?> applyDeReverb(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_dereverbed_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_dereverbed_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Simple de-reverb using high-pass filter and noise reduction
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]highpass=f=200[hp];' // High-pass filter
         '[hp]anlmdn[dereverbed]" ' // Noise reduction
         '-map "[dereverbed]" -c:a aac -b:a 192k "$outputPath"';
@@ -398,10 +414,12 @@ class AudioProcessingService {
   // Specialized processing for rap and trap genres
   Future<String?> applyRapProcessing(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_rap_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_rap_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Rap-specific processing: aggressive compression, punchy EQ, tight reverb
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]anlmdn[denoise];' // Noise reduction
         '[denoise]equalizer=f=80:t=l:width=150:g=-5:q=1[eq1];' // Cut low mud
         '[eq1]equalizer=f=200:t=h:width=100:g=2:q=1[eq2];' // Boost clarity
@@ -426,10 +444,12 @@ class AudioProcessingService {
 
   Future<String?> applyTrapProcessing(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_trap_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_trap_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Trap-specific processing: very aggressive compression, heavy EQ, tight reverb
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]anlmdn[denoise];' // Noise reduction
         '[denoise]equalizer=f=100:t=l:width=200:g=-6:q=1[eq1];' // Heavy low cut
         '[eq1]equalizer=f=250:t=h:width=150:g=3:q=1[eq2];' // Boost punch
@@ -454,10 +474,12 @@ class AudioProcessingService {
 
   Future<String?> applyAfrobeatProcessing(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_afrobeat_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_afrobeat_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Afrobeat-specific processing: warm EQ, smooth compression, warm reverb
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]anlmdn[denoise];' // Noise reduction
         '[denoise]equalizer=f=120:t=l:width=100:g=-3:q=1[eq1];' // Gentle low cut
         '[eq1]equalizer=f=800:t=h:width=300:g=2:q=1[eq2];' // Boost warmth
@@ -482,10 +504,12 @@ class AudioProcessingService {
 
   Future<String?> applyDrillProcessing(String vocalPath) async {
     final dir = await getApplicationDocumentsDirectory();
-    final outputPath = '${dir.path}/vocal_drill_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final outputPath =
+        '${dir.path}/vocal_drill_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     // Drill-specific processing: extremely aggressive compression, heavy EQ, very tight reverb
-    final command = '-i "$vocalPath" -filter_complex '
+    final command =
+        '-i "$vocalPath" -filter_complex '
         '"[0:a]anlmdn[denoise];' // Noise reduction
         '[denoise]equalizer=f=90:t=l:width=180:g=-7:q=1[eq1];' // Heavy low cut
         '[eq1]equalizer=f=200:t=h:width=120:g=4:q=1[eq2];' // Boost aggression

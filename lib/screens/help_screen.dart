@@ -7,7 +7,8 @@ class HelpScreen extends StatefulWidget {
   State<HelpScreen> createState() => _HelpScreenState();
 }
 
-class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateMixin {
+class _HelpScreenState extends State<HelpScreen>
+    with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -229,11 +230,23 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    _buildSocialButton('Twitter', Icons.alternate_email, () => _showComingSoon()),
+                    _buildSocialButton(
+                      'Twitter',
+                      Icons.alternate_email,
+                      () => _showComingSoon(),
+                    ),
                     const SizedBox(width: 12),
-                    _buildSocialButton('Instagram', Icons.camera_alt, () => _showComingSoon()),
+                    _buildSocialButton(
+                      'Instagram',
+                      Icons.camera_alt,
+                      () => _showComingSoon(),
+                    ),
                     const SizedBox(width: 12),
-                    _buildSocialButton('YouTube', Icons.play_circle, () => _showComingSoon()),
+                    _buildSocialButton(
+                      'YouTube',
+                      Icons.play_circle,
+                      () => _showComingSoon(),
+                    ),
                   ],
                 ),
               ],
@@ -261,13 +274,13 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    content,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                  Text(content, style: TextStyle(color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -287,7 +300,10 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
               backgroundColor: Theme.of(context).colorScheme.secondary,
               child: Text(
                 stepNumber,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(width: 16),
@@ -297,13 +313,13 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    content,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                  Text(content, style: TextStyle(color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -320,10 +336,7 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(
-              Icons.lightbulb,
-              color: Theme.of(context).colorScheme.primary,
-            ),
+            Icon(Icons.lightbulb, color: Theme.of(context).colorScheme.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -338,10 +351,7 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    content,
-                    style: TextStyle(color: Colors.grey[600]),
-                  ),
+                  Text(content, style: TextStyle(color: Colors.grey[600])),
                 ],
               ),
             ),
@@ -362,17 +372,20 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-            child: Text(
-              answer,
-              style: TextStyle(color: Colors.grey[600]),
-            ),
+            child: Text(answer, style: TextStyle(color: Colors.grey[600])),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildTutorialCard(String title, String description, IconData icon, String duration, VoidCallback onTap) {
+  Widget _buildTutorialCard(
+    String title,
+    String description,
+    IconData icon,
+    String duration,
+    VoidCallback onTap,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
@@ -401,7 +414,13 @@ class _HelpScreenState extends State<HelpScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildContactCard(String title, String description, String action, IconData icon, VoidCallback onTap) {
+  Widget _buildContactCard(
+    String title,
+    String description,
+    String action,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(

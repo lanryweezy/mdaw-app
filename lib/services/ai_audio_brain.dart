@@ -44,10 +44,17 @@ class AIAudioBrain {
       case 'vocal_polish':
         // Clean noise, tune to key, add light EQ presence
         String tuned = await _dspService.autoTuneVocals(rawVocalPath, key: key);
-        return await _dspService.smartEqVocals(tuned, tuned); // Mocking smart EQ
+        return await _dspService.smartEqVocals(
+          tuned,
+          tuned,
+        ); // Mocking smart EQ
       case 'radio_ready':
         // Aggressive tuning, bright EQ, compression
-        String tuned = await _dspService.autoTuneVocals(rawVocalPath, key: key, retuneSpeed: 0.1);
+        String tuned = await _dspService.autoTuneVocals(
+          rawVocalPath,
+          key: key,
+          retuneSpeed: 0.1,
+        );
         return await _dspService.smartEqVocals(tuned, tuned);
       case 'club_mix':
         // Pitch correction + heavy low-end EQ
@@ -55,14 +62,24 @@ class AIAudioBrain {
         return await _dspService.smartEqVocals(tuned, tuned);
       case 'afrobeat':
         // Smooth tuning, warm EQ, specific reverb tail
-        String tuned = await _dspService.autoTuneVocals(rawVocalPath, key: key, retuneSpeed: 0.6);
+        String tuned = await _dspService.autoTuneVocals(
+          rawVocalPath,
+          key: key,
+          retuneSpeed: 0.6,
+        );
         return await _dspService.smartEqVocals(tuned, tuned);
       case 'drill_uk':
         // Fast tuning, dark EQ, punchy
-        String tuned = await _dspService.autoTuneVocals(rawVocalPath, key: key, retuneSpeed: 0.0);
+        String tuned = await _dspService.autoTuneVocals(
+          rawVocalPath,
+          key: key,
+          retuneSpeed: 0.0,
+        );
         return await _dspService.smartEqVocals(tuned, tuned);
       default:
-        print('AIAudioBrain: Unknown intent \$intentId. Defaulting to Vocal Polish.');
+        print(
+          'AIAudioBrain: Unknown intent \$intentId. Defaulting to Vocal Polish.',
+        );
         String tuned = await _dspService.autoTuneVocals(rawVocalPath, key: key);
         return await _dspService.smartEqVocals(tuned, tuned);
     }
