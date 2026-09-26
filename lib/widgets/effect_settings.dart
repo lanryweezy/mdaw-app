@@ -77,8 +77,14 @@ class _EffectSettingsState extends State<EffectSettings> {
                   onChanged: (newValue) {
                     setState(() {
                       _parameters[key] = newValue;
-                      final viewModel = Provider.of<DawViewModel>(context, listen: false);
-                      viewModel.updateEffectParameters(widget.effect.name, _parameters);
+                      final viewModel = Provider.of<DawViewModel>(
+                        context,
+                        listen: false,
+                      );
+                      viewModel.updateEffectParameters(
+                        widget.effect.name,
+                        _parameters,
+                      );
                     });
                   },
                 ),
@@ -112,8 +118,14 @@ class _EffectSettingsState extends State<EffectSettings> {
                   onChanged: (newValue) {
                     setState(() {
                       _parameters[key] = newValue.toInt();
-                      final viewModel = Provider.of<DawViewModel>(context, listen: false);
-                      viewModel.updateEffectParameters(widget.effect.name, _parameters);
+                      final viewModel = Provider.of<DawViewModel>(
+                        context,
+                        listen: false,
+                      );
+                      viewModel.updateEffectParameters(
+                        widget.effect.name,
+                        _parameters,
+                      );
                     });
                   },
                 ),
@@ -156,7 +168,9 @@ class _EffectSettingsState extends State<EffectSettings> {
       words.add(buffer.toString());
     }
 
-    return words.map((word) => word[0].toUpperCase() + word.substring(1)).join(' ');
+    return words
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
   }
 
   String _getParameterUnit(String name) {

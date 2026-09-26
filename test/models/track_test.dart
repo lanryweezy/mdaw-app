@@ -6,11 +6,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 void main() {
   group('Track Model Tests', () {
     test('should create track with default values', () {
-      final track = Track(
-        id: '1',
-        name: 'Test Track',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Test Track', type: TrackType.beat);
 
       expect(track.id, '1');
       expect(track.name, 'Test Track');
@@ -26,7 +22,7 @@ void main() {
     test('should create track with custom values', () {
       // Create a mock PlayerController for testing
       final mockController = PlayerController();
-      
+
       final clip = AudioClip(
         id: 'clip1',
         path: '/path/to/audio.wav',
@@ -85,23 +81,11 @@ void main() {
     });
 
     test('should handle different track types', () {
-      final beatTrack = Track(
-        id: '1',
-        name: 'Beat',
-        type: TrackType.beat,
-      );
+      final beatTrack = Track(id: '1', name: 'Beat', type: TrackType.beat);
 
-      final vocalTrack = Track(
-        id: '2',
-        name: 'Vocal',
-        type: TrackType.vocal,
-      );
+      final vocalTrack = Track(id: '2', name: 'Vocal', type: TrackType.vocal);
 
-      final mixedTrack = Track(
-        id: '3',
-        name: 'Mixed',
-        type: TrackType.mixed,
-      );
+      final mixedTrack = Track(id: '3', name: 'Mixed', type: TrackType.mixed);
 
       final masteredTrack = Track(
         id: '4',
@@ -116,11 +100,7 @@ void main() {
     });
 
     test('should handle volume range', () {
-      final track = Track(
-        id: '1',
-        name: 'Volume Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Volume Test', type: TrackType.beat);
 
       // Test minimum volume
       track.volume = 0.0;
@@ -136,11 +116,7 @@ void main() {
     });
 
     test('should handle pan range', () {
-      final track = Track(
-        id: '1',
-        name: 'Pan Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Pan Test', type: TrackType.beat);
 
       // Test left pan
       track.pan = -1.0;
@@ -156,11 +132,7 @@ void main() {
     });
 
     test('should toggle mute state', () {
-      final track = Track(
-        id: '1',
-        name: 'Mute Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Mute Test', type: TrackType.beat);
 
       expect(track.muted, false);
 
@@ -172,11 +144,7 @@ void main() {
     });
 
     test('should toggle solo state', () {
-      final track = Track(
-        id: '1',
-        name: 'Solo Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Solo Test', type: TrackType.beat);
 
       expect(track.soloed, false);
 
@@ -188,11 +156,7 @@ void main() {
     });
 
     test('should handle duration correctly', () {
-      final track = Track(
-        id: '1',
-        name: 'Duration Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Duration Test', type: TrackType.beat);
 
       expect(track.duration, Duration.zero);
 
@@ -224,11 +188,7 @@ void main() {
     });
 
     test('should handle clips correctly', () {
-      final track = Track(
-        id: '1',
-        name: 'Clips Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Clips Test', type: TrackType.beat);
 
       expect(track.clips, isEmpty);
       expect(track.hasAudio, false);
@@ -258,11 +218,7 @@ void main() {
     });
 
     test('should get clip by ID', () {
-      final track = Track(
-        id: '1',
-        name: 'Get Clip Test',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Get Clip Test', type: TrackType.beat);
 
       // Create mock clips
       final mockController = PlayerController();
@@ -335,13 +291,13 @@ void main() {
       // Create mock controllers
       final mockController1 = PlayerController();
       final mockController2 = PlayerController();
-      
+
       final clip1 = AudioClip(
         id: 'clip1',
         path: '/path/to/audio1.wav',
         controller: mockController1,
       );
-      
+
       final clip2 = AudioClip(
         id: 'clip2',
         path: '/path/to/audio2.wav',
@@ -386,11 +342,7 @@ void main() {
     });
 
     test('should implement toString correctly', () {
-      final track = Track(
-        id: '1',
-        name: 'Test Track',
-        type: TrackType.beat,
-      );
+      final track = Track(id: '1', name: 'Test Track', type: TrackType.beat);
 
       final trackString = track.toString();
       expect(trackString, contains('Track('));

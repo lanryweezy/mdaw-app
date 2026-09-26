@@ -25,7 +25,10 @@ void main() {
 
       // Test MasteringPreset values
       expect(MasteringPreset.values.length, greaterThan(0));
-      expect(MasteringPreset.values.contains(MasteringPreset.loudAndClear), true);
+      expect(
+        MasteringPreset.values.contains(MasteringPreset.loudAndClear),
+        true,
+      );
       expect(MasteringPreset.values.contains(MasteringPreset.rap), true);
       expect(MasteringPreset.values.contains(MasteringPreset.trap), true);
       expect(MasteringPreset.values.contains(MasteringPreset.afrobeat), true);
@@ -33,14 +36,14 @@ void main() {
 
     test('should handle empty input paths gracefully', () async {
       const emptyPaths = <String>[];
-      
+
       final result = await audioService.applyVocalEffects(emptyPaths);
       expect(result, isNull);
     });
 
     test('should handle invalid file paths gracefully', () async {
       const invalidPaths = ['/invalid/path/file.wav'];
-      
+
       try {
         await audioService.applyVocalEffects(invalidPaths);
         // If no exception is thrown, the method handled it gracefully
@@ -95,7 +98,7 @@ void main() {
 
     test('should handle null input paths', () async {
       const emptyPaths = <String>[];
-      
+
       final result = await audioService.applyVocalEffects(emptyPaths);
       expect(result, isNull);
     });
@@ -120,7 +123,7 @@ void main() {
 
     test('should handle different vocal presets', () async {
       const mockPaths = ['/mock/input.wav'];
-      
+
       // Test different vocal presets
       for (final preset in VocalMixPreset.values) {
         try {
@@ -136,7 +139,7 @@ void main() {
 
     test('should handle multiple input paths', () async {
       const multiplePaths = ['/mock/input1.wav', '/mock/input2.wav'];
-      
+
       try {
         await audioService.applyVocalEffects(multiplePaths);
         expect(true, true);

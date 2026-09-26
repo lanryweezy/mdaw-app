@@ -5,18 +5,22 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 class AudioClip {
   /// Unique identifier for the clip
   final String id;
+
   /// File path to the audio file
   final String path;
+
   /// Controller for audio playback
   final PlayerController controller;
+
   /// Volume level (0.0 to 1.0)
   double volume;
+
   /// Waveform data for the clip
   final List<double> waveform;
-  
+
   /// Start time relative to the beginning of the track
   Duration startTime;
-  
+
   /// End time relative to the beginning of the track
   Duration endTime;
 

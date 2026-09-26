@@ -7,16 +7,21 @@ class VisualProcessingIndicator extends StatefulWidget {
   const VisualProcessingIndicator({super.key, required this.text});
 
   @override
-  State<VisualProcessingIndicator> createState() => _VisualProcessingIndicatorState();
+  State<VisualProcessingIndicator> createState() =>
+      _VisualProcessingIndicatorState();
 }
 
-class _VisualProcessingIndicatorState extends State<VisualProcessingIndicator> with SingleTickerProviderStateMixin {
+class _VisualProcessingIndicatorState extends State<VisualProcessingIndicator>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2))..repeat();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    )..repeat();
   }
 
   @override
@@ -53,7 +58,9 @@ class _VisualProcessingIndicatorState extends State<VisualProcessingIndicator> w
                   return Container(
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     width: 8,
-                    height: 20 + 20 * (0.5 + 0.5 * _sineWave(_controller.value, index)),
+                    height:
+                        20 +
+                        20 * (0.5 + 0.5 * _sineWave(_controller.value, index)),
                     decoration: BoxDecoration(
                       color: const Color(0xFF00D4FF),
                       borderRadius: BorderRadius.circular(4),
@@ -82,10 +89,7 @@ class _VisualProcessingIndicatorState extends State<VisualProcessingIndicator> w
           const SizedBox(height: 8),
           Text(
             'A.I. Brain is learning your sound...',
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 12,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 12),
           ),
         ],
       ),

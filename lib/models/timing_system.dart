@@ -8,10 +8,12 @@ class TimeSignature {
   TimeSignature({required this.numerator, required this.denominator});
 
   /// Common time signatures
-  static TimeSignature get common => TimeSignature(numerator: 4, denominator: 4);
+  static TimeSignature get common =>
+      TimeSignature(numerator: 4, denominator: 4);
   static TimeSignature get cut => TimeSignature(numerator: 2, denominator: 2);
   static TimeSignature get waltz => TimeSignature(numerator: 3, denominator: 4);
-  static TimeSignature get sixEight => TimeSignature(numerator: 6, denominator: 8);
+  static TimeSignature get sixEight =>
+      TimeSignature(numerator: 6, denominator: 8);
 
   /// Calculate beats per measure
   double get beatsPerMeasure => numerator / (denominator / 4);
@@ -54,16 +56,16 @@ class MusicalPosition {
   }) {
     // Calculate beats from milliseconds and BPM
     final beats = (milliseconds / 60000.0 * bpm);
-    
+
     // Calculate measures and beats
     final beatsPerMeasure = timeSignature.beatsPerMeasure;
     final measure = (beats / beatsPerMeasure).floor();
     final beatInMeasure = (beats % beatsPerMeasure).floor();
-    
+
     // Calculate ticks within the beat
     final fractionalBeat = beats % 1;
     final tick = (fractionalBeat * ticksPerBeat).round();
-    
+
     return MusicalPosition(
       measure: measure,
       beat: beatInMeasure,
@@ -80,7 +82,8 @@ class MusicalPosition {
   }
 
   /// Get the absolute beat number
-  int get absoluteBeat => measure * 4 + beat; // Assuming 4/4 time for simplicity
+  int get absoluteBeat =>
+      measure * 4 + beat; // Assuming 4/4 time for simplicity
 
   /// Move position by a number of ticks
   MusicalPosition moveByTicks(int ticks) {
@@ -99,7 +102,8 @@ class MusicalPosition {
     }
 
     // Handle beat overflow/underflow
-    while (newBeat >= 4) { // Assuming 4 beats per measure
+    while (newBeat >= 4) {
+      // Assuming 4 beats per measure
       newBeat -= 4;
       newMeasure++;
     }
@@ -181,16 +185,30 @@ class TimingSystem {
 
   /// Get time signature options
   List<TimeSignature> get timeSignatureOptions => [
-        TimeSignature.common,
-        TimeSignature.cut,
-        TimeSignature.waltz,
-        TimeSignature.sixEight,
-      ];
+    TimeSignature.common,
+    TimeSignature.cut,
+    TimeSignature.waltz,
+    TimeSignature.sixEight,
+  ];
 
   /// Get BPM options for common musical styles
   List<int> get bpmPresets => [
-        60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200
-      ];
+    60,
+    70,
+    80,
+    90,
+    100,
+    110,
+    120,
+    130,
+    140,
+    150,
+    160,
+    170,
+    180,
+    190,
+    200,
+  ];
 
   /// Calculate duration of one beat in milliseconds
   int get beatDurationMs {
@@ -211,7 +229,8 @@ class TimingSystem {
   /// Snap position to grid
   Duration snapToGrid(Duration position, {int gridSizeTicks = 480}) {
     final positionInTicks = (position.inMilliseconds / tickDurationMs).round();
-    final snappedTicks = (positionInTicks / gridSizeTicks).round() * gridSizeTicks;
+    final snappedTicks =
+        (positionInTicks / gridSizeTicks).round() * gridSizeTicks;
     return Duration(milliseconds: (snappedTicks * tickDurationMs).round());
   }
 
@@ -219,9 +238,15 @@ class TimingSystem {
   List<Duration> get gridSizeOptions {
     return [
       Duration(milliseconds: (ticksPerBeat * tickDurationMs).round()), // 1 beat
-      Duration(milliseconds: (ticksPerBeat * 2 * tickDurationMs).round()), // 2 beats
-      Duration(milliseconds: (ticksPerBeat * 0.5 * tickDurationMs).round()), // 1/2 beat
-      Duration(milliseconds: (ticksPerBeat * 0.25 * tickDurationMs).round()), // 1/4 beat
+      Duration(
+        milliseconds: (ticksPerBeat * 2 * tickDurationMs).round(),
+      ), // 2 beats
+      Duration(
+        milliseconds: (ticksPerBeat * 0.5 * tickDurationMs).round(),
+      ), // 1/2 beat
+      Duration(
+        milliseconds: (ticksPerBeat * 0.25 * tickDurationMs).round(),
+      ), // 1/4 beat
     ];
   }
 

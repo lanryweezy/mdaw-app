@@ -39,9 +39,7 @@ class AppTheme {
         color: const Color(0xFF2A2A2A),
         elevation: 4,
         shadowColor: Colors.black26,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       sliderTheme: SliderThemeData(
         activeTrackColor: const Color(0xFF00D4FF),

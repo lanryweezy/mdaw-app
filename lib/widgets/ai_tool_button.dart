@@ -25,7 +25,10 @@ class AIToolButton extends StatelessWidget {
             backgroundColor: Theme.of(context).colorScheme.primary,
             child: Icon(icon, color: Colors.white),
           ),
-          title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+          title: Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
           subtitle: Text(description),
           trailing: ElevatedButton(
             onPressed: viewModel.isProcessing ? null : onPressed,
