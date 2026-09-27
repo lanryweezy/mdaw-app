@@ -481,230 +481,236 @@ class TimelineEditor extends StatelessWidget {
     return Positioned(
       left: clipX,
       top: 4,
-      child: GestureDetector(
-        onTap: () {
-          timelineViewModel.selectClip(clip.id);
-        },
-        onPanStart: (details) {
-          timelineViewModel.startDragging(clip.id, details.globalPosition);
-        },
-        onPanUpdate: (details) {
-          timelineViewModel.dragClip(details.globalPosition);
-        },
-        onPanEnd: (details) {
-          timelineViewModel.stopDragging();
-        },
-        child: Container(
-          width: displayWidth,
-          height: timelineViewModel.trackHeight - 8,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: isSelected
-                  ? [
-                      Theme.of(context).colorScheme.primary.withAlpha(229),
-                      Theme.of(context).colorScheme.primary.withAlpha(153),
-                    ]
-                  : [
-                      Theme.of(context).colorScheme.secondary.withAlpha(178),
-                      Theme.of(context).colorScheme.secondary.withAlpha(102),
-                    ],
-            ),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Colors.grey[600]!,
-              width: isSelected ? 2 : 1,
-            ),
-            boxShadow: isSelected
-                ? [
-                    BoxShadow(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withAlpha(102),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                  ]
-                : [],
-          ),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: RepaintBoundary(
-                  child: CustomPaint(
-                    painter: WaveformPainter(
-                      isSelected: isSelected,
-                      color: Theme.of(context).colorScheme.primary,
-                      waveform: clip.waveform,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 8,
-                top: 4,
-                right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        Colors.black.withAlpha(178),
-                        Colors.black.withAlpha(76),
-                        Colors.transparent,
+      child: Semantics(
+        button: true,
+        label: 'Audio clip ${clip.id}',
+        child: GestureDetector(
+          onTap: () {
+            timelineViewModel.selectClip(clip.id);
+          },
+          onPanStart: (details) {
+            timelineViewModel.startDragging(clip.id, details.globalPosition);
+          },
+          onPanUpdate: (details) {
+            timelineViewModel.dragClip(details.globalPosition);
+          },
+          onPanEnd: (details) {
+            timelineViewModel.stopDragging();
+          },
+          child: Container(
+            width: displayWidth,
+            height: timelineViewModel.trackHeight - 8,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: isSelected
+                    ? [
+                        Theme.of(context).colorScheme.primary.withAlpha(229),
+                        Theme.of(context).colorScheme.primary.withAlpha(153),
+                      ]
+                    : [
+                        Theme.of(context).colorScheme.secondary.withAlpha(178),
+                        Theme.of(context).colorScheme.secondary.withAlpha(102),
                       ],
-                    ),
-                  ),
-                  child: Text(
-                    clip.path.split('/').last.split('.').first,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.grey[300],
-                      fontSize: 11,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
               ),
-              if (isSelected) ...[
-                // Trim and Fade Handles
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey[600]!,
+                width: isSelected ? 2 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(102),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: RepaintBoundary(
+                    child: CustomPaint(
+                      painter: WaveformPainter(
+                        isSelected: isSelected,
+                        color: Theme.of(context).colorScheme.primary,
+                        waveform: clip.waveform,
+                      ),
+                    ),
+                  ),
+                ),
                 Positioned(
-                  left: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Semantics(
-                    button: true,
-                    label: 'Trim start handle',
-                    child: GestureDetector(
-                      onPanUpdate: (details) {
-                        if (timelineViewModel.selectedTool ==
-                            TimelineTool.trim) {
-                          final deltaX = details.delta.dx;
-                          final deltaDuration = timelineViewModel
-                              .pixelsToDuration(deltaX);
-                          final newStartTime = timelineViewModel
-                              .snapDurationToGrid(
-                                clip.startTime + deltaDuration,
+                  left: 8,
+                  top: 4,
+                  right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        colors: [
+                          Colors.black.withAlpha(178),
+                          Colors.black.withAlpha(76),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                    child: Text(
+                      clip.path.split('/').last.split('.').first,
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : Colors.grey[300],
+                        fontSize: 11,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+                if (isSelected) ...[
+                  // Trim and Fade Handles
+                  Positioned(
+                    left: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Semantics(
+                      button: true,
+                      label: 'Trim start handle',
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          if (timelineViewModel.selectedTool ==
+                              TimelineTool.trim) {
+                            final deltaX = details.delta.dx;
+                            final deltaDuration = timelineViewModel
+                                .pixelsToDuration(deltaX);
+                            final newStartTime = timelineViewModel
+                                .snapDurationToGrid(
+                                  clip.startTime + deltaDuration,
+                                );
+                            if (newStartTime < clip.endTime &&
+                                newStartTime >= Duration.zero) {
+                              timelineViewModel.trimClip(
+                                clip.id,
+                                newStartTime,
+                                clip.endTime,
                               );
-                          if (newStartTime < clip.endTime &&
-                              newStartTime >= Duration.zero) {
-                            timelineViewModel.trimClip(
-                              clip.id,
-                              newStartTime,
-                              clip.endTime,
-                            );
+                            }
+                          } else {
+                            final deltaX = details.delta.dx;
+                            final deltaDuration = timelineViewModel
+                                .pixelsToDuration(deltaX);
+                            final newFadeInDuration =
+                                clip.fadeInDuration + deltaDuration;
+                            if (newFadeInDuration.inMilliseconds >= 0 &&
+                                newFadeInDuration < clip.duration) {
+                              timelineViewModel.setFadeIn(
+                                clip.id,
+                                newFadeInDuration,
+                              );
+                            }
                           }
-                        } else {
-                          final deltaX = details.delta.dx;
-                          final deltaDuration = timelineViewModel
-                              .pixelsToDuration(deltaX);
-                          final newFadeInDuration =
-                              clip.fadeInDuration + deltaDuration;
-                          if (newFadeInDuration.inMilliseconds >= 0 &&
-                              newFadeInDuration < clip.duration) {
-                            timelineViewModel.setFadeIn(
-                              clip.id,
-                              newFadeInDuration,
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        width: 12,
-                        decoration: BoxDecoration(
-                          color:
-                              timelineViewModel.selectedTool ==
-                                  TimelineTool.trim
-                              ? Colors.yellow.withAlpha(100)
-                              : Colors.blue.withAlpha(100),
-                          borderRadius: const BorderRadius.horizontal(
-                            left: Radius.circular(6),
+                        },
+                        child: Container(
+                          width: 12,
+                          decoration: BoxDecoration(
+                            color:
+                                timelineViewModel.selectedTool ==
+                                    TimelineTool.trim
+                                ? Colors.yellow.withAlpha(100)
+                                : Colors.blue.withAlpha(100),
+                            borderRadius: const BorderRadius.horizontal(
+                              left: Radius.circular(6),
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          timelineViewModel.selectedTool == TimelineTool.trim
-                              ? Icons.arrow_left
-                              : Icons.chevron_left,
-                          color: Colors.white,
-                          size: 16,
+                          child: Icon(
+                            timelineViewModel.selectedTool == TimelineTool.trim
+                                ? Icons.arrow_left
+                                : Icons.chevron_left,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  bottom: 0,
-                  child: Semantics(
-                    button: true,
-                    label: 'Trim end handle',
-                    child: GestureDetector(
-                      onPanUpdate: (details) {
-                        if (timelineViewModel.selectedTool ==
-                            TimelineTool.trim) {
-                          final deltaX = details.delta.dx;
-                          final deltaDuration = timelineViewModel
-                              .pixelsToDuration(deltaX);
-                          final newEndTime = timelineViewModel
-                              .snapDurationToGrid(clip.endTime + deltaDuration);
-                          if (newEndTime > clip.startTime) {
-                            timelineViewModel.trimClip(
-                              clip.id,
-                              clip.startTime,
-                              newEndTime,
-                            );
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    bottom: 0,
+                    child: Semantics(
+                      button: true,
+                      label: 'Trim end handle',
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          if (timelineViewModel.selectedTool ==
+                              TimelineTool.trim) {
+                            final deltaX = details.delta.dx;
+                            final deltaDuration = timelineViewModel
+                                .pixelsToDuration(deltaX);
+                            final newEndTime = timelineViewModel
+                                .snapDurationToGrid(
+                                  clip.endTime + deltaDuration,
+                                );
+                            if (newEndTime > clip.startTime) {
+                              timelineViewModel.trimClip(
+                                clip.id,
+                                clip.startTime,
+                                newEndTime,
+                              );
+                            }
+                          } else {
+                            final deltaX = -details.delta.dx;
+                            final deltaDuration = timelineViewModel
+                                .pixelsToDuration(deltaX);
+                            final newFadeOutDuration =
+                                clip.fadeOutDuration + deltaDuration;
+                            if (newFadeOutDuration.inMilliseconds >= 0 &&
+                                newFadeOutDuration < clip.duration) {
+                              timelineViewModel.setFadeOut(
+                                clip.id,
+                                newFadeOutDuration,
+                              );
+                            }
                           }
-                        } else {
-                          final deltaX = -details.delta.dx;
-                          final deltaDuration = timelineViewModel
-                              .pixelsToDuration(deltaX);
-                          final newFadeOutDuration =
-                              clip.fadeOutDuration + deltaDuration;
-                          if (newFadeOutDuration.inMilliseconds >= 0 &&
-                              newFadeOutDuration < clip.duration) {
-                            timelineViewModel.setFadeOut(
-                              clip.id,
-                              newFadeOutDuration,
-                            );
-                          }
-                        }
-                      },
-                      child: Container(
-                        width: 12,
-                        decoration: BoxDecoration(
-                          color:
-                              timelineViewModel.selectedTool ==
-                                  TimelineTool.trim
-                              ? Colors.yellow.withAlpha(100)
-                              : Colors.blue.withAlpha(100),
-                          borderRadius: const BorderRadius.horizontal(
-                            right: Radius.circular(6),
+                        },
+                        child: Container(
+                          width: 12,
+                          decoration: BoxDecoration(
+                            color:
+                                timelineViewModel.selectedTool ==
+                                    TimelineTool.trim
+                                ? Colors.yellow.withAlpha(100)
+                                : Colors.blue.withAlpha(100),
+                            borderRadius: const BorderRadius.horizontal(
+                              right: Radius.circular(6),
+                            ),
                           ),
-                        ),
-                        child: Icon(
-                          timelineViewModel.selectedTool == TimelineTool.trim
-                              ? Icons.arrow_right
-                              : Icons.chevron_right,
-                          color: Colors.white,
-                          size: 16,
+                          child: Icon(
+                            timelineViewModel.selectedTool == TimelineTool.trim
+                                ? Icons.arrow_right
+                                : Icons.chevron_right,
+                            color: Colors.white,
+                            size: 16,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
