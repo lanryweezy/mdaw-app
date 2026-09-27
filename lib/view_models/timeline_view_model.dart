@@ -82,6 +82,53 @@ class TimelineState {
       selectedTool: selectedTool ?? this.selectedTool,
     );
   }
+
+  // ⚡ Bolt: Added operator == and hashCode to TimelineState to prevent constant UI
+  // re-renders during playback. TimelineViewModel's _onDawStateChanged uses != to
+  // determine if notifyListeners should be called, but without these overrides,
+  // every copyWith creates a new instance that fails identity equality, causing
+  // massive jank on every playback tick.
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is TimelineState &&
+        other.currentPosition == currentPosition &&
+        other.totalDuration == totalDuration &&
+        other.isPlaying == isPlaying &&
+        other.zoomLevel == zoomLevel &&
+        other.snapToGrid == snapToGrid &&
+        other.gridSize == gridSize &&
+        other.bpm == bpm &&
+        other.timeSignatureNumerator == timeSignatureNumerator &&
+        other.timeSignatureDenominator == timeSignatureDenominator &&
+        other.metronomeEnabled == metronomeEnabled &&
+        other.ticksPerBeat == ticksPerBeat &&
+        other.selectedClipId == selectedClipId &&
+        other.isDragging == isDragging &&
+        other.dragStartPosition == dragStartPosition &&
+        other.selectedTool == selectedTool;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      currentPosition,
+      totalDuration,
+      isPlaying,
+      zoomLevel,
+      snapToGrid,
+      gridSize,
+      bpm,
+      timeSignatureNumerator,
+      timeSignatureDenominator,
+      metronomeEnabled,
+      ticksPerBeat,
+      selectedClipId,
+      isDragging,
+      dragStartPosition,
+      selectedTool,
+    );
+  }
 }
 
 class TimelineAction {
