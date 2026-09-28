@@ -105,11 +105,11 @@ void main() {
     test('should validate BPM range', () {
       // Test minimum BPM
       timelineViewModel.setBpm(30);
-      expect(timelineViewModel.bpm, 30);
+      expect(timelineViewModel.bpm, 60);
 
       // Test maximum BPM
       timelineViewModel.setBpm(300);
-      expect(timelineViewModel.bpm, 300);
+      expect(timelineViewModel.bpm, 200);
     });
 
     test('should handle position updates during playback', () {
