@@ -212,6 +212,7 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen>
                 mini: true,
                 backgroundColor: const Color(0xFF00D4FF),
                 onPressed: () => setState(() => _isTransportVisible = true),
+                tooltip: 'Show Transport Controls',
                 child: const Icon(Icons.play_arrow, color: Colors.black),
               )
             : null,
