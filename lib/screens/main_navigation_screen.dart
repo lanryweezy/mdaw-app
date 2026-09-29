@@ -128,6 +128,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                     backgroundColor: const Color(0xFF00D4FF),
                     onPressed: () =>
                         setState(() => _isNavigationVisible = true),
+                    tooltip: 'Show Navigation',
                     child: const Icon(
                       Icons.keyboard_arrow_up,
                       color: Colors.black,
