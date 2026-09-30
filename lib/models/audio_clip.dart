@@ -78,4 +78,50 @@ class AudioClip {
       fadeOutDuration: fadeOutDuration ?? this.fadeOutDuration,
     );
   }
+
+  // ⚡ Bolt: Added operator == and hashCode to prevent unnecessary widget rebuilds
+  // during state changes (like audio playback) by correctly determining equality.
+  // O(1) scalar properties are evaluated before O(N) waveform collection comparison.
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! AudioClip) return false;
+
+    // Evaluate O(1) properties first for performance
+    if (other.id != id ||
+        other.path != path ||
+        other.controller != controller ||
+        other.volume != volume ||
+        other.startTime != startTime ||
+        other.endTime != endTime ||
+        other.fadeInDuration != fadeInDuration ||
+        other.fadeOutDuration != fadeOutDuration) {
+      return false;
+    }
+
+    // Check if the waveform lists have the same elements (O(N) operation)
+    if (waveform.length != other.waveform.length) return false;
+    for (int i = 0; i < waveform.length; i++) {
+      if (waveform[i] != other.waveform[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      path,
+      controller,
+      volume,
+      Object.hashAll(waveform),
+      startTime,
+      endTime,
+      fadeInDuration,
+      fadeOutDuration,
+    );
+  }
 }
