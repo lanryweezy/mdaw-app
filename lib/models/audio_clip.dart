@@ -78,4 +78,41 @@ class AudioClip {
       fadeOutDuration: fadeOutDuration ?? this.fadeOutDuration,
     );
   }
+
+  // ⚡ Bolt: Adding operator == and hashCode to prevent continuous UI jank during frequent updates
+  // (like audio playback ticks) by allowing proper value comparison and avoiding unnecessary widget
+  // rebuilds triggered by referential identity checks when using .copyWith().
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! AudioClip) return false;
+
+    // Evaluate O(1) properties first for performance
+    if (other.id != id ||
+        other.path != path ||
+        other.controller != controller ||
+        other.volume != volume ||
+        other.startTime != startTime ||
+        other.endTime != endTime ||
+        other.fadeInDuration != fadeInDuration ||
+        other.fadeOutDuration != fadeOutDuration) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      path,
+      controller,
+      volume,
+      startTime,
+      endTime,
+      fadeInDuration,
+      fadeOutDuration,
+    );
+  }
 }

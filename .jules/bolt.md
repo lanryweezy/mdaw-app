@@ -12,3 +12,6 @@
 ## 2023-10-28 - [State Equality to prevent unnecessary rebuilds]
 **Learning:** In Flutter/Dart, continuous UI jank occurs if ViewModel states don't properly override `operator ==` and `hashCode`, especially when a new state is emitted continuously (like during audio playback `.copyWith()` cycles). If equality falls back to referential identity, unchanged data will still trigger full widget rebuilds via `notifyListeners()`.
 **Action:** Always verify that State classes (like `TimelineState`, `DawState`) implement `operator ==` and `hashCode` with deep property checks so that equality statements like `newState != _state` correctly identify redundant updates and drop them.
+## 2023-11-01 - [O(N) Collection Equality Check]
+**Learning:** Checking large arrays like `waveform` inside `operator ==` and `hashCode` causes severe CPU overhead during frequent audio playback ticks, negating the benefits of state equality checks to prevent unnecessary widget rebuilds.
+**Action:** When overriding `operator ==` and `hashCode` for classes with large collections, rely on fast checks like identity or length for arrays rather than element-by-element iteration or `Object.hashAll()` to avoid performance degradation.
