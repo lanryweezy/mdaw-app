@@ -223,18 +223,16 @@ class TempoControls extends StatelessWidget {
     required String tooltip,
     required VoidCallback onPressed,
   }) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton(
-        onPressed: onPressed,
-        icon: Icon(icon, size: 20),
-        style: IconButton.styleFrom(
-          backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
-          foregroundColor: Theme.of(context).colorScheme.primary,
-          padding: const EdgeInsets.all(8),
-          minimumSize: const Size(40, 40),
-          maximumSize: const Size(40, 40),
-        ),
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20),
+      tooltip: tooltip,
+      style: IconButton.styleFrom(
+        backgroundColor: Theme.of(context).colorScheme.primary.withAlpha(25),
+        foregroundColor: Theme.of(context).colorScheme.primary,
+        padding: const EdgeInsets.all(8),
+        minimumSize: const Size(40, 40),
+        maximumSize: const Size(40, 40),
       ),
     );
   }
