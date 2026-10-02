@@ -22,3 +22,6 @@
 ## 2026-09-25 - Custom Interactive Widgets need Semantics
 **Learning:** Custom interactive widgets built directly with `GestureDetector` (like the audio clip boxes in Timeline Editor) do not inherently convey their interactivity to screen readers, unlike native Flutter buttons.
 **Action:** Always wrap custom `GestureDetector` UI components that act as buttons or interactive regions in a `Semantics(button: true)` widget with a descriptive `label`.
+## 2026-10-02 - Avoid Redundant Tooltip Wrappers Around IconButton
+**Learning:** Found custom button builders wrapping standard `IconButton` widgets in an external `Tooltip` widget. Because `IconButton` natively supports tooltips, this double-wrapping pattern causes redundant, overlapping tooltips and degrades the UX.
+**Action:** When using `IconButton`, always use its native `tooltip` property instead of wrapping it in an external `Tooltip` widget.
