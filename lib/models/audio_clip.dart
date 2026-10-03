@@ -99,11 +99,14 @@ class AudioClip {
       return false;
     }
 
-    // Check if the waveform lists have the same elements (O(N) operation)
-    if (waveform.length != other.waveform.length) return false;
-    for (int i = 0; i < waveform.length; i++) {
-      if (waveform[i] != other.waveform[i]) {
-        return false;
+    // ⚡ Bolt: Fast path identical check to skip O(N) iteration if references are the same
+    if (!identical(waveform, other.waveform)) {
+      // Check if the waveform lists have the same elements (O(N) operation)
+      if (waveform.length != other.waveform.length) return false;
+      for (int i = 0; i < waveform.length; i++) {
+        if (waveform[i] != other.waveform[i]) {
+          return false;
+        }
       }
     }
 
@@ -117,7 +120,8 @@ class AudioClip {
       path,
       controller,
       volume,
-      Object.hashAll(waveform),
+      // ⚡ Bolt: Hash length instead of Object.hashAll to prevent O(N) hashing while preserving equality contract
+      waveform.length,
       startTime,
       endTime,
       fadeInDuration,
