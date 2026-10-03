@@ -127,13 +127,10 @@ class EnhancedDawUI extends StatelessWidget {
     required String tooltip,
     Color? color,
   }) {
-    return Tooltip(
-      message: tooltip,
-      child: IconButton(
-        icon: Icon(icon, color: color ?? Colors.white, size: 32),
-        onPressed: onPressed,
-        tooltip: tooltip,
-      ),
+    return IconButton(
+      icon: Icon(icon, color: color ?? Colors.white, size: 32),
+      onPressed: onPressed,
+      tooltip: tooltip,
     );
   }
 
