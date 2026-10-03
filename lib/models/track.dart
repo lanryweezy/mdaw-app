@@ -156,11 +156,14 @@ class Track {
       return false;
     }
 
-    // Check if the clips lists have the same elements (O(N) operation)
-    if (clips.length != other.clips.length) return false;
-    for (int i = 0; i < clips.length; i++) {
-      if (clips[i] != other.clips[i]) {
-        return false;
+    // ⚡ Bolt: Fast path identical check to skip O(N) iteration if references are the same
+    if (!identical(clips, other.clips)) {
+      // Check if the clips lists have the same elements (O(N) operation)
+      if (clips.length != other.clips.length) return false;
+      for (int i = 0; i < clips.length; i++) {
+        if (clips[i] != other.clips[i]) {
+          return false;
+        }
       }
     }
 
@@ -178,7 +181,8 @@ class Track {
       muted,
       soloed,
       collapsed,
-      Object.hashAll(clips),
+      // ⚡ Bolt: Hash length instead of Object.hashAll to prevent O(N) hashing while preserving equality contract
+      clips.length,
     );
   }
 
