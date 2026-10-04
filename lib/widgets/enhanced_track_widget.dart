@@ -46,28 +46,44 @@ class EnhancedTrackWidget extends StatelessWidget {
   }
 
   Widget _buildTrackHeader(BuildContext context, DawViewModel viewModel) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withAlpha(25),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      child: Row(
-        children: [
-          Icon(_getTrackIcon(), color: color, size: 24),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+    final isSelected = viewModel.selectedTrack?.id == track.id;
+
+    return Semantics(
+      button: true,
+      label: 'Select track ${track.name}',
+      child: GestureDetector(
+        onTap: () {
+          viewModel.selectTrack(track);
+        },
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? color.withAlpha(76)
+                : color.withAlpha(25),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+            border: isSelected
+                ? Border.all(color: color, width: 2)
+                : null,
           ),
-          _buildTrackStatusChip(),
-        ],
+          child: Row(
+            children: [
+              Icon(_getTrackIcon(), color: color, size: 24),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              _buildTrackStatusChip(),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -25,3 +25,6 @@
 ## 2026-10-27 - Double Tooltip Rendering on IconButtons
 **Learning:** When creating custom widget builder methods containing `IconButton`, it's a common anti-pattern to wrap the `IconButton` in an external `Tooltip` widget. Since `IconButton` natively supports the `tooltip` property, wrapping it in an explicit `Tooltip` widget causes the tooltip to render twice (overlapping) on hover, resulting in poor UX and visual clutter.
 **Action:** Never wrap `IconButton` with a `Tooltip` widget. Instead, pass the tooltip text directly to the `IconButton`'s built-in `tooltip` parameter.
+## 2026-10-29 - Missing Selectable State in Enhanced Track Headers
+**Learning:** Found that custom track headers built with `Container` in `EnhancedTrackWidget` were missing `Semantics` and an interactive `GestureDetector` wrapper, despite track selection functionality being present in the application state. This caused the track headers to be non-interactive and inaccessible to screen readers.
+**Action:** When creating custom widget areas that represent selectable elements (like track headers), always wrap them in a `Semantics` widget with `button: true` and a `label`. Include a `GestureDetector` to handle interaction, and provide visual feedback for selection state (like borders and color changes) to ensure consistent user experience across components.
