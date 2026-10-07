@@ -691,10 +691,17 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen>
 
   Future<void> _applyVocalMixing() async {
     final dawVM = Provider.of<DawViewModel>(context, listen: false);
-    final vocalPaths = dawVM.vocalTracks
-        .where((track) => track.hasAudio)
-        .expand((track) => track.clips.map((clip) => clip.path))
-        .toList();
+
+    // ⚡ Bolt: Iterate tracks sequentially without creating intermediate lists
+    // (via .where().expand().toList()) to significantly reduce GC pressure.
+    final List<String> vocalPaths = [];
+    for (final track in dawVM.vocalTracks) {
+      if (track.hasAudio) {
+        for (final clip in track.clips) {
+          vocalPaths.add(clip.path);
+        }
+      }
+    }
 
     if (vocalPaths.isEmpty) {
       if (mounted) {
