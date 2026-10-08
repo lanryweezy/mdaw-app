@@ -530,10 +530,17 @@ class DawViewModel extends ChangeNotifier {
 
   Future<void> magicMixVocals() async {
     print('Magic Mix Vocals triggered!');
-    final vocalInputPaths = vocalTracks
-        .where((t) => t.hasAudio)
-        .expand((t) => t.clips.map((c) => c.path))
-        .toList();
+
+    // ⚡ Bolt: Iterate tracks sequentially without creating intermediate lists
+    // (via .where().expand().toList()) to significantly reduce GC pressure.
+    final List<String> vocalInputPaths = [];
+    for (final t in vocalTracks) {
+      if (t.hasAudio) {
+        for (final c in t.clips) {
+          vocalInputPaths.add(c.path);
+        }
+      }
+    }
 
     if (vocalInputPaths.isEmpty) {
       print('No vocal tracks to mix.');
