@@ -779,18 +779,37 @@ class DawViewModel extends ChangeNotifier {
 
     final timeMs = time.inMilliseconds;
 
+    // ⚡ Bolt: Replaced O(N) linear iteration with O(log N) binary search
+    // to find the bounding automation points for the given time.
+    // This prevents frame drops during continuous playback when the
+    // number of automation points grows.
     // Find the data points before and after the current time
     Map<String, dynamic>? beforePoint;
     Map<String, dynamic>? afterPoint;
 
-    for (final point in dataPoints) {
-      final pointTime = point['time'] as int;
-      if (pointTime <= timeMs) {
-        beforePoint = point;
+    int low = 0;
+    int high = dataPoints.length - 1;
+    int matchIndex = -1;
+
+    while (low <= high) {
+      int mid = low + ((high - low) >> 1);
+      if ((dataPoints[mid]['time'] as int) <= timeMs) {
+        matchIndex = mid;
+        low = mid + 1;
       } else {
-        afterPoint = point;
-        break;
+        high = mid - 1;
       }
+    }
+
+    if (matchIndex >= 0) {
+      beforePoint = dataPoints[matchIndex];
+    }
+
+    if (matchIndex + 1 < dataPoints.length) {
+      afterPoint = dataPoints[matchIndex + 1];
+    } else if (matchIndex == -1 && dataPoints.isNotEmpty) {
+      // timeMs is before the first point
+      afterPoint = dataPoints.first;
     }
 
     // If we only have one point or we're before the first point, return that value
