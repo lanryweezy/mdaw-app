@@ -28,3 +28,6 @@
 ## 2026-10-29 - Missing Selectable State in Enhanced Track Headers
 **Learning:** Found that custom track headers built with `Container` in `EnhancedTrackWidget` were missing `Semantics` and an interactive `GestureDetector` wrapper, despite track selection functionality being present in the application state. This caused the track headers to be non-interactive and inaccessible to screen readers.
 **Action:** When creating custom widget areas that represent selectable elements (like track headers), always wrap them in a `Semantics` widget with `button: true` and a `label`. Include a `GestureDetector` to handle interaction, and provide visual feedback for selection state (like borders and color changes) to ensure consistent user experience across components.
+## 2026-10-09 - Custom Interactive Components Lack Hover Cursors
+**Learning:** In Flutter web/desktop environments, custom interactive widgets built solely with `GestureDetector` (like `AIToolButton`) do not automatically display a pointer cursor when hovered, leaving mouse users without visual interaction feedback.
+**Action:** When building custom buttons or interactive elements using `GestureDetector`, explicitly wrap the detector in a `MouseRegion` with `cursor: SystemMouseCursors.click`.
