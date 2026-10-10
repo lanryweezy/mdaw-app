@@ -20,3 +20,6 @@
 ## 2023-11-06 - [Reduce GC pressure by removing chained intermediate lists via expand]
 **Learning:** In Dart/Flutter, chained iterative list methods like `.where().expand().toList()` create massive GC pressure because `.where()` returns an iterable, `.expand()` iterates and flattens creating another lazy iterable, and finally `.toList()` instantiates the concrete list. This causes multiple internal allocations for temporary iterables before resolving to a List, severely impacting performance during heavy data manipulation paths.
 **Action:** Replace chained `.where().expand().toList()` or similar functional chains with manual nested `for` loops that `.add()` elements sequentially to a pre-allocated or dynamically sized list. This single-pass iteration eliminates all intermediate iterable allocations and reduces GC spikes.
+## 2026-11-12 - [Reduce GC pressure by removing chained intermediate lists via where.toList]
+**Learning:** In Dart/Flutter, using `.where().toList()` creates intermediate lazy iterables which resolve into lists, putting extra GC pressure on paths that update frequently, like during continuous UI polling.
+**Action:** Replace `.where().toList()` with sequential `for` loops appending to a List when optimizing frequently called accessors (like automation lanes) to decrease GC allocations.

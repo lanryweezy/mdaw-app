@@ -282,7 +282,15 @@ class AutomationSystem {
 
   /// Get all automation lanes for a specific target
   List<AutomationLane> getLanesForTarget(String targetId) {
-    return lanes.where((lane) => lane.targetId == targetId).toList();
+    // ⚡ Bolt: Iterate lanes sequentially without creating intermediate lists
+    // (via .where().toList()) to reduce GC pressure during polling/UI updates.
+    final List<AutomationLane> result = [];
+    for (int i = 0; i < lanes.length; i++) {
+      if (lanes[i].targetId == targetId) {
+        result.add(lanes[i]);
+      }
+    }
+    return result;
   }
 
   /// Enable/disable an automation lane

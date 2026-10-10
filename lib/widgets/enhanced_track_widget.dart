@@ -58,13 +58,9 @@ class EnhancedTrackWidget extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isSelected
-                ? color.withAlpha(76)
-                : color.withAlpha(25),
+            color: isSelected ? color.withAlpha(76) : color.withAlpha(25),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-            border: isSelected
-                ? Border.all(color: color, width: 2)
-                : null,
+            border: isSelected ? Border.all(color: color, width: 2) : null,
           ),
           child: Row(
             children: [
