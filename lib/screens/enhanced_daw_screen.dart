@@ -499,14 +499,17 @@ class _EnhancedDawScreenState extends State<EnhancedDawScreen>
                 child: Semantics(
                   button: true,
                   label: 'Collapse transport controls',
-                  child: GestureDetector(
-                    onTap: () => setState(() => _isTransportVisible = false),
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[600],
-                        borderRadius: BorderRadius.circular(2),
+                  child: MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () => setState(() => _isTransportVisible = false),
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[600],
+                          borderRadius: BorderRadius.circular(2),
+                        ),
                       ),
                     ),
                   ),

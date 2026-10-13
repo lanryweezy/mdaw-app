@@ -64,16 +64,19 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
                                 button: true,
                                 label: 'Collapse navigation',
 
-                                child: GestureDetector(
-                                  onTap: () => setState(
-                                    () => _isNavigationVisible = false,
-                                  ),
-                                  child: Container(
-                                    width: 40,
-                                    height: 4,
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey[600],
-                                      borderRadius: BorderRadius.circular(2),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () => setState(
+                                      () => _isNavigationVisible = false,
+                                    ),
+                                    child: Container(
+                                      width: 40,
+                                      height: 4,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[600],
+                                        borderRadius: BorderRadius.circular(2),
+                                      ),
                                     ),
                                   ),
                                 ),
