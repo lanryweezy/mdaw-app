@@ -80,15 +80,18 @@ class TrackWidget extends StatelessWidget {
             // Audio Clips (Waveforms)
             if (track.clips.isNotEmpty)
               Column(
-                children: track.clips.map((clip) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: AudioClipWidget(
-                      clip: clip,
-                      waveformColor: theme.colorScheme.primary,
+                children: [
+                  // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+                  // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+                  for (final clip in track.clips)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 4.0),
+                      child: AudioClipWidget(
+                        clip: clip,
+                        waveformColor: theme.colorScheme.primary,
+                      ),
                     ),
-                  );
-                }).toList(),
+                ],
               )
             else
               Container(

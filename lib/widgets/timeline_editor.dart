@@ -371,17 +371,18 @@ class TimelineEditor extends StatelessWidget {
                   trackIndex,
                 ),
               ]
-            : track.clips
-                  .map(
-                    (clip) => _buildClip(
-                      context,
-                      dawViewModel,
-                      timelineViewModel,
-                      clip,
-                      trackIndex,
-                    ),
-                  )
-                  .toList(),
+            : [
+                // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+                // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+                for (final clip in track.clips)
+                  _buildClip(
+                    context,
+                    dawViewModel,
+                    timelineViewModel,
+                    clip,
+                    trackIndex,
+                  ),
+              ],
       ),
     );
   }
