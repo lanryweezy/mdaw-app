@@ -100,15 +100,18 @@ class TempoControls extends StatelessWidget {
                       children: [
                         DropdownButton<int>(
                           value: timelineViewModel.timeSignatureNumerator,
-                          items: [4, 3, 2].map((num) {
-                            return DropdownMenuItem(
-                              value: num,
-                              child: Text(
-                                '$num',
-                                style: const TextStyle(fontSize: 12),
+                          // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+                          // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+                          items: [
+                            for (final num in [4, 3, 2])
+                              DropdownMenuItem(
+                                value: num,
+                                child: Text(
+                                  '$num',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
                               ),
-                            );
-                          }).toList(),
+                          ],
                           onChanged: (value) {
                             if (value != null) {
                               timelineViewModel.setTimeSignature(
@@ -122,15 +125,18 @@ class TempoControls extends StatelessWidget {
                         const Text('/', style: TextStyle(fontSize: 12)),
                         DropdownButton<int>(
                           value: timelineViewModel.timeSignatureDenominator,
-                          items: [4, 8].map((den) {
-                            return DropdownMenuItem(
-                              value: den,
-                              child: Text(
-                                '$den',
-                                style: const TextStyle(fontSize: 12),
+                          // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+                          // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+                          items: [
+                            for (final den in [4, 8])
+                              DropdownMenuItem(
+                                value: den,
+                                child: Text(
+                                  '$den',
+                                  style: const TextStyle(fontSize: 12),
+                                ),
                               ),
-                            );
-                          }).toList(),
+                          ],
                           onChanged: (value) {
                             if (value != null) {
                               timelineViewModel.setTimeSignature(

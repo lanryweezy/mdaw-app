@@ -305,9 +305,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             DropdownButton<String>(
               value: value,
               onChanged: (newValue) => onChanged(newValue!),
-              items: options.map((option) {
-                return DropdownMenuItem(value: option, child: Text(option));
-              }).toList(),
+              // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+              // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+              items: [
+                for (final option in options)
+                  DropdownMenuItem(value: option, child: Text(option)),
+              ],
             ),
           ],
         ),

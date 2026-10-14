@@ -70,37 +70,40 @@ class _ProjectScreenState extends State<ProjectScreen> {
         'createdAt': DateTime.now().toIso8601String(),
         'lastModified': DateTime.now().toIso8601String(),
         'beatTrack': {
-          'clips': viewModel.beatTrack.clips
-              .map(
-                (clip) => {
-                  'path': clip.path,
-                  'volume': clip.volume,
-                  'startTime': clip.startTime.inMilliseconds,
-                  'endTime': clip.endTime.inMilliseconds,
-                },
-              )
-              .toList(),
-        },
-        'vocalTracks': viewModel.vocalTracks
-            .map(
-              (track) => {
-                'id': track.id,
-                'name': track.name,
-                'isMuted': track.muted,
-                'isSolo': track.soloed,
-                'clips': track.clips
-                    .map(
-                      (clip) => {
-                        'path': clip.path,
-                        'volume': clip.volume,
-                        'startTime': clip.startTime.inMilliseconds,
-                        'endTime': clip.endTime.inMilliseconds,
-                      },
-                    )
-                    .toList(),
+          // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+          // allocating intermediate lazy iterables, reducing GC pressure.
+          'clips': [
+            for (final clip in viewModel.beatTrack.clips)
+              {
+                'path': clip.path,
+                'volume': clip.volume,
+                'startTime': clip.startTime.inMilliseconds,
+                'endTime': clip.endTime.inMilliseconds,
               },
-            )
-            .toList(),
+          ],
+        },
+        // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+        // allocating intermediate lazy iterables, reducing GC pressure.
+        'vocalTracks': [
+          for (final track in viewModel.vocalTracks)
+            {
+              'id': track.id,
+              'name': track.name,
+              'isMuted': track.muted,
+              'isSolo': track.soloed,
+              // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+              // allocating intermediate lazy iterables, reducing GC pressure.
+              'clips': [
+                for (final clip in track.clips)
+                  {
+                    'path': clip.path,
+                    'volume': clip.volume,
+                    'startTime': clip.startTime.inMilliseconds,
+                    'endTime': clip.endTime.inMilliseconds,
+                  },
+              ],
+            },
+        ],
       };
 
       final projectFile = File(
