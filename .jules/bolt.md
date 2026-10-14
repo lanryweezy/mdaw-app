@@ -23,3 +23,6 @@
 ## 2026-11-12 - [Reduce GC pressure by removing chained intermediate lists via where.toList]
 **Learning:** In Dart/Flutter, using `.where().toList()` creates intermediate lazy iterables which resolve into lists, putting extra GC pressure on paths that update frequently, like during continuous UI polling.
 **Action:** Replace `.where().toList()` with sequential `for` loops appending to a List when optimizing frequently called accessors (like automation lanes) to decrease GC allocations.
+## 2026-11-13 - [Reduce GC pressure by removing chained map().toList() in Flutter builds]
+**Learning:** In Flutter, UI `build` methods can be called frequently (up to 60 times per second during animations or continuous playback updates). Using `.map(...).toList()` inside these build methods creates unnecessary Garbage Collection (GC) pressure because `.map()` allocates a lazy iterable that is immediately forced into a concrete list by `.toList()`.
+**Action:** Replace `.map(...).toList()` patterns in Flutter `build` methods with Dart's native list comprehensions `[ for (final item in list) build(item) ]`. The Dart compiler optimizes list comprehensions directly, avoiding the allocation of intermediate lazy iterables and reducing overall GC overhead during frequent UI repaints.

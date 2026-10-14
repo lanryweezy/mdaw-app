@@ -141,14 +141,12 @@ class EnhancedTrackWidget extends StatelessWidget {
         return Container(
           padding: const EdgeInsets.all(12),
           child: Column(
-            children: track.clips
-                .map(
-                  (clip) => _buildClipWidget(
-                    clip,
-                    viewModel.selectedTrack?.id == track.id,
-                  ),
-                )
-                .toList(),
+            children: [
+              // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+              // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+              for (final clip in track.clips)
+                _buildClipWidget(clip, viewModel.selectedTrack?.id == track.id),
+            ],
           ),
         );
       },

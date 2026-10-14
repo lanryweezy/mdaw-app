@@ -231,9 +231,11 @@ class _CollapsibleTrackWidgetState extends State<CollapsibleTrackWidget>
     return Container(
       padding: const EdgeInsets.all(12),
       child: Column(
-        children: widget.track.clips
-            .map((clip) => _buildClipWidget(clip))
-            .toList(),
+        children: [
+          // ⚡ Bolt: Use list comprehension instead of .map().toList() to avoid
+          // allocating intermediate lazy iterables during widget builds, reducing GC pressure.
+          for (final clip in widget.track.clips) _buildClipWidget(clip),
+        ],
       ),
     );
   }
