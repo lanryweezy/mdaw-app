@@ -26,3 +26,6 @@
 ## 2026-11-13 - [Reduce GC pressure by removing chained map().toList() in Flutter builds]
 **Learning:** In Flutter, UI `build` methods can be called frequently (up to 60 times per second during animations or continuous playback updates). Using `.map(...).toList()` inside these build methods creates unnecessary Garbage Collection (GC) pressure because `.map()` allocates a lazy iterable that is immediately forced into a concrete list by `.toList()`.
 **Action:** Replace `.map(...).toList()` patterns in Flutter `build` methods with Dart's native list comprehensions `[ for (final item in list) build(item) ]`. The Dart compiler optimizes list comprehensions directly, avoiding the allocation of intermediate lazy iterables and reducing overall GC overhead during frequent UI repaints.
+## 2024-06-25 - Avoid .map().toList() in Widget Builds
+**Learning:** Chained `.map(...).toList()` operations inside `build` methods allocate an intermediate lazy iterable that is immediately forced into a concrete list, generating unnecessary Garbage Collection (GC) pressure during frequent UI repaints.
+**Action:** Use Dart's native list comprehensions (e.g., `[ for (final item in list) build(item) ]`) which are directly optimized by the compiler and avoid intermediate iterable allocation.
