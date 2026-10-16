@@ -20,17 +20,15 @@ class MixerConsole extends StatelessWidget {
             'Beat',
             Colors.blue,
           ),
-          ...viewModel.vocalTracks.asMap().entries.map((entry) {
-            final index = entry.key;
-            final track = entry.value;
-            return _buildTrackChannel(
+          // ⚡ Bolt: Use list comprehension instead of .map() to avoid intermediate iterable allocations
+          for (var i = 0; i < viewModel.vocalTracks.length; i++)
+            _buildTrackChannel(
               context,
               viewModel,
-              track,
-              'Vocal ${index + 1}',
-              _getTrackColor(index),
-            );
-          }),
+              viewModel.vocalTracks[i],
+              'Vocal ${i + 1}',
+              _getTrackColor(i),
+            ),
           if (viewModel.mixedVocalTrack != null)
             _buildTrackChannel(
               context,

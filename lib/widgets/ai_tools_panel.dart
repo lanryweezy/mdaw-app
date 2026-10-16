@@ -29,8 +29,9 @@ class AIToolsPanel extends StatelessWidget {
           style: TextStyle(color: Colors.grey[400], fontSize: 14),
         ),
         const SizedBox(height: 24),
-        ...AIAudioBrain.intents.map(
-          (intent) => Padding(
+        // ⚡ Bolt: Use list comprehension instead of .map() to avoid intermediate iterable allocations
+        for (final intent in AIAudioBrain.intents)
+          Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: AIToolButton(
               title: _formatIntentName(intent.name),
@@ -39,7 +40,6 @@ class AIToolsPanel extends StatelessWidget {
               onPressed: () => _applyMode(context, intent.name),
             ),
           ),
-        ),
         const SizedBox(height: 32),
         const Text(
           'Pro Utility Tools',

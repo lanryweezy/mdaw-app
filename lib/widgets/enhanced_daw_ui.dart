@@ -314,14 +314,9 @@ class EnhancedDawUI extends StatelessWidget {
                     Colors.blue,
                     viewModel,
                   ),
-                  ...viewModel.vocalTracks.map(
-                    (track) => _buildTrackWidget(
-                      'Vocals',
-                      track,
-                      Colors.green,
-                      viewModel,
-                    ),
-                  ),
+                  // ⚡ Bolt: Use list comprehension instead of .map() to avoid intermediate iterable allocations
+                  for (final track in viewModel.vocalTracks)
+                    _buildTrackWidget('Vocals', track, Colors.green, viewModel),
                   if (viewModel.mixedVocalTrack != null)
                     _buildTrackWidget(
                       'Mixed Vocals',
