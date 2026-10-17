@@ -29,3 +29,9 @@
 ## 2024-06-25 - Avoid .map().toList() in Widget Builds
 **Learning:** Chained `.map(...).toList()` operations inside `build` methods allocate an intermediate lazy iterable that is immediately forced into a concrete list, generating unnecessary Garbage Collection (GC) pressure during frequent UI repaints.
 **Action:** Use Dart's native list comprehensions (e.g., `[ for (final item in list) build(item) ]`) which are directly optimized by the compiler and avoid intermediate iterable allocation.
+## 2026-10-17 - [Hoist Math Operations out of Processing Loops]
+**Learning:** In audio processing loops (like  methods in ), evaluating redundant and computationally expensive math functions like  for every single audio sample causes significant CPU overhead, especially since these loops execute thousands of times per second (e.g., 44,100 times for 1 second of audio at 44.1kHz).
+**Action:** Always identify variables that depend strictly on constants (or properties that don't change per-sample) and hoist their calculations outside the main processing  loop to optimize sample-by-sample processing.
+## 2024-05-15 - [Hoist Math Operations out of Processing Loops]
+**Learning:** In audio processing loops (like `process` methods in `lib/models/audio_effects.dart`), evaluating redundant and computationally expensive math functions like `pow(10, x / 20)` for every single audio sample causes significant CPU overhead, especially since these loops execute thousands of times per second (e.g., 44,100 times for 1 second of audio at 44.1kHz).
+**Action:** Always identify variables that depend strictly on constants (or properties that don't change per-sample) and hoist their calculations outside the main processing `for` loop to optimize sample-by-sample processing.

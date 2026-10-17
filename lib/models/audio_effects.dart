@@ -305,12 +305,15 @@ class CompressorEffect extends AudioEffect {
 
     final output = List<double>.filled(input.length, 0.0);
 
+    // ⚡ Bolt: Moved redundant thresholdLinear and makeupGainLinear calculations
+    // outside of the main processing loop as they rely on constants.
+    // Convert threshold from dB to linear
+    final thresholdLinear = pow(10, threshold / 20).toDouble();
+    final makeupGainLinear = makeupGain != 0 ? pow(10, makeupGain / 20).toDouble() : 1.0;
+
     for (int i = 0; i < input.length; i++) {
       final sample = input[i];
       final absSample = sample.abs();
-
-      // Convert threshold from dB to linear
-      final thresholdLinear = pow(10, threshold / 20).toDouble();
 
       if (absSample > thresholdLinear) {
         // Apply compression
@@ -325,7 +328,6 @@ class CompressorEffect extends AudioEffect {
 
       // Apply makeup gain
       if (makeupGain != 0) {
-        final makeupGainLinear = pow(10, makeupGain / 20).toDouble();
         output[i] *= makeupGainLinear;
       }
     }
