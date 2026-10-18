@@ -309,7 +309,9 @@ class CompressorEffect extends AudioEffect {
     // outside of the main processing loop as they rely on constants.
     // Convert threshold from dB to linear
     final thresholdLinear = pow(10, threshold / 20).toDouble();
-    final makeupGainLinear = makeupGain != 0 ? pow(10, makeupGain / 20).toDouble() : 1.0;
+    final makeupGainLinear = makeupGain != 0
+        ? pow(10, makeupGain / 20).toDouble()
+        : 1.0;
 
     for (int i = 0; i < input.length; i++) {
       final sample = input[i];
@@ -432,15 +434,20 @@ class EqEffect extends AudioEffect {
     // For now, we'll apply a simplified frequency-dependent gain
     final output = List<double>.filled(input.length, 0.0);
 
+    // ⚡ Bolt: Hoist parameter map lookups out of the processing loop.
+    // Fetching properties from the map on each iteration causes unnecessary overhead.
+    final lowFreq = parameters['low_freq']!.value;
+    final highFreq = parameters['high_freq']!.value;
+
     for (int i = 0; i < input.length; i++) {
       // Simple frequency estimation based on sample position
       // This is a very simplified approach - real EQ uses FFT or filter banks
       final frequencyEstimate = (i % 1000) * 44.1; // Rough estimate
 
       double gain;
-      if (frequencyEstimate < parameters['low_freq']!.value) {
+      if (frequencyEstimate < lowFreq) {
         gain = lowGainLinear;
-      } else if (frequencyEstimate > parameters['high_freq']!.value) {
+      } else if (frequencyEstimate > highFreq) {
         gain = highGainLinear;
       } else {
         gain = midGainLinear;
@@ -526,12 +533,16 @@ class DelayEffect extends AudioEffect {
     final delayBuffer = List<double>.filled(delaySamples, 0.0);
     int bufferIndex = 0;
 
+    // ⚡ Bolt: Precalculate constant math expression outside of the processing loop
+    // to prevent redundant calculations on every audio sample.
+    final dryMix = 1 - mix;
+
     for (int i = 0; i < input.length; i++) {
       // Get delayed sample
       final delayedSample = delayBuffer[bufferIndex];
 
       // Calculate output (dry + wet)
-      output[i] = input[i] * (1 - mix) + delayedSample * mix;
+      output[i] = input[i] * dryMix + delayedSample * mix;
 
       // Update delay buffer
       delayBuffer[bufferIndex] = input[i] + delayedSample * feedback;

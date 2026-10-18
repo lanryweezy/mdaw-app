@@ -35,3 +35,6 @@
 ## 2024-05-15 - [Hoist Math Operations out of Processing Loops]
 **Learning:** In audio processing loops (like `process` methods in `lib/models/audio_effects.dart`), evaluating redundant and computationally expensive math functions like `pow(10, x / 20)` for every single audio sample causes significant CPU overhead, especially since these loops execute thousands of times per second (e.g., 44,100 times for 1 second of audio at 44.1kHz).
 **Action:** Always identify variables that depend strictly on constants (or properties that don't change per-sample) and hoist their calculations outside the main processing `for` loop to optimize sample-by-sample processing.
+## 2024-10-25 - [Avoid Map Lookups in Audio Processing Loops]
+**Learning:** In highly repetitive loops like audio sample processing (e.g., `for (int i = 0; i < input.length; i++)` handling 44,100 samples per second), performing map lookups (e.g., `parameters['key']!.value`) inside the loop introduces significant, unnecessary overhead per sample.
+**Action:** Always fetch configuration or parameter values from maps outside the main processing loop and store them in local variables. Use these local variables inside the loop to ensure optimal sample-by-sample performance.
