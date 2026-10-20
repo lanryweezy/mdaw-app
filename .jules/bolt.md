@@ -38,3 +38,6 @@
 ## 2024-10-25 - [Avoid Map Lookups in Audio Processing Loops]
 **Learning:** In highly repetitive loops like audio sample processing (e.g., `for (int i = 0; i < input.length; i++)` handling 44,100 samples per second), performing map lookups (e.g., `parameters['key']!.value`) inside the loop introduces significant, unnecessary overhead per sample.
 **Action:** Always fetch configuration or parameter values from maps outside the main processing loop and store them in local variables. Use these local variables inside the loop to ensure optimal sample-by-sample performance.
+## 2024-11-20 - [Unroll Inner Loops in Audio DSP Functions]
+**Learning:** In highly repetitive audio processing methods like `AudioEffect.process()` processing arrays of audio data, fixed-length nested loops (such as evaluating predefined reverb delays) introduce unnecessary loop overhead, branching, and redundant constant math calculations per sample.
+**Action:** Unroll fixed-length nested loops inside audio processing buffers to replace them with manual `if` evaluations and pre-calculated constants. This avoids repeated math logic per frame and removes looping overhead inside sample buffers.
