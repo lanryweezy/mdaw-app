@@ -192,12 +192,13 @@ class ReverbEffect extends AudioEffect {
     for (int i = 0; i < input.length; i++) {
       double reverbSample = 0.0;
 
-      // Add delayed samples with decreasing amplitude
-      for (int delay = 1000; delay <= 5000; delay += 1000) {
-        if (i >= delay) {
-          reverbSample += input[i - delay] * (0.5 / (delay / 1000));
-        }
-      }
+      // ⚡ Bolt: Unroll the inner loop manually to prevent redundant loop overhead
+      // and recalculation of amplitude constants on every inner loop iteration.
+      if (i >= 1000) reverbSample += input[i - 1000] * 0.5;
+      if (i >= 2000) reverbSample += input[i - 2000] * 0.25;
+      if (i >= 3000) reverbSample += input[i - 3000] * 0.16666666666666666;
+      if (i >= 4000) reverbSample += input[i - 4000] * 0.125;
+      if (i >= 5000) reverbSample += input[i - 5000] * 0.1;
 
       output[i] = input[i] * dryLevel + reverbSample * wetLevel;
     }
