@@ -32,10 +32,14 @@ class _ProjectScreenState extends State<ProjectScreen> {
         await projectsDir.create(recursive: true);
       }
 
-      final files = await projectsDir.list().toList();
-      final projectFiles = files
-          .where((file) => file.path.endsWith('.json'))
-          .toList();
+      // ⚡ Bolt: Iterate through the directory stream sequentially and filter elements manually
+      // instead of using .list().toList() and .where().toList() to avoid allocating intermediate iterables.
+      final projectFiles = <FileSystemEntity>[];
+      await for (final file in projectsDir.list()) {
+        if (file.path.endsWith('.json')) {
+          projectFiles.add(file);
+        }
+      }
 
       _projects = [];
       for (final file in projectFiles) {

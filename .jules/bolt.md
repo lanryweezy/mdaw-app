@@ -41,3 +41,7 @@
 ## 2024-11-20 - [Unroll Inner Loops in Audio DSP Functions]
 **Learning:** In highly repetitive audio processing methods like `AudioEffect.process()` processing arrays of audio data, fixed-length nested loops (such as evaluating predefined reverb delays) introduce unnecessary loop overhead, branching, and redundant constant math calculations per sample.
 **Action:** Unroll fixed-length nested loops inside audio processing buffers to replace them with manual `if` evaluations and pre-calculated constants. This avoids repeated math logic per frame and removes looping overhead inside sample buffers.
+
+## 2026-11-20 - [Reduce GC pressure by iterating directory streams sequentially]
+**Learning:** In Dart/Flutter, chaining `.list().toList()` and `.where(...).toList()` on asynchronous directory streams allocates unnecessary intermediate lists, putting extra GC pressure.
+**Action:** Replace these chains with a manual `await for` loop over `Directory.list()` to process and filter elements sequentially, eliminating intermediate iterable allocations.
