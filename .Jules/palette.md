@@ -31,3 +31,6 @@
 ## 2026-10-09 - Custom Interactive Components Lack Hover Cursors
 **Learning:** In Flutter web/desktop environments, custom interactive widgets built solely with `GestureDetector` (like `AIToolButton`) do not automatically display a pointer cursor when hovered, leaving mouse users without visual interaction feedback.
 **Action:** When building custom buttons or interactive elements using `GestureDetector`, explicitly wrap the detector in a `MouseRegion` with `cursor: SystemMouseCursors.click`.
+## 2026-11-04 - Adding Resize Cursors to Drag Handles
+**Learning:** For custom drag handles, such as trim handles on a timeline clip, a simple `click` pointer cursor is insufficient as it doesn't convey the drag interaction.
+**Action:** When adding hover states to interactive drag elements using `MouseRegion`, use directional resize cursors like `SystemMouseCursors.resizeLeftRight` or `SystemMouseCursors.resizeColumn` rather than just `SystemMouseCursors.click` to give users an accurate affordance of the interaction.
